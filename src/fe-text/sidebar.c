@@ -7,6 +7,7 @@
 #include <irssi/src/core/servers.h>
 #include <irssi/src/core/channels.h>
 #include <irssi/src/core/nicklist.h>
+#include <irssi/src/irc/core/irc-channels.h>
 
 #include <irssi/src/fe-common/core/fe-windows.h>
 #include <irssi/src/fe-text/term.h>
@@ -56,12 +57,14 @@ static gint nick_alpha_cmp(gconstpointer ap, gconstpointer bp)
 
 static void sidebar_redraw_winlist(void)
 {
+    int y;
+    GSList *swins;
     if (!sidebar_enabled || winlist_term == NULL) return;
 
     term_window_clear(winlist_term);
 
-    int y = 0;
-    GSList *swins = windows_get_sorted();
+    y = 0;
+    swins = windows_get_sorted();
     for (GSList *t = swins; t != NULL; t = t->next) {
         WINDOW_REC *w = t->data;
         const char *name = window_get_active_name(w);
@@ -79,24 +82,31 @@ static void sidebar_redraw_winlist(void)
 
 static void sidebar_redraw_nicklist(MAIN_WINDOW_REC *mw)
 {
+    NICK_SIDEBAR *ns;
+    WINDOW_REC *w;
+    WI_ITEM_REC *item;
+    CHANNEL_REC *chan;
+    GSList *nicks;
+    int y;
+
     if (!sidebar_enabled || mw == NULL) return;
-    NICK_SIDEBAR *ns = nick_sidebar_find(mw);
+    ns = nick_sidebar_find(mw);
     if (ns == NULL || ns->term == NULL) return;
 
     term_window_clear(ns->term);
 
-    WINDOW_REC *w = mw->active;
+    w = mw->active;
     if (w == NULL || w->active == NULL) return;
-    WI_ITEM_REC *item = w->active;
+    item = w->active;
 
     /* Only show nicklist for channel items */
-    CHANNEL_REC *chan = CHANNEL(item);
+    chan = CHANNEL(item);
     if (!chan) return;
 
-    GSList *nicks = nicklist_getnicks(chan);
+    nicks = nicklist_getnicks(chan);
     nicks = g_slist_sort(nicks, nick_alpha_cmp);
 
-    int y = 0;
+    y = 0;
     for (GSList *t = nicks; t != NULL; t = t->next) {
         NICK_REC *nick = t->data;
         char prefix = nick->op ? '@' : (nick->halfop ? '%' : (nick->voice ? '+' : ' '));
@@ -112,6 +122,7 @@ static void sidebar_redraw_nicklist(MAIN_WINDOW_REC *mw)
 
 static void sidebar_resize_layout(void)
 {
+    GSList *tmp;
     if (!sidebar_enabled) return;
 
     /* Reserve global right columns for window list */
@@ -124,10 +135,12 @@ static void sidebar_resize_layout(void)
         term_window_move(winlist_term, term_width - winlist_width, 0, winlist_width, term_height);
 
     /* For each mainwindow, reserve per-window right columns for nicklist and create TERM_WINDOW */
-    GSList *tmp;
     for (tmp = mainwindows; tmp != NULL; tmp = tmp->next) {
-        MAIN_WINDOW_REC *mw = tmp->data;
-        NICK_SIDEBAR *ns = nick_sidebar_find(mw);
+        MAIN_WINDOW_REC *mw;
+        NICK_SIDEBAR *ns;
+        int x, y, h, w;
+        mw = tmp->data;
+        ns = nick_sidebar_find(mw);
         if (ns == NULL) {
             ns = g_new0(NICK_SIDEBAR, 1);
             ns->mainwin = mw;
@@ -135,10 +148,10 @@ static void sidebar_resize_layout(void)
         }
         mainwindow_set_statusbar_columns(mw, 0, nicklist_width);
         /* Place term window at the right edge of the mainwindow's area */
-        int x = mw->last_column - mw->statusbar_columns_right + 1;
-        int y = mw->first_line + mw->statusbar_lines_top;
-        int h = mw->height - mw->statusbar_lines;
-        int w = nicklist_width;
+        x = mw->last_column - mw->statusbar_columns_right + 1;
+        y = mw->first_line + mw->statusbar_lines_top;
+        h = mw->height - mw->statusbar_lines;
+        w = nicklist_width;
         if (ns->term == NULL)
             ns->term = term_window_create(x, y, w, h);
         else
@@ -170,10 +183,10 @@ static void sidebar_release_layout(void)
 /* Signals */
 static void sig_terminal_resized_sidebar(void)
 {
+    GSList *tmp;
     sidebar_resize_layout();
     sidebar_redraw_winlist();
     /* Redraw all nicklists */
-    GSList *tmp;
     for (tmp = mainwindows; tmp != NULL; tmp = tmp->next)
         sidebar_redraw_nicklist(tmp->data);
 }
