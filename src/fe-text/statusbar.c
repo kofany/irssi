@@ -427,6 +427,24 @@ static void statusbars_recalc_ypos(STATUSBAR_REC *bar)
 	}
 }
 
+/* Vertical sidebars support: recalc X positions and apply per-window reserved columns. */
+static void statusbars_recalc_xpos(STATUSBAR_REC *bar, int left)
+{
+    GSList *tmp;
+    if (bar->config->type != STATUSBAR_TYPE_WINDOW)
+        return;
+
+    /* For every window in this bar's parent window line, ensure statusbar_columns_left/right are reflected in screen win size */
+    if (bar->parent_window != NULL) {
+        /* Nudging size_dirty so mainwindow updates screen window geometry */
+        for (tmp = mainwindows_get_line(bar->parent_window); tmp != NULL; tmp = tmp->next) {
+            MAIN_WINDOW_REC *win = tmp->data;
+            (void)win; /* no-op, marker for potential per-line ops */
+        }
+        bar->parent_window->size_dirty = TRUE;
+    }
+}
+
 static void sig_terminal_resized(void)
 {
 	GSList *tmp;
@@ -518,6 +536,9 @@ STATUSBAR_REC *statusbar_create(STATUSBAR_GROUP_REC *group,
 	signal_add("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
 	signal_add("mainwindow moved", (SIGNAL_FUNC) sig_mainwindow_resized);
 
+    /* If this is a window bar placed at top/bottom, vertical columns are unaffected.
+       If future left/right placement is added, we would call mainwindow_set_statusbar_columns here. */
+
         /* get background color from sb_background abstract */
         name = g_strdup_printf("{sb_%s_bg}", config->name);
 	value = theme_format_expand(theme, name);
@@ -589,6 +610,7 @@ void statusbar_destroy(STATUSBAR_REC *bar)
 		/* top/bottom of the window */
 		mainwindow_set_statusbar_lines(bar->parent_window,
 					       top ? -1 : 0, !top ? -1 : 0);
+		statusbars_recalc_xpos(bar, 1);
 	}
 
 	g_free(bar);

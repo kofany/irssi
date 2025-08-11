@@ -66,6 +66,11 @@ void mainwindow_change_active(MAIN_WINDOW_REC *mainwin,
 int mainwindows_reserve_lines(int top, int bottom);
 int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
 				   int top, int bottom);
+/* Reserve columns on the left/right side of the screen across all mainwindows. Positive values reserve, negative release. Returns previous reserved value for the side modified last (left if left!=0 else right). */
+int mainwindows_reserve_columns(int left, int right);
+/* Adjust per-window reserved columns on the left/right for vertical sidebars. Positive values reserve, negative release. Returns previous reserved value for the side modified last (left if left!=0 else right). */
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+                                    int left, int right);
 void mainwindows_redraw_dirty(void);
 
 GSList *mainwindows_get_sorted(int reverse);

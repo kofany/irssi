@@ -43,6 +43,10 @@
 #include <irssi/src/fe-text/gui-windows.h>
 #include <irssi/irssi-version.h>
 
+/* sidebar */
+void sidebar_init(void);
+void sidebar_deinit(void);
+
 #include <signal.h>
 #include <locale.h>
 
@@ -191,6 +195,9 @@ static void textui_finish_init(void)
 	statusbar_init();
 	critical_fatal_section_end(loglev);
 
+    /* Initialize sidebars after windows/statusbars are ready */
+    sidebar_init();
+
 	settings_check();
 
 	module_register("core", "fe-text");
@@ -243,6 +250,7 @@ static void textui_deinit(void)
 	signal_remove("gui exit", (SIGNAL_FUNC) sig_exit);
 
 	lastlog_deinit();
+	sidebar_deinit();
 	statusbar_deinit();
 	gui_entry_deinit();
 	gui_printtext_deinit();

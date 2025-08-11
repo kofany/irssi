@@ -884,6 +884,56 @@ int mainwindows_reserve_lines(int top, int bottom)
 	return ret;
 }
 
+int mainwindows_reserve_columns(int left, int right)
+{
+    MAIN_WINDOW_REC *window;
+    int ret = -1;
+
+    if (left != 0) {
+        GSList *list, *tmp;
+        g_return_val_if_fail(left > 0 || screen_reserved_left > left, -1);
+
+        ret = screen_reserved_left;
+        screen_reserved_left += left;
+
+        /* Shift all windows right by left and shrink width accordingly */
+        for (window = mainwindows_find_lower(NULL); window != NULL; window = mainwindows_find_lower(window)) {
+            list = mainwindows_get_line(window);
+            for (tmp = list; tmp != NULL; tmp = tmp->next) {
+                MAIN_WINDOW_REC *win = tmp->data;
+                win->first_column += left;
+                mainwindow_resize(win, -left, 0);
+            }
+            g_slist_free(list);
+        }
+    }
+
+    if (right != 0) {
+        GSList *list, *tmp;
+        g_return_val_if_fail(right > 0 || screen_reserved_right > right, -1);
+
+        ret = screen_reserved_right;
+        screen_reserved_right += right;
+
+        /* Shrink all windows from the right by right */
+        for (window = mainwindows_find_lower(NULL); window != NULL; window = mainwindows_find_lower(window)) {
+            list = mainwindows_get_line(window);
+            for (tmp = list; tmp != NULL; tmp = tmp->next) {
+                MAIN_WINDOW_REC *win = tmp->data;
+                win->last_column -= right;
+                mainwindow_resize(win, -right, 0);
+            }
+            g_slist_free(list);
+        }
+    }
+
+    if (left != 0 || right != 0) {
+        mainwindows_redraw();
+    }
+
+    return ret;
+}
+
 int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
 				   int top, int bottom)
 {
@@ -906,6 +956,28 @@ int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
                 window->size_dirty = TRUE;
 
         return ret;
+}
+
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window, int left, int right)
+{
+    int ret = -1;
+
+    if (left != 0) {
+        ret = window->statusbar_columns_left;
+        window->statusbar_columns_left += left;
+        window->statusbar_columns += left;
+    }
+
+    if (right != 0) {
+        ret = window->statusbar_columns_right;
+        window->statusbar_columns_right += right;
+        window->statusbar_columns += right;
+    }
+
+    if (left + right != 0)
+        window->size_dirty = TRUE;
+
+    return ret;
 }
 
 static void mainwindows_resize_two(GSList *grow_list,
