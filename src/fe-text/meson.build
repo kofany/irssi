@@ -51,6 +51,7 @@ install_headers(
     'gui-printtext.h',
     'gui-windows.h',
     'mainwindows.h',
+    'sidepanels.h',
     'statusbar-item.h',
     'statusbar.h',
     'term.h',

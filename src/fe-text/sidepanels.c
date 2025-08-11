@@ -2,6 +2,7 @@
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/settings.h>
 #include <irssi/src/fe-text/mainwindows.h>
+#include <irssi/src/fe-text/sidepanels.h>
 #include <irssi/src/core/servers.h>
 #include <irssi/src/core/channels.h>
 #include <irssi/src/core/queries.h>
@@ -213,6 +214,131 @@ static void apply_and_redraw(void)
 	redraw_all();
 }
 
+/* Simple mouse parser state for SGR (1006) mode: ESC [ < btn ; x ; y M/m */
+static gboolean mouse_tracking_enabled = FALSE;
+static int mouse_state = 0; /* 0 idle, >0 reading sequence */
+static char mouse_buf[64];
+static int mouse_len = 0;
+
+static gboolean handle_click_at(int x, int y, int button)
+{
+	/* Iterate mainwindows and hit-test left/right term windows */
+	for (GSList *mt = mainwindows; mt; mt = mt->next) {
+		MAIN_WINDOW_REC *mw = mt->data;
+		SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+		if (!ctx) continue;
+		if (ctx->left_tw) {
+			int px = ctx->left_tw->x, py = ctx->left_tw->y, pw = ctx->left_tw->width, ph = ctx->left_tw->height;
+			if (x >= px && x < px+pw && y >= py && y < py+ph) {
+				/* Map row to item: compute which server/channel/query; naive pass */
+				int row = y - py;
+				int idx = 0;
+				for (GSList *st = servers; st; st = st->next) {
+					SERVER_REC *srv = st->data;
+					if (idx++ == row) { /* jump to status window for server */
+						WINDOW_REC *w = window_find_level(srv, MSGLEVEL_ALL);
+						if (w) { window_set_active(w); return TRUE; }
+						break;
+					}
+					for (GSList *ct = srv->channels; ct; ct = ct->next) {
+						CHANNEL_REC *ch = ct->data;
+						if (idx++ == row) {
+							WINDOW_REC *w = window_item_window((WI_ITEM_REC*)ch);
+							if (!w) w = window_find_item(ch->server, ch->name);
+							if (w) { window_set_active(w); return TRUE; }
+							break;
+						}
+					}
+					for (GSList *qt = srv->queries; qt; qt = qt->next) {
+						QUERY_REC *q = qt->data;
+						if (idx++ == row) {
+							WINDOW_REC *w = window_item_window((WI_ITEM_REC*)q);
+							if (!w) w = window_find_item(q->server, q->name);
+							if (w) { window_set_active(w); return TRUE; }
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (ctx->right_tw) {
+			int px = ctx->right_tw->x, py = ctx->right_tw->y, pw = ctx->right_tw->width, ph = ctx->right_tw->height;
+			if (x >= px && x < px+pw && y >= py && y < py+ph) {
+				int row = y - py;
+				WINDOW_REC *aw = mw->active;
+				if (aw && IS_CHANNEL(aw->active)) {
+					CHANNEL_REC *ch = CHANNEL(aw->active);
+					GSList *nicks = nicklist_getnicks(ch);
+					int idx = 0;
+					for (GSList *nt = nicks; nt; nt = nt->next) {
+						if (idx++ == row) {
+							NICK_REC *nick = nt->data;
+							if (nick && nick->nick)
+								signal_emit("command query", 3, nick->nick, ch->server, ch);
+							return TRUE;
+						}
+					}
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+gboolean sidepanels_try_parse_mouse_key(unichar key)
+{
+	/* Enable basic parser for ESC [ < ... */
+	if (!mouse_tracking_enabled) return FALSE;
+	if (mouse_state == 0) {
+		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return TRUE; }
+		return FALSE;
+	} else if (mouse_state == 1) {
+		if (key == '[') { mouse_state = 2; return TRUE; }
+		mouse_state = 0; return FALSE;
+	} else if (mouse_state >= 2) {
+		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
+		mouse_buf[mouse_len] = '\0';
+		/* Try to match pattern: "<b;x;yM" or "<b;x;ym" */
+		char *s = mouse_buf;
+		if (*s != '<') return TRUE; /* keep buffering */
+		char *sc1 = strchr(s, ';'); if (!sc1) return TRUE;
+		char *sc2 = strchr(sc1+1, ';'); if (!sc2) return TRUE;
+		char *end = sc2+1; if (*end == '\0') return TRUE;
+		char last = end[strlen(end)-1];
+		if (last != 'M' && last != 'm') return TRUE;
+		int b = atoi(s+1);
+		int x = atoi(sc1+1);
+		int y = atoi(sc2+1);
+		/* Convert 1-based to 0-based */
+		x -= 1; y -= 1;
+		int button = (b & 3) + 1; /* 1 left, 2 middle, 3 right */
+		gboolean press = (last == 'M');
+		mouse_state = 0; mouse_len = 0;
+		if (press && button == 1) {
+			return handle_click_at(x, y, button);
+		}
+		return TRUE; /* consumed */
+	}
+	return FALSE;
+}
+
+static void enable_mouse_tracking(void)
+{
+	/* SGR extended mode */
+	fputs("\x1b[?1000h", stdout); /* basic */
+	fputs("\x1b[?1006h", stdout); /* SGR */
+	fflush(stdout);
+	mouse_tracking_enabled = TRUE;
+}
+
+static void disable_mouse_tracking(void)
+{
+	fputs("\x1b[?1006l", stdout);
+	fputs("\x1b[?1000l", stdout);
+	fflush(stdout);
+	mouse_tracking_enabled = FALSE;
+}
+
 void sidepanels_init(void)
 {
 	settings_add_bool("lookandfeel", "sidepanel_left", TRUE);
@@ -224,6 +350,7 @@ void sidepanels_init(void)
 	/* Apply to existing */
 	apply_reservations_all();
 	apply_and_redraw();
+	enable_mouse_tracking();
 	signal_add("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_add("setup changed", (SIGNAL_FUNC) read_settings);
 	signal_add("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
@@ -255,4 +382,5 @@ void sidepanels_deinit(void)
 			mainwindow_set_statusbar_columns(mw, 0, -mw->statusbar_columns_right);
 	}
 	if (mw_to_ctx) { g_hash_table_destroy(mw_to_ctx); mw_to_ctx = NULL; }
+	disable_mouse_tracking();
 }

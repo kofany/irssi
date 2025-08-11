@@ -42,6 +42,7 @@
 #include <irssi/src/fe-text/statusbar.h>
 #include <irssi/src/fe-text/gui-windows.h>
 #include <irssi/irssi-version.h>
+#include <irssi/src/fe-text/sidepanels.h>
 
 #include <signal.h>
 #include <locale.h>
