@@ -22,6 +22,7 @@ static int sp_right_width;
 static int sp_enable_left;
 static int sp_enable_right;
 static int sp_auto_hide_right;
+static int sp_enable_mouse;
 
 static void read_settings(void)
 {
@@ -30,6 +31,7 @@ static void read_settings(void)
 	sp_enable_left = settings_get_bool("sidepanel_left");
 	sp_enable_right = settings_get_bool("sidepanel_right");
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
+	sp_enable_mouse = settings_get_bool("sidepanel_mouse");
 }
 
 static void apply_reservations_all(void)
@@ -446,10 +448,10 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 	GSList *mt;
 	if (!mouse_tracking_enabled) return FALSE;
 	if (mouse_state == 0) {
-		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return FALSE; }
+		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return TRUE; }
 		return FALSE;
 	} else if (mouse_state == 1) {
-		if (key == '[') { mouse_state = 2; return FALSE; }
+		if (key == '[') { mouse_state = 2; return TRUE; }
 		mouse_state = 0; return FALSE;
 	} else if (mouse_state >= 2) {
 		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
@@ -531,12 +533,13 @@ void sidepanels_init(void)
 	settings_add_int("lookandfeel", "sidepanel_left_width", 18);
 	settings_add_int("lookandfeel", "sidepanel_right_width", 18);
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
+	settings_add_bool("lookandfeel", "sidepanel_mouse", FALSE);
 	read_settings();
 	mw_to_ctx = g_hash_table_new(g_direct_hash, g_direct_equal);
 	/* Apply to existing */
 	apply_reservations_all();
 	apply_and_redraw();
-	enable_mouse_tracking();
+	if (sp_enable_mouse) enable_mouse_tracking();
 	signal_add("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_add("setup changed", (SIGNAL_FUNC) read_settings);
 	signal_add("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
@@ -568,5 +571,5 @@ void sidepanels_deinit(void)
 			mainwindow_set_statusbar_columns(mw, 0, -mw->statusbar_columns_right);
 	}
 	if (mw_to_ctx) { g_hash_table_destroy(mw_to_ctx); mw_to_ctx = NULL; }
-	disable_mouse_tracking();
+	if (sp_enable_mouse) disable_mouse_tracking();
 }
