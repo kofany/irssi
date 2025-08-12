@@ -7,21 +7,21 @@
   - Integrate with existing `mainwindow_create_screen()` and `mainwindow_set_screen_size()` macros
   - _Requirements: 7.1, 7.2, 7.4_
 
-- [-] 2. Create TERM_WINDOW panel management system
+- [x] 2. Create TERM_WINDOW panel management system
   - Implement panel TERM_WINDOW creation in `mainwindow_create()` and resize handlers
   - Add `term_window_create()` calls for left/right panels in reserved column areas
   - Implement `term_window_move()` and `term_window_destroy()` for panel lifecycle
   - Integrate panel creation/destruction with existing mainwindow lifecycle
   - _Requirements: 7.1, 7.4_
 
-- [ ] 3. Implement core panel context management system
+- [x] 3. Implement core panel context management system
   - Create SP_MAINWIN_CTX structure for selection and scroll state per main window
   - Implement hash table mapping between main windows and panel contexts
   - Add content caching system for dirty checking and efficient redraws
   - Write context creation, destruction, and cleanup functions
   - _Requirements: 7.1, 7.4_
 
-- [ ] 4. Integrate with Irssi's signal system for updates (avoid dirty_check integration)
+- [x] 4. Integrate with Irssi's signal system for updates (avoid dirty_check integration)
   - Connect to `"terminal resized"`, `"mainwindow resized/moved"` signals for panel updates
   - Register handlers for `"window changed"`, `"window created"`, `"window destroyed"` signals
   - Add handlers for `"window activity"` and `"window refnum changed"` signals
