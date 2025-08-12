@@ -15,6 +15,13 @@
 #include <irssi/src/fe-text/module-formats.h>
 #include <irssi/src/fe-common/core/themes.h>
 #include <irssi/src/fe-text/gui-printtext.h>
+#include <stdarg.h>
+
+/* Forward declarations for static functions used before definition (C89) */
+static void apply_reservations_all(void);
+static void apply_and_redraw(void);
+static void enable_mouse_tracking(void);
+static void disable_mouse_tracking(void);
 
 /* Settings */
 static int sp_left_width;
