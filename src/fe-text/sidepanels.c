@@ -23,6 +23,22 @@ static int sp_enable_left;
 static int sp_enable_right;
 static int sp_auto_hide_right;
 static int sp_enable_mouse;
+static int sp_debug;
+
+static FILE *sp_log;
+static void sp_log_open(void) { if (!sp_log) sp_log = fopen("/tmp/irssi_sidepanels.log", "a"); }
+static void sp_logf(const char *fmt, ...)
+{
+	va_list ap;
+	if (!sp_debug) return;
+	sp_log_open();
+	if (!sp_log) return;
+	va_start(ap, fmt);
+	vfprintf(sp_log, fmt, ap);
+	fprintf(sp_log, "\n");
+	va_end(ap);
+	fflush(sp_log);
+}
 
 static void read_settings(void)
 {
@@ -33,6 +49,7 @@ static void read_settings(void)
 	sp_enable_right = settings_get_bool("sidepanel_right");
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
 	sp_enable_mouse = settings_get_bool("sidepanel_mouse");
+	sp_debug = settings_get_bool("sidepanel_debug");
 	apply_reservations_all();
 	apply_and_redraw();
 	if (sp_enable_mouse && !old_mouse) enable_mouse_tracking();
@@ -303,6 +320,7 @@ static void redraw_one(MAIN_WINDOW_REC *mw)
 {
 	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
 	if (!ctx) return;
+	sp_logf("redraw_one mainwin=%p L[%d,%d w=%d h=%d] R[%d,%d w=%d h=%d]", (void*)mw, ctx->left_x, ctx->left_y, ctx->left_w, ctx->left_h, ctx->right_x, ctx->right_y, ctx->right_w, ctx->right_h);
 	position_tw(mw, ctx);
 	draw_left_contents(mw, ctx);
 	draw_right_contents(mw, ctx);
@@ -542,6 +560,13 @@ static void disable_mouse_tracking(void)
 	mouse_tracking_enabled = FALSE;
 }
 
+static void sig_irssi_init_finished(void)
+{
+	sp_logf("signal: irssi init finished -> redraw_all");
+	apply_reservations_all();
+	apply_and_redraw();
+}
+
 void sidepanels_init(void)
 {
 	settings_add_bool("lookandfeel", "sidepanel_left", TRUE);
@@ -550,12 +575,14 @@ void sidepanels_init(void)
 	settings_add_int("lookandfeel", "sidepanel_right_width", 18);
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
 	settings_add_bool("lookandfeel", "sidepanel_mouse", FALSE);
+	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
 	read_settings();
 	mw_to_ctx = g_hash_table_new(g_direct_hash, g_direct_equal);
 	/* Apply to existing */
 	apply_reservations_all();
 	apply_and_redraw();
 	if (sp_enable_mouse) enable_mouse_tracking();
+	signal_add("irssi init finished", (SIGNAL_FUNC) sig_irssi_init_finished);
 	signal_add("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_add("setup changed", (SIGNAL_FUNC) read_settings);
 	signal_add("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
@@ -569,6 +596,7 @@ void sidepanels_init(void)
 void sidepanels_deinit(void)
 {
 	GSList *tmp;
+	signal_remove("irssi init finished", (SIGNAL_FUNC) sig_irssi_init_finished);
 	signal_remove("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_remove("setup changed", (SIGNAL_FUNC) read_settings);
 	signal_remove("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
@@ -588,4 +616,5 @@ void sidepanels_deinit(void)
 	}
 	if (mw_to_ctx) { g_hash_table_destroy(mw_to_ctx); mw_to_ctx = NULL; }
 	if (sp_enable_mouse) disable_mouse_tracking();
+	if (sp_log) { fclose(sp_log); sp_log = NULL; }
 }
