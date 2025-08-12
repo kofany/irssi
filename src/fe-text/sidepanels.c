@@ -209,6 +209,7 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 			}
 		}
 		draw_border_vertical(tw, ctx->left_w, ctx->left_h, 1);
+		irssi_set_dirty();
 		return;
 	}
 	for (st = servers; st && row < height; st = st->next) {
@@ -252,6 +253,7 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		}
 	}
 	draw_border_vertical(tw, ctx->left_w, ctx->left_h, 1);
+	irssi_set_dirty();
 }
 
 static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
@@ -271,8 +273,8 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	height = ctx->right_h;
 	skip = ctx->right_scroll_offset;
 	index = 0; row = 0;
-	if (!aw || !aw->active) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); return; }
-	if (!IS_CHANNEL(aw->active)) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); return; }
+	if (!aw || !aw->active) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); irssi_set_dirty(); return; }
+	if (!IS_CHANNEL(aw->active)) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); irssi_set_dirty(); return; }
 	{
 		CHANNEL_REC *ch = CHANNEL(aw->active);
 		GSList *nicks = nicklist_getnicks(ch);
@@ -289,6 +291,7 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		}
 	}
 	draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0);
+	irssi_set_dirty();
 }
 
 static void redraw_one(MAIN_WINDOW_REC *mw)
@@ -298,6 +301,7 @@ static void redraw_one(MAIN_WINDOW_REC *mw)
 	position_tw(mw, ctx);
 	draw_left_contents(mw, ctx);
 	draw_right_contents(mw, ctx);
+	irssi_set_dirty();
 }
 
 static void redraw_all(void)
@@ -373,6 +377,7 @@ static gboolean handle_click_at(int x, int y, int button)
 						ctx->left_selected_index = target_index;
 						if (w) { window_set_active(w); }
 						redraw_one(mw);
+						irssi_set_dirty();
 						return TRUE;
 					}
 					{
@@ -385,6 +390,7 @@ static gboolean handle_click_at(int x, int y, int button)
 								if (!w) w = window_find_item(ch->server, ch->name);
 								if (w) { window_set_active(w); }
 								redraw_one(mw);
+								irssi_set_dirty();
 								return TRUE;
 							}
 						}
@@ -399,6 +405,7 @@ static gboolean handle_click_at(int x, int y, int button)
 								if (!w) w = window_find_item(q->server, q->name);
 								if (w) { window_set_active(w); }
 								redraw_one(mw);
+								irssi_set_dirty();
 								return TRUE;
 							}
 						}
@@ -424,6 +431,7 @@ static gboolean handle_click_at(int x, int y, int button)
 							if (nick && nick->nick)
 								signal_emit("command query", 3, nick->nick, ch->server, ch);
 							redraw_one(mw);
+							irssi_set_dirty();
 							return TRUE;
 						}
 					}
@@ -484,6 +492,7 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 					if (x >= px && x < px+pw && y >= py && y < py+ph) {
 						ctx->left_scroll_offset = MAX(0, ctx->left_scroll_offset + delta);
 						redraw_one(mw);
+						irssi_set_dirty();
 						return TRUE;
 					}
 				}
@@ -492,6 +501,7 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 					if (x >= px && x < px+pw && y >= py && y < py+ph) {
 						ctx->right_scroll_offset = MAX(0, ctx->right_scroll_offset + delta);
 						redraw_one(mw);
+						irssi_set_dirty();
 						return TRUE;
 					}
 				}
