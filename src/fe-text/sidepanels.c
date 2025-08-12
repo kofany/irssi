@@ -154,11 +154,14 @@ static void draw_str_themed(TERM_WINDOW *tw, int x, int y, WINDOW_REC *wctx, int
 	TEXT_DEST_REC dest;
 	THEME_REC *theme;
 	char *out;
+	char *plain;
 	format_create_dest(&dest, NULL, NULL, 0, wctx);
 	theme = window_get_theme(wctx);
 	out = format_get_text_theme(theme, MODULE_NAME, &dest, format_id, text);
+	plain = strip_codes(out);
 	term_move(tw, x, y);
-	term_addstr(tw, out);
+	term_addstr(tw, plain ? plain : out);
+	g_free(plain);
 	g_free(out);
 }
 
@@ -190,6 +193,22 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	skip = ctx->left_scroll_offset;
 	height = ctx->left_h;
 	index = 0;
+	if (servers == NULL) {
+		/* Fallback: list existing windows by name */
+		GSList *w;
+		for (w = windows; w && row < height; w = w->next) {
+			WINDOW_REC *win = w->data;
+			const char *nm = window_get_active_name(win);
+			if (index++ >= skip && row < height) {
+				term_move(tw, 0, row);
+				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
+				draw_str_themed(tw, 1, row, mw->active, TXT_SIDEPANEL_ITEM, nm ? nm : "window");
+				row++;
+			}
+		}
+		draw_border_vertical(tw, ctx->left_w, ctx->left_h, 1);
+		return;
+	}
 	for (st = servers; st && row < height; st = st->next) {
 		SERVER_REC *srv = st->data;
 		const char *net = srv->connrec && srv->connrec->chatnet ? srv->connrec->chatnet : (srv->connrec ? srv->connrec->address : "server");
@@ -427,21 +446,21 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 	GSList *mt;
 	if (!mouse_tracking_enabled) return FALSE;
 	if (mouse_state == 0) {
-		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return TRUE; }
+		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return FALSE; }
 		return FALSE;
 	} else if (mouse_state == 1) {
-		if (key == '[') { mouse_state = 2; return TRUE; }
+		if (key == '[') { mouse_state = 2; return FALSE; }
 		mouse_state = 0; return FALSE;
 	} else if (mouse_state >= 2) {
 		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
 		mouse_buf[mouse_len] = '\0';
 		s = mouse_buf;
-		if (*s != '<') return TRUE;
-		sc1 = strchr(s, ';'); if (!sc1) return TRUE;
-		sc2 = strchr(sc1+1, ';'); if (!sc2) return TRUE;
-		end = sc2+1; if (*end == '\0') return TRUE;
+		if (*s != '<') return FALSE;
+		sc1 = strchr(s, ';'); if (!sc1) return FALSE;
+		sc2 = strchr(sc1+1, ';'); if (!sc2) return FALSE;
+		end = sc2+1; if (*end == '\0') return FALSE;
 		last = end[(int)strlen(end)-1];
-		if (last != 'M' && last != 'm') return TRUE;
+		if (last != 'M' && last != 'm') return FALSE;
 		braw = atoi(s+1);
 		x = atoi(sc1+1);
 		y = atoi(sc2+1);
