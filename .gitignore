@@ -89,3 +89,5 @@ subprojects/*
 Irssi-Dist
 setup.cfg
 *.egg-info
+.specstory/
+inst/
