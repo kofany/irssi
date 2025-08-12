@@ -530,6 +530,7 @@ void sidepanels_init(void)
 
 void sidepanels_deinit(void)
 {
+	GSList *tmp;
 	signal_remove("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_remove("setup changed", (SIGNAL_FUNC) read_settings);
 	signal_remove("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
@@ -539,7 +540,6 @@ void sidepanels_deinit(void)
 	signal_remove("query created", (SIGNAL_FUNC) sig_query_list_changed);
 	signal_remove("query destroyed", (SIGNAL_FUNC) sig_query_list_changed);
 	/* Remove reservations */
-	GSList *tmp;
 	for (tmp = mainwindows; tmp != NULL; tmp = tmp->next) {
 		MAIN_WINDOW_REC *mw = tmp->data;
 		destroy_ctx(mw);
