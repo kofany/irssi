@@ -64,6 +64,10 @@ void mainwindow_activity_deinit(void);
 void mainwindows_layout_init(void);
 void mainwindows_layout_deinit(void);
 
+/* side panels (native) */
+void sidepanels_init(void);
+void sidepanels_deinit(void);
+
 static int dirty, full_redraw;
 
 static GMainLoop *main_loop;
@@ -191,6 +195,9 @@ static void textui_finish_init(void)
 	statusbar_init();
 	critical_fatal_section_end(loglev);
 
+	/* side panels after mainwindows/statusbar are ready */
+	sidepanels_init();
+
 	settings_check();
 
 	module_register("core", "fe-text");
@@ -241,6 +248,9 @@ static void textui_deinit(void)
 	signal_remove("settings userinfo changed", (SIGNAL_FUNC) sig_settings_userinfo_changed);
 	signal_remove("module autoload", (SIGNAL_FUNC) sig_autoload_modules);
 	signal_remove("gui exit", (SIGNAL_FUNC) sig_exit);
+
+	/* side panels before tearing down windows/statusbar */
+	sidepanels_deinit();
 
 	lastlog_deinit();
 	statusbar_deinit();

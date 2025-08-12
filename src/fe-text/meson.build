@@ -26,6 +26,7 @@ executable('irssi',
     'textbuffer-formats.c',
     'textbuffer-view.c',
     'textbuffer.c',
+    'sidepanels.c',
   )
   + [
     irssi_version_h,

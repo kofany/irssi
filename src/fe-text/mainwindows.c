@@ -202,7 +202,37 @@ void mainwindows_recreate(void)
 		MAIN_WINDOW_REC *rec = tmp->data;
 
 		rec->screen_win = mainwindow_create_screen(rec);
-                rec->dirty = TRUE;
+		rec->dirty = TRUE;
+
+		/* (Re)create/move side panel windows if columns are reserved */
+		if (rec->statusbar_columns_left > 0) {
+			int x = rec->first_column;
+			int y = rec->first_line + rec->statusbar_lines_top;
+			int w = rec->statusbar_columns_left;
+			int h = rec->height - rec->statusbar_lines;
+			if (rec->left_panel_win == NULL)
+				rec->left_panel_win = term_window_create(x, y, w, h);
+			else
+				term_window_move(rec->left_panel_win, x, y, w, h);
+		} else if (rec->left_panel_win != NULL) {
+			term_window_destroy(rec->left_panel_win);
+			rec->left_panel_win = NULL;
+		}
+
+		if (rec->statusbar_columns_right > 0) {
+			int w = rec->statusbar_columns_right;
+			int x = rec->last_column - w + 1;
+			int y = rec->first_line + rec->statusbar_lines_top;
+			int h = rec->height - rec->statusbar_lines;
+			if (rec->right_panel_win == NULL)
+				rec->right_panel_win = term_window_create(x, y, w, h);
+			else
+				term_window_move(rec->right_panel_win, x, y, w, h);
+		} else if (rec->right_panel_win != NULL) {
+			term_window_destroy(rec->right_panel_win);
+			rec->right_panel_win = NULL;
+		}
+
 		textbuffer_view_set_window(WINDOW_GUI(rec->active)->view,
 					   rec->screen_win);
 	}
@@ -538,6 +568,15 @@ static void mainwindow_destroy_full(MAIN_WINDOW_REC *window, int respace)
 
         term_window_destroy(window->screen_win);
 
+	if (window->left_panel_win != NULL) {
+		term_window_destroy(window->left_panel_win);
+		window->left_panel_win = NULL;
+	}
+	if (window->right_panel_win != NULL) {
+		term_window_destroy(window->right_panel_win);
+		window->right_panel_win = NULL;
+	}
+
 	if (mainwindows != NULL) {
 		gui_windows_remove_parent(window);
 		if (respace) {
@@ -832,6 +871,41 @@ void mainwindows_resize(int width, int height)
 		mainwindows_resize_smaller(ydiff);
 	}
 
+	/* Ensure side panel windows are moved to new geometry */
+	for (win = mainwindows_find_lower(NULL);
+	     win != NULL;
+	     win = mainwindows_find_lower(win)) {
+		int x, y, w, h;
+		/* left */
+		if (win->statusbar_columns_left > 0) {
+			x = win->first_column;
+			y = win->first_line + win->statusbar_lines_top;
+			w = win->statusbar_columns_left;
+			h = win->height - win->statusbar_lines;
+			if (win->left_panel_win == NULL)
+				win->left_panel_win = term_window_create(x, y, w, h);
+			else
+				term_window_move(win->left_panel_win, x, y, w, h);
+		} else if (win->left_panel_win != NULL) {
+			term_window_destroy(win->left_panel_win);
+			win->left_panel_win = NULL;
+		}
+		/* right */
+		if (win->statusbar_columns_right > 0) {
+			w = win->statusbar_columns_right;
+			x = win->last_column - w + 1;
+			y = win->first_line + win->statusbar_lines_top;
+			h = win->height - win->statusbar_lines;
+			if (win->right_panel_win == NULL)
+				win->right_panel_win = term_window_create(x, y, w, h);
+			else
+				term_window_move(win->right_panel_win, x, y, w, h);
+		} else if (win->right_panel_win != NULL) {
+			term_window_destroy(win->right_panel_win);
+			win->right_panel_win = NULL;
+		}
+	}
+
 	/* if we lost our active mainwin, get a new one */
 	if (active_mainwin == NULL && active_win != NULL && !quitting) {
 		active_mainwin = WINDOW_MAIN(active_win);
@@ -906,6 +980,31 @@ int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
                 window->size_dirty = TRUE;
 
         return ret;
+}
+
+/* Reserve left/right columns for side panels and update window geometry. */
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window, int left, int right)
+{
+	int ret = -1;
+	g_return_val_if_fail(window != NULL, -1);
+
+	/* store previous total columns as return value (or left if only one side changes) */
+	ret = window->statusbar_columns;
+
+	if (left != 0) {
+		int new_left = window->statusbar_columns_left + left;
+		if (new_left < 0) new_left = 0;
+		window->statusbar_columns_left = new_left;
+	}
+	if (right != 0) {
+		int new_right = window->statusbar_columns_right + right;
+		if (new_right < 0) new_right = 0;
+		window->statusbar_columns_right = new_right;
+	}
+	window->statusbar_columns = window->statusbar_columns_left + window->statusbar_columns_right;
+
+	window->size_dirty = TRUE;
+	return ret;
 }
 
 static void mainwindows_resize_two(GSList *grow_list,

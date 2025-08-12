@@ -29,6 +29,10 @@ typedef struct {
 	int statusbar_columns_left, statusbar_columns_right;
 	int statusbar_columns; /* left+right */
 
+	/* Side panels TERM_WINDOWs (left/right), created when columns are reserved */
+	TERM_WINDOW *left_panel_win;
+	TERM_WINDOW *right_panel_win;
+
 	unsigned int dirty:1; /* This window needs a redraw */
 	unsigned int size_dirty:1; /* We'll need to resize the window, but haven't got around doing it just yet. */
 } MAIN_WINDOW_REC;
@@ -70,5 +74,9 @@ void mainwindows_redraw_dirty(void);
 
 GSList *mainwindows_get_sorted(int reverse);
 GSList *mainwindows_get_line(MAIN_WINDOW_REC *rec);
+
+/* Reserve columns on left/right sides for native side panels.
+   Returns previous value of the corresponding side. Marks window size dirty. */
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window, int left, int right);
 
 #endif
