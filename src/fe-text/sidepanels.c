@@ -8,6 +8,8 @@
 #include <irssi/src/core/queries.h>
 #include <irssi/src/core/nicklist.h>
 #include <irssi/src/fe-common/core/fe-windows.h>
+#include <irssi/src/fe-common/core/window-items.h>
+#include <irssi/src/core/levels.h>
 #include <irssi/src/fe-text/term.h>
 #include <irssi/src/fe-common/core/formats.h>
 #include <irssi/src/fe-text/module-formats.h>
@@ -279,7 +281,8 @@ static void redraw_one(MAIN_WINDOW_REC *mw)
 
 static void redraw_all(void)
 {
-	for (GSList *t = mainwindows; t; t = t->next) redraw_one(t->data);
+	GSList *t;
+	for (t = mainwindows; t; t = t->next) redraw_one(t->data);
 }
 
 static void sig_mainwindow_resized(MAIN_WINDOW_REC *mw)
