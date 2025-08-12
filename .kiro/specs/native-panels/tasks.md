@@ -58,7 +58,7 @@
   - Implement content caching for dirty checking to avoid unnecessary redraws
   - _Requirements: 1.1, 3.2, 3.3_
 
-- [ ] 9. Implement theme integration
+- [x] 9. Implement theme integration
   - Connect panel rendering to Irssi's theme system through `gui_printtext_get_colors()`
   - Add format definitions for panel elements in `module-formats.c` and `module-formats.h`
   - Implement themed colors using existing `term_set_color2()` with theme-derived colors
@@ -66,7 +66,7 @@
   - Use `gui_printtext_internal()` for formatted text rendering where appropriate
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 10. Add resize stability and edge case handling
+- [x] 10. Add resize stability and edge case handling
   - Implement minimum widths: left panel 8 chars, right panel 6 chars
   - Add auto-hide logic: hide nicklist < 80 cols, shrink left < 60 cols, hide both < 40 cols
   - Handle edge cases like empty channel lists and disconnected servers

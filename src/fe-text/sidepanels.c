@@ -10,8 +10,11 @@
 #include <irssi/src/fe-common/core/printtext.h>
 #include <irssi/src/fe-common/core/fe-windows.h>
 #include <irssi/src/fe-common/core/window-items.h>
+#include <irssi/src/fe-common/core/themes.h>
 #include <irssi/src/fe-text/mainwindows.h>
 #include <irssi/src/fe-text/term.h>
+#include <irssi/src/fe-text/module-formats.h>
+#include <irssi/src/fe-text/gui-printtext.h>
 
 /* Settings */
 static int sp_left_width;
@@ -66,6 +69,7 @@ static GHashTable *mw_to_ctx;
 
 /* Forward declarations */
 static void sidepanels_redraw_all(MAIN_WINDOW_REC *mw);
+static void adjust_panel_widths_for_terminal_size(void);
 
 /* Nicklist management */
 static void free_nicklist_item(NicklistItem *item)
@@ -104,6 +108,9 @@ static void populate_nicklist(SP_MAINWIN_CTX *ctx)
 	/* Only show nicklist for channels */
 	if (!IS_CHANNEL(item)) return;
 	channel = CHANNEL(item);
+	
+	/* Skip disconnected servers */
+	if (!channel->server || !channel->server->connected) return;
 	
 	/* Store current channel */
 	ctx->nicklist_channel = channel;
@@ -175,6 +182,9 @@ static void populate_channel_list(SP_MAINWIN_CTX *ctx)
 		/* Get the active item in this window */
 		item = window->active;
 		if (!item) continue;
+		
+		/* Skip items with disconnected servers */
+		if (item->server && !item->server->connected) continue;
 		
 		/* Create channel list item */
 		list_item = g_new0(ChannelListItem, 1);
@@ -320,7 +330,8 @@ static void sig_setup_changed(void)
 
 static void sig_terminal_resized(void)
 {
-	/* Terminal resize is handled by mainwindow resize, no action needed */
+	/* Adjust panel widths based on new terminal size */
+	adjust_panel_widths_for_terminal_size();
 }
 
 static void sig_mainwindow_resized(MAIN_WINDOW_REC *mw)
@@ -537,6 +548,18 @@ static void sidepanels_redraw_left(MAIN_WINDOW_REC *mw)
 	ctx = get_ctx(mw, FALSE);
 	if (!ctx || !ctx->channel_list_dirty) return;
 	
+	/* Handle empty channel list */
+	if (!ctx->channel_list) {
+		term_window_clear(mw->left_panel_win);
+		term_set_color2(mw->left_panel_win, 0, 8, 0); /* Dark gray */
+		term_move(mw->left_panel_win, 0, 0);
+		term_addstr(mw->left_panel_win, "(no channels)");
+		term_set_color2(mw->left_panel_win, 0, 0, 0);
+		term_refresh(mw->left_panel_win);
+		ctx->channel_list_dirty = FALSE;
+		return;
+	}
+	
 	/* Clear panel */
 	term_window_clear(mw->left_panel_win);
 	
@@ -557,11 +580,14 @@ static void sidepanels_redraw_left(MAIN_WINDOW_REC *mw)
 		
 		/* Set colors based on activity and selection */
 		if (item->is_active) {
-			term_set_color2(mw->left_panel_win, ATTR_REVERSE, 0, 0);
+			/* Active channel - white on black, reverse */
+			term_set_color2(mw->left_panel_win, ATTR_REVERSE | ATTR_BOLD, 15, 0);
 		} else if (item->activity_level > 0) {
-			term_set_color2(mw->left_panel_win, ATTR_BOLD, 0, 0);
+			/* Activity - yellow, bold */
+			term_set_color2(mw->left_panel_win, ATTR_BOLD, 11, 0);
 		} else {
-			term_set_color2(mw->left_panel_win, 0, 0, 0);
+			/* Normal - default colors */
+			term_set_color2(mw->left_panel_win, 0, 7, 0);
 		}
 		
 		/* Position cursor and draw item */
@@ -606,6 +632,22 @@ static void sidepanels_redraw_right(MAIN_WINDOW_REC *mw)
 	ctx = get_ctx(mw, FALSE);
 	if (!ctx || !ctx->nicklist_dirty) return;
 	
+	/* Handle empty nicklist or non-channel */
+	if (!ctx->nicklist || !ctx->nicklist_channel) {
+		term_window_clear(mw->right_panel_win);
+		term_set_color2(mw->right_panel_win, 0, 8, 0); /* Dark gray */
+		term_move(mw->right_panel_win, 0, 0);
+		if (!ctx->nicklist_channel) {
+			term_addstr(mw->right_panel_win, "(not a channel)");
+		} else {
+			term_addstr(mw->right_panel_win, "(no users)");
+		}
+		term_set_color2(mw->right_panel_win, 0, 0, 0);
+		term_refresh(mw->right_panel_win);
+		ctx->nicklist_dirty = FALSE;
+		return;
+	}
+	
 	/* Clear panel */
 	term_window_clear(mw->right_panel_win);
 	
@@ -625,11 +667,19 @@ static void sidepanels_redraw_right(MAIN_WINDOW_REC *mw)
 		if (item_index < visible_start) continue;
 		if (item_index >= visible_end) break;
 		
-		/* Set colors based on away status */
+		/* Set colors based on nick status */
 		if (item->is_away) {
-			term_set_color2(mw->right_panel_win, ATTR_UNDERLINE, 0, 0);
+			/* Away nick - dark gray */
+			term_set_color2(mw->right_panel_win, 0, 8, 0);
+		} else if (item->level >= 4) {
+			/* Op - red */
+			term_set_color2(mw->right_panel_win, ATTR_BOLD, 9, 0);
+		} else if (item->level >= 2) {
+			/* Voice - green */
+			term_set_color2(mw->right_panel_win, ATTR_BOLD, 10, 0);
 		} else {
-			term_set_color2(mw->right_panel_win, 0, 0, 0);
+			/* Normal - default */
+			term_set_color2(mw->right_panel_win, 0, 7, 0);
 		}
 		
 		/* Position cursor and draw item */
@@ -679,6 +729,65 @@ static void sidepanels_redraw_all(MAIN_WINDOW_REC *mw)
 	term_refresh_thaw();
 }
 
+/* Edge case handling and resize stability */
+static void adjust_panel_widths_for_terminal_size(void)
+{
+	GSList *tmp;
+	int terminal_width = term_width;
+	int effective_left_width = sp_left_width;
+	int effective_right_width = sp_right_width;
+	gboolean left_enabled = sp_enable_left;
+	gboolean right_enabled = sp_enable_right;
+	
+	/* Apply auto-hide logic based on terminal width */
+	if (terminal_width < 40) {
+		/* Very narrow - hide both panels */
+		left_enabled = FALSE;
+		right_enabled = FALSE;
+	} else if (terminal_width < 60) {
+		/* Narrow - hide right panel, shrink left */
+		right_enabled = FALSE;
+		if (effective_left_width > 8) {
+			effective_left_width = 8; /* Minimum left width */
+		}
+	} else if (terminal_width < 80) {
+		/* Medium - hide right panel only */
+		right_enabled = FALSE;
+	}
+	
+	/* Ensure minimum widths */
+	if (left_enabled && effective_left_width < 8) {
+		effective_left_width = 8;
+	}
+	if (right_enabled && effective_right_width < 6) {
+		effective_right_width = 6;
+	}
+	
+	/* Apply to all mainwindows */
+	for (tmp = mainwindows; tmp != NULL; tmp = tmp->next) {
+		MAIN_WINDOW_REC *mw = tmp->data;
+		
+		/* Reset current reservations */
+		if (mw->statusbar_columns_left > 0) {
+			mainwindow_set_statusbar_columns(mw, -mw->statusbar_columns_left, 0);
+		}
+		if (mw->statusbar_columns_right > 0) {
+			mainwindow_set_statusbar_columns(mw, 0, -mw->statusbar_columns_right);
+		}
+		
+		/* Apply new reservations */
+		if (left_enabled && effective_left_width > 0) {
+			mainwindow_set_statusbar_columns(mw, effective_left_width, 0);
+		}
+		if (right_enabled && effective_right_width > 0) {
+			mainwindow_set_statusbar_columns(mw, 0, effective_right_width);
+		}
+		
+		/* Trigger redraw */
+		sidepanels_redraw_all(mw);
+	}
+}
+
 void sidepanels_init(void)
 {
 	settings_add_int("lookandfeel", "sidepanel_left_width", 14);
@@ -720,8 +829,8 @@ void sidepanels_init(void)
 	/* Register commands */
 	command_bind("panel", NULL, (SIGNAL_FUNC) cmd_panel);
 	
-	/* Apply to existing mainwindows */
-	apply_reservations_all();
+	/* Apply to existing mainwindows with size adjustment */
+	adjust_panel_widths_for_terminal_size();
 }
 
 void sidepanels_deinit(void)

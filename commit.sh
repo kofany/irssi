@@ -1,29 +1,20 @@
 #!/bin/bash
 git add -A
-git commit -m "Tasks 6-8: Complete data integration and panel rendering
+git commit -m "Tasks 9-10: Theme integration and edge case handling
 
-Task 6: Implement channel list data integration
-- ChannelListItem structure with name, server, window, item, activity_level, is_active
-- populate_channel_list() and clear_channel_list() functions
-- Real-time updates via window signals: created/destroyed/changed/activity/refnum changed
-- Activity level tracking from WI_ITEM_REC->data_level
-- Integration with window item signals: new/remove/changed
+Task 9: Implement theme integration
+- Added sidepanel formats to module-formats.h and module-formats.c
+- Formats for different element types: channel active/activity/normal, nick op/voice/normal/away
+- Color integration through term_set_color2() with theme-derived colors
+- Different colors for different states: active channel (reverse+bold), activity (yellow+bold)
+- Nick status colors: op (red+bold), voice (green+bold), away (dark gray)
+- Integration with existing terminal color system
 
-Task 7: Implement nicklist data integration  
-- NicklistItem structure with nick, prefix, level, is_away, nick_rec
-- populate_nicklist() and clear_nicklist() functions
-- Data collection from nicklist_getnicks() for active channel
-- Proper mode prefix handling (@, %, +) and level assignment
-- Away status indicators from nick->gone
-- Real-time updates via nicklist changed and nick mode changed signals
-- Channel-only display (not for queries) with IS_CHANNEL() check
-
-Task 8: Create panel rendering system with direct term_* API
-- sidepanels_redraw_left() and sidepanels_redraw_right() functions
-- Direct term_* API usage: term_move(), term_addstr(), term_set_color2(), term_clrtoeol()
-- Selection highlighting with ATTR_REVERSE and ATTR_BOLD for activity
-- Flicker-free updates with term_refresh_freeze()/thaw()
-- Content caching with dirty checking for performance
-- Text truncation for long channel/nick names
-- Integration with signal handlers for automatic redraw
-- Tested: Panels are rendered and three-column layout is visible"
+Task 10: Add resize stability and edge case handling
+- Minimum widths: left panel 8 chars, right panel 6 chars
+- Auto-hide logic: hide nicklist < 80 cols, shrink left < 60 cols, hide both < 40 cols
+- Per-MAIN_WINDOW_REC behavior for split window environments
+- Edge case handling: empty channel lists, disconnected servers, non-channel windows
+- Graceful placeholder messages: '(no channels)', '(not a channel)', '(no users)'
+- Automatic panel width adjustment on terminal resize via sig_terminal_resized
+- Tested: Panels adapt to terminal size and handle edge cases gracefully"
