@@ -54,6 +54,11 @@ typedef struct {
 	TERM_WINDOW *right_tw;
 	int left_w;
 	int right_w;
+	/* selection and scroll state */
+	int left_selected_index;
+	int left_scroll_offset;
+	int right_selected_index;
+	int right_scroll_offset;
 } SP_MAINWIN_CTX;
 
 static GHashTable *mw_to_ctx;
@@ -123,18 +128,36 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	if (!tw) return;
 	clear_window(tw);
 	int row = 0;
-	/* Show servers, channels, queries */
-	for (GSList *st = servers; st && row < tw->height; st = st->next) {
+	int skip = ctx->left_scroll_offset;
+	int height = tw->height;
+	int index = 0;
+	/* Show servers, channels, queries with scroll + selection marker */
+	for (GSList *st = servers; st && row < height; st = st->next) {
 		SERVER_REC *srv = st->data;
 		const char *net = srv->connrec && srv->connrec->chatnet ? srv->connrec->chatnet : (srv->connrec ? srv->connrec->address : "server");
-		term_move(tw, 0, row++); term_addstr(tw, net ? net : "server");
-		for (GSList *ct = srv->channels; ct && row < tw->height; ct = ct->next) {
-			CHANNEL_REC *ch = ct->data; if (!ch || !ch->name) continue;
-			term_move(tw, 0, row++); term_addstr(tw, ch->name);
+		if (index++ >= skip && row < height) {
+			term_move(tw, 0, row);
+			term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
+			term_addstr(tw, net ? net : "server");
+			row++;
 		}
-		for (GSList *qt = srv->queries; qt && row < tw->height; qt = qt->next) {
+		for (GSList *ct = srv->channels; ct && row < height; ct = ct->next) {
+			CHANNEL_REC *ch = ct->data; if (!ch || !ch->name) continue;
+			if (index++ >= skip && row < height) {
+				term_move(tw, 0, row);
+				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
+				term_addstr(tw, ch->name);
+				row++;
+			}
+		}
+		for (GSList *qt = srv->queries; qt && row < height; qt = qt->next) {
 			QUERY_REC *q = qt->data; if (!q || !q->name) continue;
-			term_move(tw, 0, row++); term_addstr(tw, q->name);
+			if (index++ >= skip && row < height) {
+				term_move(tw, 0, row);
+				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
+				term_addstr(tw, q->name);
+				row++;
+			}
 		}
 	}
 	draw_border_vertical(tw, TRUE);
@@ -146,17 +169,22 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	if (!tw) return;
 	clear_window(tw);
 	WINDOW_REC *aw = mw->active;
+	int height = tw->height;
+	int skip = ctx->right_scroll_offset;
+	int index = 0, row = 0;
 	if (!aw || !aw->active) { draw_border_vertical(tw, FALSE); return; }
 	if (!IS_CHANNEL(aw->active)) { draw_border_vertical(tw, FALSE); return; }
 	CHANNEL_REC *ch = CHANNEL(aw->active);
 	GSList *nicks = nicklist_getnicks(ch);
-	int row = 0;
-	for (GSList *nt = nicks; nt && row < tw->height; nt = nt->next) {
+	for (GSList *nt = nicks; nt && row < height; nt = nt->next) {
 		NICK_REC *nick = nt->data;
 		if (!nick || !nick->nick) continue;
-		term_move(tw, 1, row++);
+		if (index++ < skip) continue;
+		term_move(tw, 1, row);
+		term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
 		if (nick->prefixes[0]) term_addch(tw, nick->prefixes[0]);
 		term_addstr(tw, nick->nick);
+		row++;
 	}
 	draw_border_vertical(tw, FALSE);
 }
@@ -201,6 +229,7 @@ static void setup_ctx_for(MAIN_WINDOW_REC *mw)
 	SP_MAINWIN_CTX *ctx = get_ctx(mw, TRUE);
 	ctx->left_w = (sp_enable_left ? sp_left_width : 0);
 	ctx->right_w = (sp_enable_right ? sp_right_width : 0);
+	/* keep selection/scroll */
 	position_tw(mw, ctx);
 }
 
@@ -230,32 +259,39 @@ static gboolean handle_click_at(int x, int y, int button)
 		if (ctx->left_tw) {
 			int px = ctx->left_tw->x, py = ctx->left_tw->y, pw = ctx->left_tw->width, ph = ctx->left_tw->height;
 			if (x >= px && x < px+pw && y >= py && y < py+ph) {
-				/* Map row to item: compute which server/channel/query; naive pass */
+				/* Map row to item using scroll offset */
 				int row = y - py;
+				int target_index = ctx->left_scroll_offset + row;
 				int idx = 0;
 				for (GSList *st = servers; st; st = st->next) {
 					SERVER_REC *srv = st->data;
-					if (idx++ == row) { /* jump to status window for server */
+					if (idx++ == target_index) { /* select and activate server's window */
+						ctx->left_selected_index = target_index;
 						WINDOW_REC *w = window_find_level(srv, MSGLEVEL_ALL);
-						if (w) { window_set_active(w); return TRUE; }
-						break;
+						if (w) { window_set_active(w); }
+						redraw_one(mw);
+						return TRUE;
 					}
 					for (GSList *ct = srv->channels; ct; ct = ct->next) {
 						CHANNEL_REC *ch = ct->data;
-						if (idx++ == row) {
+						if (idx++ == target_index) {
+							ctx->left_selected_index = target_index;
 							WINDOW_REC *w = window_item_window((WI_ITEM_REC*)ch);
 							if (!w) w = window_find_item(ch->server, ch->name);
-							if (w) { window_set_active(w); return TRUE; }
-							break;
+							if (w) { window_set_active(w); }
+							redraw_one(mw);
+							return TRUE;
 						}
 					}
 					for (GSList *qt = srv->queries; qt; qt = qt->next) {
 						QUERY_REC *q = qt->data;
-						if (idx++ == row) {
+						if (idx++ == target_index) {
+							ctx->left_selected_index = target_index;
 							WINDOW_REC *w = window_item_window((WI_ITEM_REC*)q);
 							if (!w) w = window_find_item(q->server, q->name);
-							if (w) { window_set_active(w); return TRUE; }
-							break;
+							if (w) { window_set_active(w); }
+							redraw_one(mw);
+							return TRUE;
 						}
 					}
 				}
@@ -269,12 +305,15 @@ static gboolean handle_click_at(int x, int y, int button)
 				if (aw && IS_CHANNEL(aw->active)) {
 					CHANNEL_REC *ch = CHANNEL(aw->active);
 					GSList *nicks = nicklist_getnicks(ch);
+					int target_index = ctx->right_scroll_offset + row;
 					int idx = 0;
 					for (GSList *nt = nicks; nt; nt = nt->next) {
-						if (idx++ == row) {
+						if (idx++ == target_index) {
+							ctx->right_selected_index = target_index;
 							NICK_REC *nick = nt->data;
 							if (nick && nick->nick)
 								signal_emit("command query", 3, nick->nick, ch->server, ch);
+							redraw_one(mw);
 							return TRUE;
 						}
 					}
@@ -306,14 +345,45 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		char *end = sc2+1; if (*end == '\0') return TRUE;
 		char last = end[strlen(end)-1];
 		if (last != 'M' && last != 'm') return TRUE;
-		int b = atoi(s+1);
+		int braw = atoi(s+1);
 		int x = atoi(sc1+1);
 		int y = atoi(sc2+1);
 		/* Convert 1-based to 0-based */
 		x -= 1; y -= 1;
-		int button = (b & 3) + 1; /* 1 left, 2 middle, 3 right */
 		gboolean press = (last == 'M');
+		/* Reset state */
 		mouse_state = 0; mouse_len = 0;
+		/* Wheel? (SGR: 64=up, 65=down, 66=left, 67=right) */
+		if ((braw & 64) && press) {
+			int dir = braw - 64; /* 0 up, 1 down */
+			/* Scroll panel under cursor by 3 lines */
+			for (GSList *mt = mainwindows; mt; mt = mt->next) {
+				MAIN_WINDOW_REC *mw = mt->data;
+				SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+				if (!ctx) continue;
+				if (ctx->left_tw) {
+					int px = ctx->left_tw->x, py = ctx->left_tw->y, pw = ctx->left_tw->width, ph = ctx->left_tw->height;
+					if (x >= px && x < px+pw && y >= py && y < py+ph) {
+						int delta = (dir == 0 ? -3 : 3);
+						ctx->left_scroll_offset = MAX(0, ctx->left_scroll_offset + delta);
+						redraw_one(mw);
+						return TRUE;
+					}
+				}
+				if (ctx->right_tw) {
+					int px = ctx->right_tw->x, py = ctx->right_tw->y, pw = ctx->right_tw->width, ph = ctx->right_tw->height;
+					if (x >= px && x < px+pw && y >= py && y < py+ph) {
+						int delta = (dir == 0 ? -3 : 3);
+						ctx->right_scroll_offset = MAX(0, ctx->right_scroll_offset + delta);
+						redraw_one(mw);
+						return TRUE;
+					}
+				}
+			}
+			return TRUE;
+		}
+		/* Left button press: activate selection */
+		int button = (braw & 3) + 1;
 		if (press && button == 1) {
 			return handle_click_at(x, y, button);
 		}
