@@ -19,6 +19,7 @@ static int sp_left_width;
 static int sp_right_width;
 static int sp_enable_left;
 static int sp_enable_right;
+static int sp_auto_hide_right;
 
 static void read_settings(void)
 {
@@ -26,6 +27,7 @@ static void read_settings(void)
 	sp_right_width = settings_get_int("sidepanel_right_width");
 	sp_enable_left = settings_get_bool("sidepanel_left");
 	sp_enable_right = settings_get_bool("sidepanel_right");
+	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
 }
 
 static void apply_reservations_all(void)
@@ -98,7 +100,13 @@ static void position_tw(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		else ctx->left_tw = term_window_create(x, y, w, h);
 	}
 	else if (ctx->left_tw) { term_window_destroy(ctx->left_tw); ctx->left_tw = NULL; }
-	if (sp_enable_right && ctx->right_w > 0) {
+	/* Auto hide right if enabled and active is not channel */
+	gboolean show_right = sp_enable_right && ctx->right_w > 0;
+	if (sp_auto_hide_right) {
+		WINDOW_REC *aw = mw->active;
+		if (!(aw && aw->active && IS_CHANNEL(aw->active))) show_right = FALSE;
+	}
+	if (show_right) {
 		int w = ctx->right_w;
 		int x = mw->last_column - w + 1;
 		if (ctx->right_tw) term_window_move(ctx->right_tw, x, y, w, h);
@@ -140,9 +148,15 @@ static void draw_str_themed(TERM_WINDOW *tw, int x, int y, WINDOW_REC *wctx, int
 
 static int compute_activity_for_channel(CHANNEL_REC *ch)
 {
-	/* Placeholder: use window activity_level if available from mainwindow-activity.
-	   Fallback 0 = none. */
-	(void)ch; return 0;
+	/* Use WI_ITEM_REC data_level if set */
+	WI_ITEM_REC *item = (WI_ITEM_REC*)ch;
+	return item ? item->data_level : 0;
+}
+
+static int compute_activity_for_query(QUERY_REC *q)
+{
+	WI_ITEM_REC *item = (WI_ITEM_REC*)q;
+	return item ? item->data_level : 0;
 }
 
 static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
@@ -177,10 +191,11 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		}
 		for (GSList *qt = srv->queries; qt && row < height; qt = qt->next) {
 			QUERY_REC *q = qt->data; if (!q || !q->name) continue;
+			int activity = compute_activity_for_query(q);
 			if (index++ >= skip && row < height) {
 				term_move(tw, 0, row);
 				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
-				int format = (index-1 == ctx->left_selected_index) ? TXT_SIDEPANEL_ITEM_SELECTED : TXT_SIDEPANEL_ITEM;
+				int format = (index-1 == ctx->left_selected_index) ? TXT_SIDEPANEL_ITEM_SELECTED : (activity ? TXT_SIDEPANEL_ITEM_ACTIVITY : TXT_SIDEPANEL_ITEM);
 				draw_str_themed(tw, 1, row, mw->active, format, q->name);
 				row++;
 			}
@@ -442,6 +457,7 @@ void sidepanels_init(void)
 	settings_add_bool("lookandfeel", "sidepanel_right", TRUE);
 	settings_add_int("lookandfeel", "sidepanel_left_width", 18);
 	settings_add_int("lookandfeel", "sidepanel_right_width", 18);
+	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
 	read_settings();
 	mw_to_ctx = g_hash_table_new(g_direct_hash, g_direct_equal);
 	/* Apply to existing */
