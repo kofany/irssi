@@ -9,6 +9,10 @@
 #include <irssi/src/core/nicklist.h>
 #include <irssi/src/fe-common/core/fe-windows.h>
 #include <irssi/src/fe-text/term.h>
+#include <irssi/src/fe-common/core/formats.h>
+#include <irssi/src/fe-text/module-formats.h>
+#include <irssi/src/fe-common/core/themes.h>
+#include <irssi/src/fe-text/gui-printtext.h>
 
 /* Settings */
 static int sp_left_width;
@@ -122,6 +126,25 @@ static void clear_window(TERM_WINDOW *tw)
 	}
 }
 
+static void draw_str_themed(TERM_WINDOW *tw, int x, int y, WINDOW_REC *wctx, int format_id, const char *text)
+{
+	/* Resolve format via theme and render raw to terminal (attr handling simplified) */
+	TEXT_DEST_REC dest; format_create_dest(&dest, NULL, NULL, 0, wctx);
+	THEME_REC *theme = window_get_theme(wctx);
+	char *out = format_get_text_theme(theme, MODULE_NAME, &dest, format_id, text);
+	term_move(tw, x, y);
+	/* naive: ignore embedded GUI flags here, printed literally; could parse later */
+	term_addstr(tw, out);
+	g_free(out);
+}
+
+static int compute_activity_for_channel(CHANNEL_REC *ch)
+{
+	/* Placeholder: use window activity_level if available from mainwindow-activity.
+	   Fallback 0 = none. */
+	(void)ch; return 0;
+}
+
 static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 {
 	TERM_WINDOW *tw = ctx->left_tw;
@@ -138,15 +161,17 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		if (index++ >= skip && row < height) {
 			term_move(tw, 0, row);
 			term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
-			term_addstr(tw, net ? net : "server");
+			draw_str_themed(tw, 1, row, mw->active, TXT_SIDEPANEL_HEADER, net ? net : "server");
 			row++;
 		}
 		for (GSList *ct = srv->channels; ct && row < height; ct = ct->next) {
 			CHANNEL_REC *ch = ct->data; if (!ch || !ch->name) continue;
+			int activity = compute_activity_for_channel(ch);
 			if (index++ >= skip && row < height) {
 				term_move(tw, 0, row);
 				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
-				term_addstr(tw, ch->name);
+				int format = (index-1 == ctx->left_selected_index) ? TXT_SIDEPANEL_ITEM_SELECTED : (activity ? TXT_SIDEPANEL_ITEM_ACTIVITY : TXT_SIDEPANEL_ITEM);
+				draw_str_themed(tw, 1, row, mw->active, format, ch->name);
 				row++;
 			}
 		}
@@ -155,7 +180,8 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 			if (index++ >= skip && row < height) {
 				term_move(tw, 0, row);
 				term_addch(tw, (index-1 == ctx->left_selected_index) ? '>' : ' ');
-				term_addstr(tw, q->name);
+				int format = (index-1 == ctx->left_selected_index) ? TXT_SIDEPANEL_ITEM_SELECTED : TXT_SIDEPANEL_ITEM;
+				draw_str_themed(tw, 1, row, mw->active, format, q->name);
 				row++;
 			}
 		}
@@ -182,8 +208,9 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		if (index++ < skip) continue;
 		term_move(tw, 1, row);
 		term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
-		if (nick->prefixes[0]) term_addch(tw, nick->prefixes[0]);
-		term_addstr(tw, nick->nick);
+		int format = TXT_SIDEPANEL_NICK_NORMAL;
+		if (nick->op) format = TXT_SIDEPANEL_NICK_OP; else if (nick->voice) format = TXT_SIDEPANEL_NICK_VOICE;
+		draw_str_themed(tw, 2, row, mw->active, format, nick->nick);
 		row++;
 	}
 	draw_border_vertical(tw, FALSE);

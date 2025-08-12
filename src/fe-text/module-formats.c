@@ -102,6 +102,16 @@ FORMAT_REC gui_text_formats[] = {
 	  "- - - - - - - - - - - - - - - - - - - - - - - - - - - -", 0 },
 	{ "welcome_init_settings", "The following settings were initialized", 0 },
 
+	/* ---- */
+	{ NULL, "Sidepanels", 0 },
+	{ "sidepanel_header", "%K$0", 1, { 0 } },
+	{ "sidepanel_item", "$0", 1, { 0 } },
+	{ "sidepanel_item_selected", "%U$0%U", 1, { 0 } },
+	{ "sidepanel_item_activity", "%y$0", 1, { 0 } },
+	{ "sidepanel_nick_op", "%Y$0", 1, { 0 } },
+	{ "sidepanel_nick_voice", "%C$0", 1, { 0 } },
+	{ "sidepanel_nick_normal", "$0", 1, { 0 } },
+
 	{ NULL, NULL, 0 }
 	/* clang-format on */
 };
