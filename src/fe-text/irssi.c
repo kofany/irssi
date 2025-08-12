@@ -41,6 +41,7 @@
 #include <irssi/src/fe-text/gui-readline.h>
 #include <irssi/src/fe-text/statusbar.h>
 #include <irssi/src/fe-text/gui-windows.h>
+#include <irssi/src/fe-text/split-panels.h>
 #include <irssi/irssi-version.h>
 
 #include <signal.h>
@@ -189,6 +190,7 @@ static void textui_finish_init(void)
 	/* Temporarily raise the fatal level to abort on config errors. */
 	loglev = critical_fatal_section_begin();
 	statusbar_init();
+	split_panels_init();
 	critical_fatal_section_end(loglev);
 
 	settings_check();
@@ -243,6 +245,7 @@ static void textui_deinit(void)
 	signal_remove("gui exit", (SIGNAL_FUNC) sig_exit);
 
 	lastlog_deinit();
+	split_panels_deinit();
 	statusbar_deinit();
 	gui_entry_deinit();
 	gui_printtext_deinit();

@@ -1,0 +1,712 @@
+MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:13] Updating term_window for panel type=0 pos=LEFT
+[20:53:13]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:13]   calculated: pos=(0,1) size=20x63
+[20:53:13]   moving existing term_win from (0,0) 20x0 to (0,1) 20x63
+[20:53:13] Updating term_window for panel type=0 pos=LEFT
+[20:53:13]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:13]   calculated: pos=(0,1) size=20x63
+[20:53:13]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:23] Updating term_window for panel type=1 pos=RIGHT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(309,1) size=15x63
+[20:53:23]   creating new term_win at (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:23] Updating term_window for panel type=0 pos=LEFT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(0,1) size=20x63
+[20:53:23]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:23] Updating term_window for panel type=1 pos=RIGHT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(309,1) size=15x63
+[20:53:23]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:23] Updating term_window for panel type=1 pos=RIGHT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(309,1) size=15x63
+[20:53:23]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:23] Updating term_window for panel type=0 pos=LEFT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(0,1) size=20x63
+[20:53:23]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:23] Updating term_window for panel type=1 pos=RIGHT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(309,1) size=15x63
+[20:53:23]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:23] Updating term_window for panel type=0 pos=LEFT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(0,1) size=20x63
+[20:53:23]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:23] Updating term_window for panel type=1 pos=RIGHT
+[20:53:23]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:23]   calculated: pos=(309,1) size=15x63
+[20:53:23]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:25] Updating term_window for panel type=0 pos=LEFT
+[20:53:25]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:25]   calculated: pos=(0,1) size=20x63
+[20:53:25]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:25] Updating term_window for panel type=0 pos=LEFT
+[20:53:25]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:25]   calculated: pos=(0,1) size=20x63
+[20:53:25]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:25] Updating term_window for panel type=0 pos=LEFT
+[20:53:25]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:25]   calculated: pos=(0,1) size=20x63
+[20:53:25]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:26] Updating term_window for panel type=1 pos=RIGHT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(309,1) size=15x63
+[20:53:26]   creating new term_win at (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:26] Updating term_window for panel type=0 pos=LEFT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(0,1) size=20x63
+[20:53:26]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:26] Updating term_window for panel type=1 pos=RIGHT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(309,1) size=15x63
+[20:53:26]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:26] Updating term_window for panel type=1 pos=RIGHT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(309,1) size=15x63
+[20:53:26]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:26] Updating term_window for panel type=0 pos=LEFT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(0,1) size=20x63
+[20:53:26]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:26] Updating term_window for panel type=1 pos=RIGHT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(309,1) size=15x63
+[20:53:26]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:26] Updating term_window for panel type=0 pos=LEFT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(0,1) size=20x63
+[20:53:26]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:26] Updating term_window for panel type=1 pos=RIGHT
+[20:53:26]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:26]   calculated: pos=(309,1) size=15x63
+[20:53:26]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:28] Updating term_window for panel type=1 pos=RIGHT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(309,1) size=15x63
+[20:53:28]   creating new term_win at (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:28] Updating term_window for panel type=1 pos=RIGHT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(309,1) size=15x63
+[20:53:28]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:28] Updating term_window for panel type=1 pos=RIGHT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(309,1) size=15x63
+[20:53:28]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:28] Updating term_window for panel type=1 pos=RIGHT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(309,1) size=15x63
+[20:53:28]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:53:28] Updating term_window for panel type=0 pos=LEFT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(0,1) size=20x63
+[20:53:28]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:28] Updating term_window for panel type=1 pos=RIGHT
+[20:53:28]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:28]   calculated: pos=(309,1) size=15x63
+[20:53:28]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:29] Updating term_window for panel type=0 pos=LEFT
+[20:53:29]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:29]   calculated: pos=(0,1) size=20x63
+[20:53:29]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:53:29] Updating term_window for panel type=0 pos=LEFT
+[20:53:29]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:29]   calculated: pos=(0,1) size=20x63
+[20:53:29]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:53:29] Updating term_window for panel type=0 pos=LEFT
+[20:53:29]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:53:29]   calculated: pos=(0,1) size=20x63
+[20:53:29]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 0 left panels, 1 right panels
+[MAINWIN] mainwindow_update_panels: mainwin 0x600001d68070
+[MAINWIN] Updating 0 left panels, 0 right panels
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 0 right panels
+[20:54:08] Updating term_window for panel type=0 pos=LEFT
+[20:54:08]   mainwin: pos=(0,0) size=0x0 statusbar_lines=0
+[20:54:08]   calculated: pos=(0,0) size=20x0
+[20:54:08]   creating new term_win at (0,0) 20x0
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 0 right panels
+[20:54:08] Updating term_window for panel type=0 pos=LEFT
+[20:54:08]   mainwin: pos=(0,0) size=0x0 statusbar_lines=0
+[20:54:08]   calculated: pos=(0,0) size=20x0
+[20:54:08]   moving existing term_win from (0,0) 20x0 to (0,0) 20x0
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:08] Updating term_window for panel type=0 pos=LEFT
+[20:54:08]   mainwin: pos=(0,0) size=0x0 statusbar_lines=0
+[20:54:08]   calculated: pos=(0,0) size=20x0
+[20:54:08]   moving existing term_win from (0,0) 20x0 to (0,0) 20x0
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:09] Updating term_window for panel type=0 pos=LEFT
+[20:54:09]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:09]   calculated: pos=(0,1) size=20x63
+[20:54:09]   moving existing term_win from (0,0) 20x0 to (0,1) 20x63
+[20:54:09] Updating term_window for panel type=0 pos=LEFT
+[20:54:09]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:09]   calculated: pos=(0,1) size=20x63
+[20:54:09]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:19] Updating term_window for panel type=1 pos=RIGHT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(309,1) size=15x63
+[20:54:19]   creating new term_win at (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:19] Updating term_window for panel type=0 pos=LEFT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(0,1) size=20x63
+[20:54:19]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:19] Updating term_window for panel type=1 pos=RIGHT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(309,1) size=15x63
+[20:54:19]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:54:19] Updating term_window for panel type=1 pos=RIGHT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(309,1) size=15x63
+[20:54:19]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:19] Updating term_window for panel type=0 pos=LEFT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(0,1) size=20x63
+[20:54:19]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:19] Updating term_window for panel type=1 pos=RIGHT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(309,1) size=15x63
+[20:54:19]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[20:54:19] Updating term_window for panel type=0 pos=LEFT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(0,1) size=20x63
+[20:54:19]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:19] Updating term_window for panel type=1 pos=RIGHT
+[20:54:19]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:19]   calculated: pos=(309,1) size=15x63
+[20:54:19]   moving existing term_win from (309,1) 15x63 to (309,1) 15x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:37] Updating term_window for panel type=0 pos=LEFT
+[20:54:37]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:37]   calculated: pos=(0,1) size=20x63
+[20:54:37]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:37] Updating term_window for panel type=0 pos=LEFT
+[20:54:37]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:37]   calculated: pos=(0,1) size=20x63
+[20:54:37]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:37] Updating term_window for panel type=0 pos=LEFT
+[20:54:37]   mainwin: pos=(0,1) size=324x64 statusbar_lines=1
+[20:54:37]   calculated: pos=(0,1) size=20x63
+[20:54:37]   moving existing term_win from (0,1) 20x63 to (0,1) 20x63
+[20:54:42] === TERMINAL RESIZED ===
+[20:54:42] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 289x61)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=289x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x63 to (0,1) 20x60
+[20:54:42] Redrawing all panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=289x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=289x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=289x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] === TERMINAL RESIZED ===
+[20:54:42] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 284x61)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=284x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] Redrawing all panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=284x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=284x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:42] Updating term_window for panel type=0 pos=LEFT
+[20:54:42]   mainwin: pos=(0,1) size=284x61 statusbar_lines=1
+[20:54:42]   calculated: pos=(0,1) size=20x60
+[20:54:42]   moving existing term_win from (0,1) 20x60 to (0,1) 20x60
+[20:54:45] === TERMINAL RESIZED ===
+[20:54:45] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 272x59)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:45] Updating term_window for panel type=0 pos=LEFT
+[20:54:45]   mainwin: pos=(0,1) size=272x59 statusbar_lines=1
+[20:54:45]   calculated: pos=(0,1) size=20x58
+[20:54:45]   moving existing term_win from (0,1) 20x60 to (0,1) 20x58
+[20:54:45] Redrawing all panels
+[20:54:45] Updating term_window for panel type=0 pos=LEFT
+[20:54:45]   mainwin: pos=(0,1) size=272x59 statusbar_lines=1
+[20:54:45]   calculated: pos=(0,1) size=20x58
+[20:54:45]   moving existing term_win from (0,1) 20x58 to (0,1) 20x58
+[20:54:45] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:45] Updating term_window for panel type=0 pos=LEFT
+[20:54:45]   mainwin: pos=(0,1) size=272x59 statusbar_lines=1
+[20:54:45]   calculated: pos=(0,1) size=20x58
+[20:54:45]   moving existing term_win from (0,1) 20x58 to (0,1) 20x58
+[20:54:45] Updating term_window for panel type=0 pos=LEFT
+[20:54:45]   mainwin: pos=(0,1) size=272x59 statusbar_lines=1
+[20:54:45]   calculated: pos=(0,1) size=20x58
+[20:54:45]   moving existing term_win from (0,1) 20x58 to (0,1) 20x58
+[20:54:46] === TERMINAL RESIZED ===
+[20:54:46] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 266x58)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:46] Updating term_window for panel type=0 pos=LEFT
+[20:54:46]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:46]   calculated: pos=(0,1) size=20x57
+[20:54:46]   moving existing term_win from (0,1) 20x58 to (0,1) 20x57
+[20:54:46] Redrawing all panels
+[20:54:46] Updating term_window for panel type=0 pos=LEFT
+[20:54:46]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:46]   calculated: pos=(0,1) size=20x57
+[20:54:46]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:46] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:46] Updating term_window for panel type=0 pos=LEFT
+[20:54:46]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:46]   calculated: pos=(0,1) size=20x57
+[20:54:46]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:46] Updating term_window for panel type=0 pos=LEFT
+[20:54:46]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:46]   calculated: pos=(0,1) size=20x57
+[20:54:46]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:50] Updating term_window for panel type=1 pos=RIGHT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(251,1) size=15x57
+[20:54:50]   creating new term_win at (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:50] Updating term_window for panel type=0 pos=LEFT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(0,1) size=20x57
+[20:54:50]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:50] Updating term_window for panel type=1 pos=RIGHT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(251,1) size=15x57
+[20:54:50]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:54:50] Updating term_window for panel type=1 pos=RIGHT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(251,1) size=15x57
+[20:54:50]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:50] Updating term_window for panel type=0 pos=LEFT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(0,1) size=20x57
+[20:54:50]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:50] Updating term_window for panel type=1 pos=RIGHT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(251,1) size=15x57
+[20:54:50]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:54:50] Updating term_window for panel type=0 pos=LEFT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(0,1) size=20x57
+[20:54:50]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:50] Updating term_window for panel type=1 pos=RIGHT
+[20:54:50]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:50]   calculated: pos=(251,1) size=15x57
+[20:54:50]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:55] Updating term_window for panel type=0 pos=LEFT
+[20:54:55]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:55]   calculated: pos=(0,1) size=20x57
+[20:54:55]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:55] Updating term_window for panel type=0 pos=LEFT
+[20:54:55]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:55]   calculated: pos=(0,1) size=20x57
+[20:54:55]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:55] Updating term_window for panel type=0 pos=LEFT
+[20:54:55]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:55]   calculated: pos=(0,1) size=20x57
+[20:54:55]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:58] Updating term_window for panel type=1 pos=RIGHT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(251,1) size=15x57
+[20:54:58]   creating new term_win at (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:58] Updating term_window for panel type=0 pos=LEFT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(0,1) size=20x57
+[20:54:58]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:58] Updating term_window for panel type=1 pos=RIGHT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(251,1) size=15x57
+[20:54:58]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:54:58] Updating term_window for panel type=1 pos=RIGHT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(251,1) size=15x57
+[20:54:58]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:58] Updating term_window for panel type=0 pos=LEFT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(0,1) size=20x57
+[20:54:58]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:58] Updating term_window for panel type=1 pos=RIGHT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(251,1) size=15x57
+[20:54:58]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:54:58] Updating term_window for panel type=0 pos=LEFT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(0,1) size=20x57
+[20:54:58]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:58] Updating term_window for panel type=1 pos=RIGHT
+[20:54:58]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:58]   calculated: pos=(251,1) size=15x57
+[20:54:58]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:59] Updating term_window for panel type=0 pos=LEFT
+[20:54:59]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:59]   calculated: pos=(0,1) size=20x57
+[20:54:59]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:54:59] Updating term_window for panel type=0 pos=LEFT
+[20:54:59]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:59]   calculated: pos=(0,1) size=20x57
+[20:54:59]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:54:59] Updating term_window for panel type=0 pos=LEFT
+[20:54:59]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:54:59]   calculated: pos=(0,1) size=20x57
+[20:54:59]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:03] Updating term_window for panel type=1 pos=RIGHT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(251,1) size=15x57
+[20:55:03]   creating new term_win at (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:03] Updating term_window for panel type=0 pos=LEFT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(0,1) size=20x57
+[20:55:03]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:03] Updating term_window for panel type=1 pos=RIGHT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(251,1) size=15x57
+[20:55:03]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:55:03] Updating term_window for panel type=1 pos=RIGHT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(251,1) size=15x57
+[20:55:03]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:03] Updating term_window for panel type=0 pos=LEFT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(0,1) size=20x57
+[20:55:03]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:03] Updating term_window for panel type=1 pos=RIGHT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(251,1) size=15x57
+[20:55:03]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:55:03] Updating term_window for panel type=0 pos=LEFT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(0,1) size=20x57
+[20:55:03]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:03] Updating term_window for panel type=1 pos=RIGHT
+[20:55:03]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:03]   calculated: pos=(251,1) size=15x57
+[20:55:03]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:07] Updating term_window for panel type=0 pos=LEFT
+[20:55:07]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:07]   calculated: pos=(0,1) size=20x57
+[20:55:07]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:07] Updating term_window for panel type=0 pos=LEFT
+[20:55:07]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:07]   calculated: pos=(0,1) size=20x57
+[20:55:07]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:07] Updating term_window for panel type=0 pos=LEFT
+[20:55:07]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:07]   calculated: pos=(0,1) size=20x57
+[20:55:07]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:12] Updating term_window for panel type=1 pos=RIGHT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(251,1) size=15x57
+[20:55:12]   creating new term_win at (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:12] Updating term_window for panel type=0 pos=LEFT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(0,1) size=20x57
+[20:55:12]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:12] Updating term_window for panel type=1 pos=RIGHT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(251,1) size=15x57
+[20:55:12]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:55:12] Updating term_window for panel type=1 pos=RIGHT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(251,1) size=15x57
+[20:55:12]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:12] Updating term_window for panel type=0 pos=LEFT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(0,1) size=20x57
+[20:55:12]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:12] Updating term_window for panel type=1 pos=RIGHT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(251,1) size=15x57
+[20:55:12]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:55:12] Updating term_window for panel type=0 pos=LEFT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(0,1) size=20x57
+[20:55:12]   moving existing term_win from (0,1) 20x57 to (0,1) 20x57
+[20:55:12] Updating term_window for panel type=1 pos=RIGHT
+[20:55:12]   mainwin: pos=(0,1) size=266x58 statusbar_lines=1
+[20:55:12]   calculated: pos=(251,1) size=15x57
+[20:55:12]   moving existing term_win from (251,1) 15x57 to (251,1) 15x57
+[20:55:18] === TERMINAL RESIZED ===
+[20:55:18] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 211x63)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:18] Updating term_window for panel type=0 pos=LEFT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(0,1) size=20x62
+[20:55:18]   moving existing term_win from (0,1) 20x57 to (0,1) 20x62
+[20:55:18] Updating term_window for panel type=1 pos=RIGHT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(196,1) size=15x62
+[20:55:18]   moving existing term_win from (251,1) 15x57 to (196,1) 15x62
+[20:55:18] Redrawing all panels
+[20:55:18] Updating term_window for panel type=0 pos=LEFT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(0,1) size=20x62
+[20:55:18]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:18] Updating term_window for panel type=1 pos=RIGHT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(196,1) size=15x62
+[20:55:18]   moving existing term_win from (196,1) 15x62 to (196,1) 15x62
+[20:55:18] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:18] Updating term_window for panel type=0 pos=LEFT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(0,1) size=20x62
+[20:55:18]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:18] Updating term_window for panel type=1 pos=RIGHT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(196,1) size=15x62
+[20:55:18]   moving existing term_win from (196,1) 15x62 to (196,1) 15x62
+[20:55:18] Updating term_window for panel type=0 pos=LEFT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(0,1) size=20x62
+[20:55:18]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:18] Updating term_window for panel type=1 pos=RIGHT
+[20:55:18]   mainwin: pos=(0,1) size=211x63 statusbar_lines=1
+[20:55:18]   calculated: pos=(196,1) size=15x62
+[20:55:18]   moving existing term_win from (196,1) 15x62 to (196,1) 15x62
+[20:55:19] === TERMINAL RESIZED ===
+[20:55:19] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 203x63)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:19] Updating term_window for panel type=0 pos=LEFT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(0,1) size=20x62
+[20:55:19]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:19] Updating term_window for panel type=1 pos=RIGHT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(188,1) size=15x62
+[20:55:19]   moving existing term_win from (196,1) 15x62 to (188,1) 15x62
+[20:55:19] Redrawing all panels
+[20:55:19] Updating term_window for panel type=0 pos=LEFT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(0,1) size=20x62
+[20:55:19]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:19] Updating term_window for panel type=1 pos=RIGHT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(188,1) size=15x62
+[20:55:19]   moving existing term_win from (188,1) 15x62 to (188,1) 15x62
+[20:55:19] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:19] Updating term_window for panel type=0 pos=LEFT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(0,1) size=20x62
+[20:55:19]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:19] Updating term_window for panel type=1 pos=RIGHT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(188,1) size=15x62
+[20:55:19]   moving existing term_win from (188,1) 15x62 to (188,1) 15x62
+[20:55:19] Updating term_window for panel type=0 pos=LEFT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(0,1) size=20x62
+[20:55:19]   moving existing term_win from (0,1) 20x62 to (0,1) 20x62
+[20:55:19] Updating term_window for panel type=1 pos=RIGHT
+[20:55:19]   mainwin: pos=(0,1) size=203x63 statusbar_lines=1
+[20:55:19]   calculated: pos=(188,1) size=15x62
+[20:55:19]   moving existing term_win from (188,1) 15x62 to (188,1) 15x62
+[20:55:23] === TERMINAL RESIZED ===
+[20:55:23] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 211x77)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:23] Updating term_window for panel type=0 pos=LEFT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(0,1) size=20x76
+[20:55:23]   moving existing term_win from (0,1) 20x62 to (0,1) 20x76
+[20:55:23] Updating term_window for panel type=1 pos=RIGHT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(196,1) size=15x76
+[20:55:23]   moving existing term_win from (188,1) 15x62 to (196,1) 15x76
+[20:55:23] Redrawing all panels
+[20:55:23] Updating term_window for panel type=0 pos=LEFT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(0,1) size=20x76
+[20:55:23]   moving existing term_win from (0,1) 20x76 to (0,1) 20x76
+[20:55:23] Updating term_window for panel type=1 pos=RIGHT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(196,1) size=15x76
+[20:55:23]   moving existing term_win from (196,1) 15x76 to (196,1) 15x76
+[20:55:23] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:23] Updating term_window for panel type=0 pos=LEFT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(0,1) size=20x76
+[20:55:23]   moving existing term_win from (0,1) 20x76 to (0,1) 20x76
+[20:55:23] Updating term_window for panel type=1 pos=RIGHT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(196,1) size=15x76
+[20:55:23]   moving existing term_win from (196,1) 15x76 to (196,1) 15x76
+[20:55:23] Updating term_window for panel type=0 pos=LEFT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(0,1) size=20x76
+[20:55:23]   moving existing term_win from (0,1) 20x76 to (0,1) 20x76
+[20:55:23] Updating term_window for panel type=1 pos=RIGHT
+[20:55:23]   mainwin: pos=(0,1) size=211x77 statusbar_lines=1
+[20:55:23]   calculated: pos=(196,1) size=15x76
+[20:55:23]   moving existing term_win from (196,1) 15x76 to (196,1) 15x76
+[20:55:24] === TERMINAL RESIZED ===
+[20:55:24] Updating panels for mainwin 0x60000248d7a0 (pos: 0,1 size: 187x82)
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:24] Updating term_window for panel type=0 pos=LEFT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(0,1) size=20x81
+[20:55:24]   moving existing term_win from (0,1) 20x76 to (0,1) 20x81
+[20:55:24] Updating term_window for panel type=1 pos=RIGHT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(172,1) size=15x81
+[20:55:24]   moving existing term_win from (196,1) 15x76 to (172,1) 15x81
+[20:55:24] Redrawing all panels
+[20:55:24] Updating term_window for panel type=0 pos=LEFT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(0,1) size=20x81
+[20:55:24]   moving existing term_win from (0,1) 20x81 to (0,1) 20x81
+[20:55:24] Updating term_window for panel type=1 pos=RIGHT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(172,1) size=15x81
+[20:55:24]   moving existing term_win from (172,1) 15x81 to (172,1) 15x81
+[20:55:24] === TERMINAL RESIZE COMPLETE ===
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:24] Updating term_window for panel type=0 pos=LEFT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(0,1) size=20x81
+[20:55:24]   moving existing term_win from (0,1) 20x81 to (0,1) 20x81
+[20:55:24] Updating term_window for panel type=1 pos=RIGHT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(172,1) size=15x81
+[20:55:24]   moving existing term_win from (172,1) 15x81 to (172,1) 15x81
+[20:55:24] Updating term_window for panel type=0 pos=LEFT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(0,1) size=20x81
+[20:55:24]   moving existing term_win from (0,1) 20x81 to (0,1) 20x81
+[20:55:24] Updating term_window for panel type=1 pos=RIGHT
+[20:55:24]   mainwin: pos=(0,1) size=187x82 statusbar_lines=1
+[20:55:24]   calculated: pos=(172,1) size=15x81
+[20:55:24]   moving existing term_win from (172,1) 15x81 to (172,1) 15x81
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 1 left panels, 1 right panels
+[20:55:29] Updating term_window for panel type=0 pos=LEFT
+[20:55:29]   mainwin: pos=(0,0) size=187x82 statusbar_lines=0
+[20:55:29]   calculated: pos=(0,0) size=20x82
+[20:55:29]   moving existing term_win from (0,1) 20x81 to (0,0) 20x82
+[20:55:29] Updating term_window for panel type=0 pos=LEFT
+[20:55:29]   mainwin: pos=(0,0) size=187x82 statusbar_lines=0
+[20:55:29]   calculated: pos=(0,0) size=20x82
+[20:55:29]   moving existing term_win from (0,0) 20x82 to (0,0) 20x82
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 0 left panels, 1 right panels
+[MAINWIN] mainwindow_update_panels: mainwin 0x60000248d7a0
+[MAINWIN] Updating 0 left panels, 0 right panels

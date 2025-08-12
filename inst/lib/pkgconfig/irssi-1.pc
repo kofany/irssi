@@ -1,0 +1,12 @@
+prefix=/Users/kfn/irssi/inst
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+irssimoduledir=${libdir}/irssi/modules
+signalsfile=${prefix}/share/doc/irssi/signals.txt
+
+Name: Irssi
+Description: Irssi chat client
+Version: 1.5-head
+Requires: glib-2.0 >= 2.32
+Cflags: -I${includedir}
