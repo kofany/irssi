@@ -36,14 +36,14 @@
   - Add `/panel` commands: `/panel left <n>`, `/panel right <n>`, `/panel on/off`
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 6. Implement channel list data integration
+- [x] 6. Implement channel list data integration
   - Create channel list population from active server channels
   - Implement real-time updates when channels are joined/parted
   - Add activity level tracking from WI_ITEM_REC data_level
   - Implement channel list rendering with proper formatting
   - _Requirements: 1.1, 1.4_
 
-- [ ] 7. Implement nicklist data integration
+- [x] 7. Implement nicklist data integration
   - Create nicklist population from active channel members
   - Add proper mode prefix handling (@, +, etc.)
   - Implement real-time updates for nick changes and mode changes
