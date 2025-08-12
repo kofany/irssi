@@ -29,6 +29,10 @@ typedef struct {
 	int statusbar_columns_left, statusbar_columns_right;
 	int statusbar_columns; /* left+right */
 
+	/* Panel windows for sidepanels feature */
+	TERM_WINDOW *left_panel_win;
+	TERM_WINDOW *right_panel_win;
+
 	unsigned int dirty:1; /* This window needs a redraw */
 	unsigned int size_dirty:1; /* We'll need to resize the window, but haven't got around doing it just yet. */
 } MAIN_WINDOW_REC;
@@ -66,6 +70,8 @@ void mainwindow_change_active(MAIN_WINDOW_REC *mainwin,
 int mainwindows_reserve_lines(int top, int bottom);
 int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
 				   int top, int bottom);
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				     int left, int right);
 void mainwindows_redraw_dirty(void);
 
 GSList *mainwindows_get_sorted(int reverse);

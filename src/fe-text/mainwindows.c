@@ -105,6 +105,22 @@ static void mainwindow_resize_windows(MAIN_WINDOW_REC *window)
 
 	mainwindow_set_screen_size(window);
 
+	/* Update panel windows positions and sizes */
+	if (window->left_panel_win != NULL) {
+		term_window_move(window->left_panel_win,
+			window->first_column,
+			window->first_line + window->statusbar_lines_top,
+			window->statusbar_columns_left,
+			window->height - window->statusbar_lines);
+	}
+	if (window->right_panel_win != NULL) {
+		term_window_move(window->right_panel_win,
+			window->last_column - window->statusbar_columns_right + 1,
+			window->first_line + window->statusbar_lines_top,
+			window->statusbar_columns_right,
+			window->height - window->statusbar_lines);
+	}
+
 	resized = FALSE;
 	for (tmp = windows; tmp != NULL; tmp = tmp->next) {
 		WINDOW_REC *rec = tmp->data;
@@ -215,6 +231,8 @@ MAIN_WINDOW_REC *mainwindow_create(int right)
 
 	rec = g_new0(MAIN_WINDOW_REC, 1);
 	rec->dirty = TRUE;
+	rec->left_panel_win = NULL;
+	rec->right_panel_win = NULL;
 
 	if (mainwindows == NULL) {
 		active_mainwin = rec;
@@ -537,6 +555,16 @@ static void mainwindow_destroy_full(MAIN_WINDOW_REC *window, int respace)
 	signal_emit("mainwindow destroyed", 1, window);
 
         term_window_destroy(window->screen_win);
+
+	/* Destroy panel windows if they exist */
+	if (window->left_panel_win != NULL) {
+		term_window_destroy(window->left_panel_win);
+		window->left_panel_win = NULL;
+	}
+	if (window->right_panel_win != NULL) {
+		term_window_destroy(window->right_panel_win);
+		window->right_panel_win = NULL;
+	}
 
 	if (mainwindows != NULL) {
 		gui_windows_remove_parent(window);
@@ -904,6 +932,58 @@ int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
 
 	if (top+bottom != 0)
                 window->size_dirty = TRUE;
+
+        return ret;
+}
+
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				     int left, int right)
+{
+	int ret;
+
+        ret = -1;
+	if (left != 0) {
+                ret = window->statusbar_columns_left;
+		window->statusbar_columns_left += left;
+                window->statusbar_columns += left;
+	}
+
+	if (right != 0) {
+                ret = window->statusbar_columns_right;
+                window->statusbar_columns_right += right;
+                window->statusbar_columns += right;
+	}
+
+	/* Create/destroy/move panel windows based on new column settings */
+	if (left != 0 || right != 0) {
+		/* Destroy existing panel windows if they exist */
+		if (window->left_panel_win != NULL) {
+			term_window_destroy(window->left_panel_win);
+			window->left_panel_win = NULL;
+		}
+		if (window->right_panel_win != NULL) {
+			term_window_destroy(window->right_panel_win);
+			window->right_panel_win = NULL;
+		}
+
+		/* Create new panel windows if columns are reserved */
+		if (window->statusbar_columns_left > 0) {
+			window->left_panel_win = term_window_create(
+				window->first_column,
+				window->first_line + window->statusbar_lines_top,
+				window->statusbar_columns_left,
+				window->height - window->statusbar_lines);
+		}
+		if (window->statusbar_columns_right > 0) {
+			window->right_panel_win = term_window_create(
+				window->last_column - window->statusbar_columns_right + 1,
+				window->first_line + window->statusbar_lines_top,
+				window->statusbar_columns_right,
+				window->height - window->statusbar_lines);
+		}
+
+                window->size_dirty = TRUE;
+	}
 
         return ret;
 }
