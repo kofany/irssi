@@ -26,12 +26,17 @@ static int sp_enable_mouse;
 
 static void read_settings(void)
 {
+	int old_mouse = sp_enable_mouse;
 	sp_left_width = settings_get_int("sidepanel_left_width");
 	sp_right_width = settings_get_int("sidepanel_right_width");
 	sp_enable_left = settings_get_bool("sidepanel_left");
 	sp_enable_right = settings_get_bool("sidepanel_right");
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
 	sp_enable_mouse = settings_get_bool("sidepanel_mouse");
+	apply_reservations_all();
+	apply_and_redraw();
+	if (sp_enable_mouse && !old_mouse) enable_mouse_tracking();
+	if (!sp_enable_mouse && old_mouse) disable_mouse_tracking();
 }
 
 static void apply_reservations_all(void)
@@ -302,6 +307,7 @@ static void redraw_one(MAIN_WINDOW_REC *mw)
 	draw_left_contents(mw, ctx);
 	draw_right_contents(mw, ctx);
 	irssi_set_dirty();
+	term_refresh(NULL);
 }
 
 static void redraw_all(void)
