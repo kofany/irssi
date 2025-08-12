@@ -171,12 +171,14 @@ static void draw_border_vertical(TERM_WINDOW *tw, int width, int height, int lef
 	}
 }
 
-static void clear_window(TERM_WINDOW *tw, int height)
+static void clear_window_full(TERM_WINDOW *tw, int width, int height)
 {
-	int i;
+	int y;
+	int x;
 	if (!tw) return;
-	for (i = 0; i < height; i++) {
-		term_window_clrtoeol(tw, i);
+	for (y = 0; y < height; y++) {
+		term_move(tw, 0, y);
+		for (x = 0; x < width; x++) term_addch(tw, ' ');
 	}
 }
 
@@ -219,7 +221,7 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	if (!ctx) return;
 	tw = ctx->left_tw;
 	if (!tw) return;
-	clear_window(tw, ctx->left_h);
+	clear_window_full(tw, ctx->left_w, ctx->left_h);
 	row = 0;
 	skip = ctx->left_scroll_offset;
 	height = ctx->left_h;
@@ -297,7 +299,7 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	if (!ctx) return;
 	tw = ctx->right_tw;
 	if (!tw) return;
-	clear_window(tw, ctx->right_h);
+	clear_window_full(tw, ctx->right_w, ctx->right_h);
 	aw = mw->active;
 	height = ctx->right_h;
 	skip = ctx->right_scroll_offset;
