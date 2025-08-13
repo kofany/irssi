@@ -106,6 +106,26 @@ static GSList *sp_windows_of(MAIN_WINDOW_REC *mw)
     return out;
 }
 
+/* helper: print name truncated with ellipsis if needed */
+static void sp_addstr_ellipsis(TERM_WINDOW *tw, const char *str, int maxw)
+{
+    if (maxw <= 0) return;
+    int len = 0;
+    while (str[len] && len < maxw) len++;
+    if (str[len] == '\0') {
+        for (int i = 0; i < len; i++) term_addch(tw, str[i]);
+        return;
+    }
+    /* need ellipsis */
+    if (maxw >= 1) {
+        int keep = maxw - 1;
+        for (int i = 0; i < keep && str[i]; i++) term_addch(tw, str[i]);
+        term_addch(tw, '\xE2'); /* '…' in UTF-8: E2 80 A6; fallback: '.' */
+        term_addch(tw, '\x80');
+        term_addch(tw, '\xA6');
+    }
+}
+
 static void sp_draw_left_channels(MAIN_WINDOW_REC *mw)
 {
     if (mw->left_panel_win == NULL) return;
@@ -158,8 +178,7 @@ static void sp_draw_left_channels(MAIN_WINDOW_REC *mw)
         } else if (w == mw->active) {
             term_set_color(mw->left_panel_win, ATTR_REVERSE);
         }
-        for (int i = 0; name[i] != '\0' && x < maxw; i++, x++)
-            term_addch(mw->left_panel_win, name[i]);
+        sp_addstr_ellipsis(mw->left_panel_win, name, maxw - x);
         term_set_color(mw->left_panel_win, ATTR_RESET);
         y++;
     }
@@ -179,25 +198,34 @@ static void sp_draw_right_nicklist(MAIN_WINDOW_REC *mw)
     if (mw->right_panel_win == NULL) return;
     term_window_clear(mw->right_panel_win);
 
+    SP_MAINWIN_CTX *ctx = sp_get_ctx(mw);
+
     /* aktywny item musi być kanałem, inaczej pusta lista */
     if (mw->active != NULL && IS_CHANNEL(mw->active->active)) {
         CHANNEL_REC *chan = CHANNEL(mw->active->active);
         GSList *nicks = nicklist_getnicks(chan);
+        int total = g_slist_length(nicks);
+        int maxh = mw->right_panel_win->height;
+        if (ctx->right_scroll < 0) ctx->right_scroll = 0;
+        if (ctx->right_scroll > total - 1) ctx->right_scroll = total > 0 ? total - 1 : 0;
+
         int y = 0;
-        for (GSList *t = nicks; t != NULL && y < mw->right_panel_win->height; t = t->next) {
+        int idx = 0;
+        for (GSList *t = nicks; t != NULL && y < maxh; t = t->next, idx++) {
+            if (idx < ctx->right_scroll) continue;
             NICK_REC *nick = t->data;
             const char *name = nick->nick;
             const char *prefix = nick->prefixes; /* e.g. @ + */
             term_move(mw->right_panel_win, 1, y);
             int maxw = mw->right_panel_win->width - 1;
-            int i = 0;
+            int used = 0;
             if (prefix != NULL && prefix[0] != '\0') {
-                for (i = 0; prefix[i] != '\0' && i < maxw; i++)
+                /* print prefixes truncated if needed */
+                int i;
+                for (i = 0; prefix[i] != '\0' && used < maxw; i++, used++)
                     term_addch(mw->right_panel_win, prefix[i]);
             }
-            int used = i;
-            for (i = 0; name[i] != '\0' && used + i < maxw; i++)
-                term_addch(mw->right_panel_win, name[i]);
+            sp_addstr_ellipsis(mw->right_panel_win, name, maxw - used);
             y++;
         }
         /* lista z nicklist_getnicks nie jest do zwalniania tutaj */
@@ -262,7 +290,7 @@ static void sp_sig_nicklist_changed(CHANNEL_REC *chan)
     if (active_mainwin != NULL) sp_redraw_window(active_mainwin);
 }
 
-/* navigation helpers for left panel */
+/* navigation helpers for left/right panel */
 static void sp_left_move(MAIN_WINDOW_REC *mw, int delta)
 {
     SP_MAINWIN_CTX *ctx = sp_get_ctx(mw);
@@ -302,6 +330,13 @@ static WINDOW_REC *sp_left_get_selected(MAIN_WINDOW_REC *mw)
     WINDOW_REC *w = g_slist_nth_data(list, sel);
     g_slist_free(list);
     return w;
+}
+
+static void sp_right_scroll(MAIN_WINDOW_REC *mw, int delta)
+{
+    SP_MAINWIN_CTX *ctx = sp_get_ctx(mw);
+    ctx->right_scroll += delta;
+    if (ctx->right_scroll < 0) ctx->right_scroll = 0;
 }
 
 static void cmd_panel(const char *data)
@@ -344,6 +379,14 @@ static void cmd_panel(const char *data)
             WINDOW_REC *w = sp_left_get_selected(active_mainwin);
             if (w != NULL) window_set_active(w);
         }
+    } else if (g_ascii_strcasecmp(cmd, "rup") == 0) {
+        if (active_mainwin) { sp_right_scroll(active_mainwin, -1); sp_redraw_window(active_mainwin); }
+    } else if (g_ascii_strcasecmp(cmd, "rdown") == 0) {
+        if (active_mainwin) { sp_right_scroll(active_mainwin, +1); sp_redraw_window(active_mainwin); }
+    } else if (g_ascii_strcasecmp(cmd, "rpageup") == 0) {
+        if (active_mainwin && active_mainwin->right_panel_win) { sp_right_scroll(active_mainwin, -active_mainwin->right_panel_win->height); sp_redraw_window(active_mainwin); }
+    } else if (g_ascii_strcasecmp(cmd, "rpagedown") == 0) {
+        if (active_mainwin && active_mainwin->right_panel_win) { sp_right_scroll(active_mainwin, +active_mainwin->right_panel_win->height); sp_redraw_window(active_mainwin); }
     }
 
     cmd_params_free(free_arg);
