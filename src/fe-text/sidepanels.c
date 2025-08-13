@@ -3,6 +3,8 @@
 #include <irssi/src/core/settings.h>
 #include <irssi/src/core/commands.h>
 #include <irssi/src/fe-common/core/fe-windows.h>
+#include <irssi/src/core/channels.h>
+#include <irssi/src/core/nicklist.h>
 #include <irssi/src/fe-text/mainwindows.h>
 #include <irssi/src/fe-text/gui-windows.h>
 #include <irssi/src/fe-text/term.h>
@@ -85,11 +87,34 @@ static void sp_draw_left_channels(MAIN_WINDOW_REC *mw)
 
 static void sp_draw_right_nicklist(MAIN_WINDOW_REC *mw)
 {
-    /* Placeholder: tylko separator pionowy, nicklista w kolejnych krokach */
     if (mw->right_panel_win == NULL) return;
-    int y;
     term_window_clear(mw->right_panel_win);
-    for (y = 0; y < mw->right_panel_win->height; y++) {
+
+    /* aktywny item musi być kanałem, inaczej pusta lista */
+    if (mw->active != NULL && IS_CHANNEL(mw->active->active)) {
+        CHANNEL_REC *chan = CHANNEL(mw->active->active);
+        GSList *nicks = nicklist_getnicks(chan);
+        int y = 0;
+        for (GSList *t = nicks; t != NULL && y < mw->right_panel_win->height; t = t->next) {
+            NICK_REC *nick = t->data;
+            const char *name = nick->nick;
+            const char *prefix = nick->prefixes; /* e.g. @ + */
+            term_move(mw->right_panel_win, 1, y);
+            int maxw = mw->right_panel_win->width - 1;
+            int i = 0;
+            if (prefix != NULL && prefix[0] != '\0') {
+                for (i = 0; prefix[i] != '\0' && i < maxw; i++)
+                    term_addch(mw->right_panel_win, prefix[i]);
+            }
+            int used = i;
+            for (i = 0; name[i] != '\0' && used + i < maxw; i++)
+                term_addch(mw->right_panel_win, name[i]);
+            y++;
+        }
+        /* pamiętaj: nie zwalniamy listy zwracanej przez nicklist_getnicks */
+    }
+    /* separator pionowy po lewej */
+    for (int y = 0; y < mw->right_panel_win->height; y++) {
         term_move(mw->right_panel_win, 0, y);
         term_addch(mw->right_panel_win, '|');
     }
@@ -118,6 +143,29 @@ static void sp_sig_window_changed(void)
 {
     if (active_mainwin != NULL)
         sp_redraw_window(active_mainwin);
+}
+
+/* odśwież kanały/nicki na odpowiednich sygnałach */
+static void sp_sig_window_created(WINDOW_REC *w)
+{
+    if (w != NULL && WINDOW_MAIN(w) != NULL)
+        sp_redraw_window(WINDOW_MAIN(w));
+}
+static void sp_sig_window_destroyed(WINDOW_REC *w)
+{
+    if (w != NULL && WINDOW_MAIN(w) != NULL)
+        sp_redraw_window(WINDOW_MAIN(w));
+}
+static void sp_sig_window_refnum_changed(WINDOW_REC *w)
+{
+    if (w != NULL && WINDOW_MAIN(w) != NULL)
+        sp_redraw_window(WINDOW_MAIN(w));
+}
+
+/* zmiany na kanale/nickach */
+static void sp_sig_nicklist_changed(CHANNEL_REC *chan)
+{
+    if (active_mainwin != NULL) sp_redraw_window(active_mainwin);
 }
 
 static void cmd_panel(const char *data)
@@ -165,6 +213,12 @@ void sidepanels_init(void)
     signal_add("window changed", (SIGNAL_FUNC) sp_sig_window_changed);
     signal_add("setup changed", (SIGNAL_FUNC) sp_read_settings);
 
+    signal_add("window created", (SIGNAL_FUNC) sp_sig_window_created);
+    signal_add("window destroyed", (SIGNAL_FUNC) sp_sig_window_destroyed);
+    signal_add("window refnum changed", (SIGNAL_FUNC) sp_sig_window_refnum_changed);
+
+    signal_add("nicklist changed", (SIGNAL_FUNC) sp_sig_nicklist_changed);
+
     command_bind("panel", NULL, (SIGNAL_FUNC) cmd_panel);
 }
 
@@ -176,6 +230,12 @@ void sidepanels_deinit(void)
     signal_remove("mainwindow moved", (SIGNAL_FUNC) sp_sig_mainwindow_resized);
     signal_remove("window changed", (SIGNAL_FUNC) sp_sig_window_changed);
     signal_remove("setup changed", (SIGNAL_FUNC) sp_read_settings);
+
+    signal_remove("window created", (SIGNAL_FUNC) sp_sig_window_created);
+    signal_remove("window destroyed", (SIGNAL_FUNC) sp_sig_window_destroyed);
+    signal_remove("window refnum changed", (SIGNAL_FUNC) sp_sig_window_refnum_changed);
+
+    signal_remove("nicklist changed", (SIGNAL_FUNC) sp_sig_nicklist_changed);
 
     /* remove columns and destroy panel windows */
     GSList *tmp;
