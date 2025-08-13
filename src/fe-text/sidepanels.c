@@ -32,6 +32,9 @@ static int sp_auto_hide_right;
 static int sp_enable_mouse;
 static int sp_debug;
 
+static int esc_pending;
+static int reemit_guard;
+
 static FILE *sp_log;
 static void sp_log_open(void) { if (!sp_log) sp_log = fopen("/tmp/irssi_sidepanels.log", "a"); }
 static void sp_logf(const char *fmt, ...)
@@ -55,12 +58,11 @@ static void read_settings(void)
 	sp_enable_left = settings_get_bool("sidepanel_left");
 	sp_enable_right = settings_get_bool("sidepanel_right");
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
-	sp_enable_mouse = settings_get_bool("sidepanel_mouse");
+	sp_enable_mouse = TRUE; /* always on natively */
 	sp_debug = settings_get_bool("sidepanel_debug");
 	apply_reservations_all();
 	apply_and_redraw();
-	if (sp_enable_mouse && !old_mouse) enable_mouse_tracking();
-	if (!sp_enable_mouse && old_mouse) disable_mouse_tracking();
+	if (!old_mouse) enable_mouse_tracking();
 }
 
 static void apply_reservations_all(void)
@@ -487,18 +489,21 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 	int y;
 	gboolean press;
 	GSList *mt;
-	if (!mouse_tracking_enabled) return FALSE;
+	if (!sp_enable_mouse) return FALSE;
 	if (mouse_state == 0) {
-		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; return TRUE; }
+		if (key == 0x1b) { mouse_state = 1; mouse_len = 0; esc_pending = 1; return TRUE; }
 		return FALSE;
 	} else if (mouse_state == 1) {
 		if (key == '[') { mouse_state = 2; return TRUE; }
-		mouse_state = 0; return FALSE;
+		/* Not SGR - re-emit ESC and let this key pass */
+		mouse_state = 0; mouse_len = 0;
+		if (esc_pending && !reemit_guard) { reemit_guard = 1; signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b)); reemit_guard = 0; esc_pending = 0; }
+		return FALSE;
 	} else if (mouse_state >= 2) {
 		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
 		mouse_buf[mouse_len] = '\0';
 		s = mouse_buf;
-		if (*s != '<') { /* not SGR mouse - cancel */ mouse_state = 0; mouse_len = 0; return TRUE; }
+		if (*s != '<') { /* not SGR mouse - cancel */ mouse_state = 0; mouse_len = 0; esc_pending = 0; return TRUE; }
 		sc1 = strchr(s, ';'); if (!sc1) return TRUE;
 		sc2 = strchr(sc1+1, ';'); if (!sc2) return TRUE;
 		end = sc2+1; if (*end == '\0') return TRUE;
@@ -509,7 +514,7 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		y = atoi(sc2+1);
 		x -= 1; y -= 1;
 		press = (last == 'M');
-		mouse_state = 0; mouse_len = 0;
+		mouse_state = 0; mouse_len = 0; esc_pending = 0;
 		if ((braw & 64) && press) {
 			int dir;
 			int delta;
@@ -545,7 +550,9 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 			int button;
 			button = (braw & 3) + 1;
 			if (press && button == 1) {
-				return handle_click_at(x, y, button);
+				/* consume click always */
+				(void)handle_click_at(x, y, button);
+				return TRUE;
 			}
 		}
 		return TRUE;
@@ -585,12 +592,14 @@ void sidepanels_init(void)
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
 	settings_add_bool("lookandfeel", "sidepanel_mouse", FALSE);
 	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
+	sp_enable_mouse = TRUE; /* force native */
 	read_settings();
 	mw_to_ctx = g_hash_table_new(g_direct_hash, g_direct_equal);
 	/* Apply to existing */
 	apply_reservations_all();
 	apply_and_redraw();
-	if (sp_enable_mouse) enable_mouse_tracking();
+	enable_mouse_tracking();
+	esc_pending = 0; reemit_guard = 0;
 	signal_add("irssi init finished", (SIGNAL_FUNC) sig_irssi_init_finished);
 	signal_add("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_add("setup changed", (SIGNAL_FUNC) read_settings);
@@ -624,6 +633,6 @@ void sidepanels_deinit(void)
 			mainwindow_set_statusbar_columns(mw, 0, -mw->statusbar_columns_right);
 	}
 	if (mw_to_ctx) { g_hash_table_destroy(mw_to_ctx); mw_to_ctx = NULL; }
-	if (sp_enable_mouse) disable_mouse_tracking();
+	disable_mouse_tracking();
 	if (sp_log) { fclose(sp_log); sp_log = NULL; }
 }
