@@ -82,6 +82,17 @@ FORMAT_REC gui_text_formats[] = {
 	{ "paste_content", "%_>%_ $0", 1, { 0 } },
 
 	/* ---- */
+	{ NULL, "Sidepanels", 0 },
+
+	{ "sidepanel_header", "%_$0%_", 1, { 0 } },
+	{ "sidepanel_item", " $0", 1, { 0 } },
+	{ "sidepanel_item_selected", "%Y>%n$0", 1, { 0 } },
+	{ "sidepanel_item_activity", "%g $0%n", 1, { 0 } },
+	{ "sidepanel_nick_normal", " $0", 1, { 0 } },
+	{ "sidepanel_nick_op", "%R@%n$0", 1, { 0 } },
+	{ "sidepanel_nick_voice", "%Y+%n$0", 1, { 0 } },
+
+	/* ---- */
 	{ NULL, "Welcome", 0 },
 
 	{ "irssi_banner",

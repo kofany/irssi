@@ -137,6 +137,22 @@ static void mainwindow_resize(MAIN_WINDOW_REC *window, int xdiff, int ydiff)
 			  window, window->width, width, window->height, height);
 	}
 	window->size_dirty = TRUE;
+
+	/* Update panel windows positions and sizes */
+	if (window->left_panel_win) {
+		int x = window->first_column;
+		int y = window->first_line + window->statusbar_lines_top;
+		int w = window->statusbar_columns_left;
+		int h = window->height - window->statusbar_lines;
+		term_window_move(window->left_panel_win, x, y, w, h);
+	}
+	if (window->right_panel_win) {
+		int x = window->last_column - window->statusbar_columns_right + 1;
+		int y = window->first_line + window->statusbar_lines_top;
+		int w = window->statusbar_columns_right;
+		int h = window->height - window->statusbar_lines;
+		term_window_move(window->right_panel_win, x, y, w, h);
+	}
 }
 
 static GSList *get_sticky_windows_sorted(MAIN_WINDOW_REC *mainwin)
@@ -538,6 +554,16 @@ static void mainwindow_destroy_full(MAIN_WINDOW_REC *window, int respace)
 
         term_window_destroy(window->screen_win);
 
+	/* Destroy panel windows if they exist */
+	if (window->left_panel_win) {
+		term_window_destroy(window->left_panel_win);
+		window->left_panel_win = NULL;
+	}
+	if (window->right_panel_win) {
+		term_window_destroy(window->right_panel_win);
+		window->right_panel_win = NULL;
+	}
+
 	if (mainwindows != NULL) {
 		gui_windows_remove_parent(window);
 		if (respace) {
@@ -906,6 +932,71 @@ int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
                 window->size_dirty = TRUE;
 
         return ret;
+}
+
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				     int left, int right)
+{
+	int ret;
+
+	ret = -1;
+	if (left != 0) {
+		ret = window->statusbar_columns_left;
+		window->statusbar_columns_left += left;
+		window->statusbar_columns += left;
+	}
+
+	if (right != 0) {
+		ret = window->statusbar_columns_right;
+		window->statusbar_columns_right += right;
+		window->statusbar_columns += right;
+	}
+
+	if (left+right != 0) {
+		window->size_dirty = TRUE;
+		/* Create/move/destroy panel windows based on new column reservations */
+		if (window->statusbar_columns_left > 0 && !window->left_panel_win) {
+			/* Create left panel window */
+			int x = window->first_column;
+			int y = window->first_line + window->statusbar_lines_top;
+			int w = window->statusbar_columns_left;
+			int h = window->height - window->statusbar_lines;
+			window->left_panel_win = term_window_create(x, y, w, h);
+		} else if (window->statusbar_columns_left <= 0 && window->left_panel_win) {
+			/* Destroy left panel window */
+			term_window_destroy(window->left_panel_win);
+			window->left_panel_win = NULL;
+		} else if (window->left_panel_win) {
+			/* Move/resize left panel window */
+			int x = window->first_column;
+			int y = window->first_line + window->statusbar_lines_top;
+			int w = window->statusbar_columns_left;
+			int h = window->height - window->statusbar_lines;
+			term_window_move(window->left_panel_win, x, y, w, h);
+		}
+
+		if (window->statusbar_columns_right > 0 && !window->right_panel_win) {
+			/* Create right panel window */
+			int x = window->last_column - window->statusbar_columns_right + 1;
+			int y = window->first_line + window->statusbar_lines_top;
+			int w = window->statusbar_columns_right;
+			int h = window->height - window->statusbar_lines;
+			window->right_panel_win = term_window_create(x, y, w, h);
+		} else if (window->statusbar_columns_right <= 0 && window->right_panel_win) {
+			/* Destroy right panel window */
+			term_window_destroy(window->right_panel_win);
+			window->right_panel_win = NULL;
+		} else if (window->right_panel_win) {
+			/* Move/resize right panel window */
+			int x = window->last_column - window->statusbar_columns_right + 1;
+			int y = window->first_line + window->statusbar_lines_top;
+			int w = window->statusbar_columns_right;
+			int h = window->height - window->statusbar_lines;
+			term_window_move(window->right_panel_win, x, y, w, h);
+		}
+	}
+
+	return ret;
 }
 
 static void mainwindows_resize_two(GSList *grow_list,

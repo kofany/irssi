@@ -17,6 +17,8 @@ typedef struct {
 	WINDOW_REC *active;
 
 	TERM_WINDOW *screen_win;
+	TERM_WINDOW *left_panel_win;  /* Left panel terminal window */
+	TERM_WINDOW *right_panel_win; /* Right panel terminal window */
 	int sticky_windows; /* number of sticky windows */
 
 	int first_line, last_line; /* first/last line used by this window (0..x) (includes statusbars) */
@@ -66,6 +68,8 @@ void mainwindow_change_active(MAIN_WINDOW_REC *mainwin,
 int mainwindows_reserve_lines(int top, int bottom);
 int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
 				   int top, int bottom);
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				     int left, int right);
 void mainwindows_redraw_dirty(void);
 
 GSList *mainwindows_get_sorted(int reverse);

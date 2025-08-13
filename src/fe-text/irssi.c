@@ -41,6 +41,7 @@
 #include <irssi/src/fe-text/gui-readline.h>
 #include <irssi/src/fe-text/statusbar.h>
 #include <irssi/src/fe-text/gui-windows.h>
+#include <irssi/src/fe-text/sidepanels.h>
 #include <irssi/irssi-version.h>
 
 #include <signal.h>
@@ -191,6 +192,8 @@ static void textui_finish_init(void)
 	statusbar_init();
 	critical_fatal_section_end(loglev);
 
+	sidepanels_init();
+
 	settings_check();
 
 	module_register("core", "fe-text");
@@ -243,6 +246,7 @@ static void textui_deinit(void)
 	signal_remove("gui exit", (SIGNAL_FUNC) sig_exit);
 
 	lastlog_deinit();
+	sidepanels_deinit();
 	statusbar_deinit();
 	gui_entry_deinit();
 	gui_printtext_deinit();
