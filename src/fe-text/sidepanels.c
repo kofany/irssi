@@ -103,6 +103,8 @@ typedef struct {
 	/* cached geometry for hit-test and drawing */
 	int left_x; int left_y; int left_h;
 	int right_x; int right_y; int right_h;
+	/* ordered nick pointers matching rendered order */
+	GSList *right_order;
 } SP_MAINWIN_CTX;
 
 static GHashTable *mw_to_ctx;
@@ -123,6 +125,7 @@ static void destroy_ctx(MAIN_WINDOW_REC *mw)
 	if (!ctx) return;
 	if (ctx->left_tw) { term_window_destroy(ctx->left_tw); ctx->left_tw = NULL; }
 	if (ctx->right_tw) { term_window_destroy(ctx->right_tw); ctx->right_tw = NULL; }
+	if (ctx->right_order) { g_slist_free(ctx->right_order); ctx->right_order = NULL; }
 	g_hash_table_remove(mw_to_ctx, mw);
 	g_free(ctx);
 }
@@ -362,6 +365,7 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	height = ctx->right_h;
 	skip = ctx->right_scroll_offset;
 	index = 0; row = 0;
+	if (ctx->right_order) { g_slist_free(ctx->right_order); ctx->right_order = NULL; }
 	if (!aw || !aw->active) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); irssi_set_dirty(); return; }
 	if (!IS_CHANNEL(aw->active)) { draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0); irssi_set_dirty(); return; }
 	{
@@ -379,8 +383,10 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		ops = g_slist_sort(ops, ci_nick_compare);
 		voices = g_slist_sort(voices, ci_nick_compare);
 		normal = g_slist_sort(normal, ci_nick_compare);
+		/* Build ordered list and render */
 		for (cur = ops; cur && row < height; cur = cur->next) {
 			NICK_REC *nick = cur->data; int format; char buf[512]; char pfx;
+			ctx->right_order = g_slist_append(ctx->right_order, nick);
 			if (index++ < skip) continue;
 			term_move(tw, 1, row);
 			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
@@ -392,6 +398,7 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		}
 		for (cur = voices; cur && row < height; cur = cur->next) {
 			NICK_REC *nick = cur->data; int format; char buf[512]; char pfx;
+			ctx->right_order = g_slist_append(ctx->right_order, nick);
 			if (index++ < skip) continue;
 			term_move(tw, 1, row);
 			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
@@ -403,6 +410,7 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		}
 		for (cur = normal; cur && row < height; cur = cur->next) {
 			NICK_REC *nick = cur->data; int format; char buf[512];
+			ctx->right_order = g_slist_append(ctx->right_order, nick);
 			if (index++ < skip) continue;
 			term_move(tw, 1, row);
 			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
@@ -552,22 +560,18 @@ static gboolean handle_click_at(int x, int y, int button)
 				WINDOW_REC *aw = mw->active;
 				if (aw && IS_CHANNEL(aw->active)) {
 					CHANNEL_REC *ch = CHANNEL(aw->active);
-					GSList *nicks = nicklist_getnicks(ch);
 					int target_index = ctx->right_scroll_offset + row;
 					int idx = 0;
-					GSList *nt;
-					for (nt = nicks; nt; nt = nt->next) {
-						if (idx++ == target_index) {
-							NICK_REC *nick = nt->data;
-							ctx->right_selected_index = target_index;
-							if (nick && nick->nick)
-								signal_emit("command query", 3, nick->nick, ch->server, ch);
-							redraw_one(mw);
-							irssi_set_dirty();
-							/* move selection in left sidebar to newly active window */
-							update_left_selection_to_active();
-							return TRUE;
-						}
+					int count = g_slist_length(ctx->right_order);
+					if (target_index >= 0 && target_index < count) {
+						NICK_REC *nick = g_slist_nth_data(ctx->right_order, target_index);
+						ctx->right_selected_index = target_index;
+						if (nick && nick->nick)
+							signal_emit("command query", 3, nick->nick, ch->server, ch);
+						redraw_one(mw);
+						irssi_set_dirty();
+						update_left_selection_to_active();
+						return TRUE;
 					}
 				}
 			}
