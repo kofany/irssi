@@ -498,12 +498,12 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
 		mouse_buf[mouse_len] = '\0';
 		s = mouse_buf;
-		if (*s != '<') return FALSE;
-		sc1 = strchr(s, ';'); if (!sc1) return FALSE;
-		sc2 = strchr(sc1+1, ';'); if (!sc2) return FALSE;
-		end = sc2+1; if (*end == '\0') return FALSE;
+		if (*s != '<') { /* not SGR mouse - cancel */ mouse_state = 0; mouse_len = 0; return TRUE; }
+		sc1 = strchr(s, ';'); if (!sc1) return TRUE;
+		sc2 = strchr(sc1+1, ';'); if (!sc2) return TRUE;
+		end = sc2+1; if (*end == '\0') return TRUE;
 		last = end[(int)strlen(end)-1];
-		if (last != 'M' && last != 'm') return FALSE;
+		if (last != 'M' && last != 'm') return TRUE;
 		braw = atoi(s+1);
 		x = atoi(sc1+1);
 		y = atoi(sc2+1);
