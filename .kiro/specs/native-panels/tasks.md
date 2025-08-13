@@ -73,7 +73,7 @@
   - Ensure per-MAIN_WINDOW_REC behavior for split window environments
   - _Requirements: 3.1, 3.2, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 11. Implement selection and scroll state management
+- [x] 11. Implement selection and scroll state management
   - Add selection tracking for both left and right panels in SP_MAINWIN_CTX
   - Implement scroll offset management for long channel/nick lists
   - Preserve selection state across panel refreshes and resizes

@@ -70,6 +70,12 @@ static GHashTable *mw_to_ctx;
 /* Forward declarations */
 static void sidepanels_redraw_all(MAIN_WINDOW_REC *mw);
 static void adjust_panel_widths_for_terminal_size(void);
+static void update_left_selection(SP_MAINWIN_CTX *ctx, int new_selection);
+static void update_right_selection(SP_MAINWIN_CTX *ctx, int new_selection);
+static void adjust_left_scroll_to_selection(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw);
+static void adjust_right_scroll_to_selection(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw);
+static void scroll_left_panel(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw, int delta);
+static void scroll_right_panel(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw, int delta);
 
 /* Nicklist management */
 static void free_nicklist_item(NicklistItem *item)
@@ -97,6 +103,16 @@ static void populate_nicklist(SP_MAINWIN_CTX *ctx)
 	WI_ITEM_REC *item;
 	CHANNEL_REC *channel;
 	GSList *nicks, *tmp;
+	char *selected_nick = NULL;
+	int old_selection = ctx->right_selected_index;
+	
+	/* Remember currently selected nick */
+	if (ctx->nicklist && old_selection >= 0) {
+		NicklistItem *selected_item = g_list_nth_data(ctx->nicklist, old_selection);
+		if (selected_item) {
+			selected_nick = g_strdup(selected_item->nick);
+		}
+	}
 	
 	/* Clear existing nicklist */
 	clear_nicklist(ctx);
@@ -141,6 +157,48 @@ static void populate_nicklist(SP_MAINWIN_CTX *ctx)
 	}
 	
 	g_slist_free(nicks);
+	
+	/* Restore selection if possible */
+	if (selected_nick) {
+		GList *item_tmp;
+		int index = 0;
+		gboolean found = FALSE;
+		for (item_tmp = ctx->nicklist; item_tmp != NULL; item_tmp = item_tmp->next) {
+			NicklistItem *item = item_tmp->data;
+			if (g_strcmp0(item->nick, selected_nick) == 0) {
+				ctx->right_selected_index = index;
+				found = TRUE;
+				break;
+			}
+			index++;
+		}
+		g_free(selected_nick);
+		
+		/* If previously selected nick not found, try to keep similar position */
+		if (!found && old_selection >= 0) {
+			int list_length = g_list_length(ctx->nicklist);
+			if (list_length > 0) {
+				/* Keep selection at similar relative position */
+				ctx->right_selected_index = (old_selection < list_length) ? old_selection : list_length - 1;
+			}
+		}
+	}
+	
+	/* If selection is invalid, reset to first item */
+	if (ctx->right_selected_index >= g_list_length(ctx->nicklist)) {
+		ctx->right_selected_index = ctx->nicklist ? 0 : -1;
+	}
+	
+	/* Ensure scroll offset is still valid after list changes */
+	if (ctx->nicklist) {
+		int list_length = g_list_length(ctx->nicklist);
+		if (ctx->right_scroll_offset >= list_length) {
+			ctx->right_scroll_offset = (list_length > 0) ? list_length - 1 : 0;
+		}
+	} else {
+		ctx->right_scroll_offset = 0;
+	}
+	
 	ctx->nicklist_dirty = TRUE;
 }
 
@@ -166,6 +224,16 @@ static void populate_channel_list(SP_MAINWIN_CTX *ctx)
 {
 	GSList *tmp;
 	WINDOW_REC *active_window = active_win;
+	char *selected_name = NULL;
+	int old_selection = ctx->left_selected_index;
+	
+	/* Remember currently selected item name */
+	if (ctx->channel_list && old_selection >= 0) {
+		ChannelListItem *selected_item = g_list_nth_data(ctx->channel_list, old_selection);
+		if (selected_item) {
+			selected_name = g_strdup(selected_item->name);
+		}
+	}
 	
 	/* Clear existing list */
 	clear_channel_list(ctx);
@@ -196,6 +264,47 @@ static void populate_channel_list(SP_MAINWIN_CTX *ctx)
 		list_item->is_active = (window == active_window);
 		
 		ctx->channel_list = g_list_append(ctx->channel_list, list_item);
+	}
+	
+	/* Restore selection if possible */
+	if (selected_name) {
+		GList *item_tmp;
+		int index = 0;
+		gboolean found = FALSE;
+		for (item_tmp = ctx->channel_list; item_tmp != NULL; item_tmp = item_tmp->next) {
+			ChannelListItem *item = item_tmp->data;
+			if (g_strcmp0(item->name, selected_name) == 0) {
+				ctx->left_selected_index = index;
+				found = TRUE;
+				break;
+			}
+			index++;
+		}
+		g_free(selected_name);
+		
+		/* If previously selected item not found, try to keep similar position */
+		if (!found && old_selection >= 0) {
+			int list_length = g_list_length(ctx->channel_list);
+			if (list_length > 0) {
+				/* Keep selection at similar relative position */
+				ctx->left_selected_index = (old_selection < list_length) ? old_selection : list_length - 1;
+			}
+		}
+	}
+	
+	/* If selection is invalid, reset to first item */
+	if (ctx->left_selected_index >= g_list_length(ctx->channel_list)) {
+		ctx->left_selected_index = ctx->channel_list ? 0 : -1;
+	}
+	
+	/* Ensure scroll offset is still valid after list changes */
+	if (ctx->channel_list) {
+		int list_length = g_list_length(ctx->channel_list);
+		if (ctx->left_scroll_offset >= list_length) {
+			ctx->left_scroll_offset = (list_length > 0) ? list_length - 1 : 0;
+		}
+	} else {
+		ctx->left_scroll_offset = 0;
 	}
 	
 	ctx->channel_list_dirty = TRUE;
@@ -336,7 +445,22 @@ static void sig_terminal_resized(void)
 
 static void sig_mainwindow_resized(MAIN_WINDOW_REC *mw)
 {
+	SP_MAINWIN_CTX *ctx;
+	
 	/* Panel windows are already moved by mainwindow_resize_windows() */
+	
+	/* Preserve selection state and adjust scroll offsets for new size */
+	ctx = get_ctx(mw, FALSE);
+	if (ctx) {
+		/* Adjust scroll offsets to account for new panel height */
+		adjust_left_scroll_to_selection(ctx, mw);
+		adjust_right_scroll_to_selection(ctx, mw);
+		
+		/* Mark panels as dirty to trigger redraw */
+		ctx->channel_list_dirty = TRUE;
+		ctx->nicklist_dirty = TRUE;
+	}
+	
 	/* Trigger panel redraw after resize */
 	sidepanels_redraw_all(mw);
 }
@@ -548,6 +672,9 @@ static void sidepanels_redraw_left(MAIN_WINDOW_REC *mw)
 	ctx = get_ctx(mw, FALSE);
 	if (!ctx || !ctx->channel_list_dirty) return;
 	
+	/* Adjust scroll offset to keep selection visible */
+	adjust_left_scroll_to_selection(ctx, mw);
+	
 	/* Handle empty channel list */
 	if (!ctx->channel_list) {
 		term_window_clear(mw->left_panel_win);
@@ -578,10 +705,13 @@ static void sidepanels_redraw_left(MAIN_WINDOW_REC *mw)
 		if (item_index < visible_start) continue;
 		if (item_index >= visible_end) break;
 		
-		/* Set colors based on activity and selection */
-		if (item->is_active) {
-			/* Active channel - white on black, reverse */
-			term_set_color2(mw->left_panel_win, ATTR_REVERSE | ATTR_BOLD, 15, 0);
+		/* Set colors based on selection, activity and active state */
+		if (item_index == ctx->left_selected_index) {
+			/* Selected item - reverse */
+			term_set_color2(mw->left_panel_win, ATTR_REVERSE, 15, 0);
+		} else if (item->is_active) {
+			/* Active channel - white, bold */
+			term_set_color2(mw->left_panel_win, ATTR_BOLD, 15, 0);
 		} else if (item->activity_level > 0) {
 			/* Activity - yellow, bold */
 			term_set_color2(mw->left_panel_win, ATTR_BOLD, 11, 0);
@@ -632,6 +762,9 @@ static void sidepanels_redraw_right(MAIN_WINDOW_REC *mw)
 	ctx = get_ctx(mw, FALSE);
 	if (!ctx || !ctx->nicklist_dirty) return;
 	
+	/* Adjust scroll offset to keep selection visible */
+	adjust_right_scroll_to_selection(ctx, mw);
+	
 	/* Handle empty nicklist or non-channel */
 	if (!ctx->nicklist || !ctx->nicklist_channel) {
 		term_window_clear(mw->right_panel_win);
@@ -667,8 +800,11 @@ static void sidepanels_redraw_right(MAIN_WINDOW_REC *mw)
 		if (item_index < visible_start) continue;
 		if (item_index >= visible_end) break;
 		
-		/* Set colors based on nick status */
-		if (item->is_away) {
+		/* Set colors based on selection and nick status */
+		if (item_index == ctx->right_selected_index) {
+			/* Selected nick - reverse */
+			term_set_color2(mw->right_panel_win, ATTR_REVERSE, 15, 0);
+		} else if (item->is_away) {
 			/* Away nick - dark gray */
 			term_set_color2(mw->right_panel_win, 0, 8, 0);
 		} else if (item->level >= 4) {
@@ -786,6 +922,223 @@ static void adjust_panel_widths_for_terminal_size(void)
 		/* Trigger redraw */
 		sidepanels_redraw_all(mw);
 	}
+}
+
+/* Selection and scroll management */
+static void adjust_left_scroll_to_selection(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw)
+{
+	int max_height, list_length;
+	
+	if (!ctx->channel_list || ctx->left_selected_index < 0) return;
+	
+	max_height = mw->height - mw->statusbar_lines;
+	list_length = g_list_length(ctx->channel_list);
+	
+	/* If selection is above visible area, scroll up */
+	if (ctx->left_selected_index < ctx->left_scroll_offset) {
+		ctx->left_scroll_offset = ctx->left_selected_index;
+	}
+	/* If selection is below visible area, scroll down */
+	else if (ctx->left_selected_index >= ctx->left_scroll_offset + max_height) {
+		ctx->left_scroll_offset = ctx->left_selected_index - max_height + 1;
+	}
+	
+	/* Ensure scroll offset is within valid bounds */
+	if (ctx->left_scroll_offset < 0) {
+		ctx->left_scroll_offset = 0;
+	}
+	if (ctx->left_scroll_offset > list_length - max_height && list_length > max_height) {
+		ctx->left_scroll_offset = list_length - max_height;
+	}
+}
+
+static void adjust_right_scroll_to_selection(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw)
+{
+	int max_height, list_length;
+	
+	if (!ctx->nicklist || ctx->right_selected_index < 0) return;
+	
+	max_height = mw->height - mw->statusbar_lines;
+	list_length = g_list_length(ctx->nicklist);
+	
+	/* If selection is above visible area, scroll up */
+	if (ctx->right_selected_index < ctx->right_scroll_offset) {
+		ctx->right_scroll_offset = ctx->right_selected_index;
+	}
+	/* If selection is below visible area, scroll down */
+	else if (ctx->right_selected_index >= ctx->right_scroll_offset + max_height) {
+		ctx->right_scroll_offset = ctx->right_selected_index - max_height + 1;
+	}
+	
+	/* Ensure scroll offset is within valid bounds */
+	if (ctx->right_scroll_offset < 0) {
+		ctx->right_scroll_offset = 0;
+	}
+	if (ctx->right_scroll_offset > list_length - max_height && list_length > max_height) {
+		ctx->right_scroll_offset = list_length - max_height;
+	}
+}
+
+static void update_left_selection(SP_MAINWIN_CTX *ctx, int new_selection)
+{
+	int list_length;
+	
+	if (!ctx->channel_list) {
+		ctx->left_selected_index = -1;
+		ctx->left_scroll_offset = 0;
+		return;
+	}
+	
+	list_length = g_list_length(ctx->channel_list);
+	if (list_length == 0) {
+		ctx->left_selected_index = -1;
+		ctx->left_scroll_offset = 0;
+		return;
+	}
+	
+	/* Clamp selection to valid range */
+	if (new_selection < 0) {
+		new_selection = 0;
+	} else if (new_selection >= list_length) {
+		new_selection = list_length - 1;
+	}
+	
+	ctx->left_selected_index = new_selection;
+	ctx->channel_list_dirty = TRUE;
+}
+
+static void update_right_selection(SP_MAINWIN_CTX *ctx, int new_selection)
+{
+	int list_length;
+	
+	if (!ctx->nicklist) {
+		ctx->right_selected_index = -1;
+		ctx->right_scroll_offset = 0;
+		return;
+	}
+	
+	list_length = g_list_length(ctx->nicklist);
+	if (list_length == 0) {
+		ctx->right_selected_index = -1;
+		ctx->right_scroll_offset = 0;
+		return;
+	}
+	
+	/* Clamp selection to valid range */
+	if (new_selection < 0) {
+		new_selection = 0;
+	} else if (new_selection >= list_length) {
+		new_selection = list_length - 1;
+	}
+	
+	ctx->right_selected_index = new_selection;
+	ctx->nicklist_dirty = TRUE;
+}
+
+/* Scroll management functions */
+static void scroll_left_panel(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw, int delta)
+{
+	int max_height, list_length;
+	int new_offset;
+	
+	if (!ctx->channel_list) return;
+	
+	max_height = mw->height - mw->statusbar_lines;
+	list_length = g_list_length(ctx->channel_list);
+	
+	/* Calculate new scroll offset */
+	new_offset = ctx->left_scroll_offset + delta;
+	
+	/* Clamp to valid range */
+	if (new_offset < 0) {
+		new_offset = 0;
+	}
+	if (new_offset > list_length - max_height && list_length > max_height) {
+		new_offset = list_length - max_height;
+	}
+	
+	/* Update if changed */
+	if (new_offset != ctx->left_scroll_offset) {
+		ctx->left_scroll_offset = new_offset;
+		ctx->channel_list_dirty = TRUE;
+	}
+}
+
+static void scroll_right_panel(SP_MAINWIN_CTX *ctx, MAIN_WINDOW_REC *mw, int delta)
+{
+	int max_height, list_length;
+	int new_offset;
+	
+	if (!ctx->nicklist) return;
+	
+	max_height = mw->height - mw->statusbar_lines;
+	list_length = g_list_length(ctx->nicklist);
+	
+	/* Calculate new scroll offset */
+	new_offset = ctx->right_scroll_offset + delta;
+	
+	/* Clamp to valid range */
+	if (new_offset < 0) {
+		new_offset = 0;
+	}
+	if (new_offset > list_length - max_height && list_length > max_height) {
+		new_offset = list_length - max_height;
+	}
+	
+	/* Update if changed */
+	if (new_offset != ctx->right_scroll_offset) {
+		ctx->right_scroll_offset = new_offset;
+		ctx->nicklist_dirty = TRUE;
+	}
+}
+
+/* Public API functions for selection and scroll management */
+void sidepanels_move_left_selection(MAIN_WINDOW_REC *mw, int delta)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	if (!ctx) return;
+	
+	update_left_selection(ctx, ctx->left_selected_index + delta);
+	sidepanels_redraw_left(mw);
+}
+
+void sidepanels_move_right_selection(MAIN_WINDOW_REC *mw, int delta)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	if (!ctx) return;
+	
+	update_right_selection(ctx, ctx->right_selected_index + delta);
+	sidepanels_redraw_right(mw);
+}
+
+void sidepanels_scroll_left(MAIN_WINDOW_REC *mw, int delta)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	if (!ctx) return;
+	
+	scroll_left_panel(ctx, mw, delta);
+	sidepanels_redraw_left(mw);
+}
+
+void sidepanels_scroll_right(MAIN_WINDOW_REC *mw, int delta)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	if (!ctx) return;
+	
+	scroll_right_panel(ctx, mw, delta);
+	sidepanels_redraw_right(mw);
+}
+
+int sidepanels_get_left_selection(MAIN_WINDOW_REC *mw)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	return ctx ? ctx->left_selected_index : -1;
+}
+
+int sidepanels_get_right_selection(MAIN_WINDOW_REC *mw)
+{
+	SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+	return ctx ? ctx->right_selected_index : -1;
 }
 
 void sidepanels_init(void)
