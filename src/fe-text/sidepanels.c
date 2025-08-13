@@ -289,6 +289,62 @@ static void draw_left_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	irssi_set_dirty();
 }
 
+static int ci_nick_compare(gconstpointer a, gconstpointer b)
+{
+	const NICK_REC *na = (const NICK_REC *)a;
+	const NICK_REC *nb = (const NICK_REC *)b;
+	return g_ascii_strcasecmp(na->nick, nb->nick);
+}
+
+static int compute_left_index_for_window(WINDOW_REC *target)
+{
+	int index = 0;
+	GSList *st;
+	for (st = servers; st != NULL; st = st->next) {
+		SERVER_REC *srv = st->data;
+		WINDOW_REC *status = window_find_level(srv, MSGLEVEL_ALL);
+		if (status) {
+			if (status == target) return index;
+			index++;
+		}
+		{
+			GSList *ct;
+			for (ct = srv->channels; ct != NULL; ct = ct->next) {
+				CHANNEL_REC *ch = ct->data;
+				WINDOW_REC *w = window_item_window((WI_ITEM_REC*)ch);
+				if (!w) w = window_find_item(ch->server, ch->name);
+				if (w == target) return index;
+				index++;
+			}
+		}
+		{
+			GSList *qt;
+			for (qt = srv->queries; qt != NULL; qt = qt->next) {
+				QUERY_REC *q = qt->data;
+				WINDOW_REC *w = window_item_window((WI_ITEM_REC*)q);
+				if (!w) w = window_find_item(q->server, q->name);
+				if (w == target) return index;
+				index++;
+			}
+		}
+	}
+	return 0;
+}
+
+static void update_left_selection_to_active(void)
+{
+	GSList *mwit;
+	for (mwit = mainwindows; mwit != NULL; mwit = mwit->next) {
+		MAIN_WINDOW_REC *mw = mwit->data;
+		SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+		if (!ctx) continue;
+		if (mw->active) {
+			int idx = compute_left_index_for_window(mw->active);
+			ctx->left_selected_index = idx;
+		}
+	}
+}
+
 static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 {
 	TERM_WINDOW *tw;
@@ -311,17 +367,51 @@ static void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	{
 		CHANNEL_REC *ch = CHANNEL(aw->active);
 		GSList *nicks = nicklist_getnicks(ch);
-		for (nt = nicks; nt && row < height; nt = nt->next) {
-			NICK_REC *nick = nt->data; int format;
+		GSList *ops = NULL, *voices = NULL, *normal = NULL;
+		GSList *cur;
+		for (cur = nicks; cur; cur = cur->next) {
+			NICK_REC *nick = cur->data;
 			if (!nick || !nick->nick) continue;
+			if (nick->op) ops = g_slist_prepend(ops, nick);
+			else if (nick->voice) voices = g_slist_prepend(voices, nick);
+			else normal = g_slist_prepend(normal, nick);
+		}
+		ops = g_slist_sort(ops, ci_nick_compare);
+		voices = g_slist_sort(voices, ci_nick_compare);
+		normal = g_slist_sort(normal, ci_nick_compare);
+		for (cur = ops; cur && row < height; cur = cur->next) {
+			NICK_REC *nick = cur->data; int format; char buf[512]; char pfx;
+			if (index++ < skip) continue;
+			term_move(tw, 1, row);
+			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
+			format = TXT_SIDEPANEL_NICK_OP;
+			pfx = '@';
+			g_snprintf(buf, sizeof(buf), "%c%s", pfx, nick->nick);
+			draw_str_themed(tw, 2, row, mw->active, format, buf);
+			row++;
+		}
+		for (cur = voices; cur && row < height; cur = cur->next) {
+			NICK_REC *nick = cur->data; int format; char buf[512]; char pfx;
+			if (index++ < skip) continue;
+			term_move(tw, 1, row);
+			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
+			format = TXT_SIDEPANEL_NICK_VOICE;
+			pfx = '+';
+			g_snprintf(buf, sizeof(buf), "%c%s", pfx, nick->nick);
+			draw_str_themed(tw, 2, row, mw->active, format, buf);
+			row++;
+		}
+		for (cur = normal; cur && row < height; cur = cur->next) {
+			NICK_REC *nick = cur->data; int format; char buf[512];
 			if (index++ < skip) continue;
 			term_move(tw, 1, row);
 			term_addch(tw, (index-1 == ctx->right_selected_index) ? '>' : ' ');
 			format = TXT_SIDEPANEL_NICK_NORMAL;
-			if (nick->op) format = TXT_SIDEPANEL_NICK_OP; else if (nick->voice) format = TXT_SIDEPANEL_NICK_VOICE;
-			draw_str_themed(tw, 2, row, mw->active, format, nick->nick);
+			g_snprintf(buf, sizeof(buf), "%s", nick->nick);
+			draw_str_themed(tw, 2, row, mw->active, format, buf);
 			row++;
 		}
+		g_slist_free(ops); g_slist_free(voices); g_slist_free(normal);
 	}
 	draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0);
 	irssi_set_dirty();
@@ -353,6 +443,7 @@ static void sig_mainwindow_resized(MAIN_WINDOW_REC *mw)
 static void sig_window_changed(WINDOW_REC *w)
 {
 	(void)w;
+	update_left_selection_to_active();
 	redraw_all();
 }
 
@@ -364,6 +455,12 @@ static void sig_channel_list_changed(CHANNEL_REC *ch)
 static void sig_query_list_changed(QUERY_REC *q)
 {
 	(void)q; redraw_all();
+}
+
+static void sig_nicklist_changed(CHANNEL_REC *ch, NICK_REC *nick, const char *nickstr)
+{
+	(void)ch; (void)nick; (void)nickstr;
+	redraw_all();
 }
 
 static void setup_ctx_for(MAIN_WINDOW_REC *mw)
@@ -467,6 +564,8 @@ static gboolean handle_click_at(int x, int y, int button)
 								signal_emit("command query", 3, nick->nick, ch->server, ch);
 							redraw_one(mw);
 							irssi_set_dirty();
+							/* move selection in left sidebar to newly active window */
+							update_left_selection_to_active();
 							return TRUE;
 						}
 					}
@@ -609,6 +708,7 @@ void sidepanels_init(void)
 	signal_add("channel destroyed", (SIGNAL_FUNC) sig_channel_list_changed);
 	signal_add("query created", (SIGNAL_FUNC) sig_query_list_changed);
 	signal_add("query destroyed", (SIGNAL_FUNC) sig_query_list_changed);
+	signal_add("nicklist changed", (SIGNAL_FUNC) sig_nicklist_changed);
 }
 
 void sidepanels_deinit(void)
@@ -623,6 +723,7 @@ void sidepanels_deinit(void)
 	signal_remove("channel destroyed", (SIGNAL_FUNC) sig_channel_list_changed);
 	signal_remove("query created", (SIGNAL_FUNC) sig_query_list_changed);
 	signal_remove("query destroyed", (SIGNAL_FUNC) sig_query_list_changed);
+	signal_remove("nicklist changed", (SIGNAL_FUNC) sig_nicklist_changed);
 	/* Remove reservations */
 	for (tmp = mainwindows; tmp != NULL; tmp = tmp->next) {
 		MAIN_WINDOW_REC *mw = tmp->data;
