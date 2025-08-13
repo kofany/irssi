@@ -371,6 +371,25 @@ static void item_register_panel(void)
 	}
 }
 
+/* Helper: setup left panel with N rows */
+static void cmd_awl_setup_left(const char *data)
+{
+	int rows = 0;
+	if (data && *data) rows = atoi(data);
+	if (rows <= 0) rows = 8;
+
+	/* Create a window bar named awl_left and add rows */
+	command_runsub("statusbar", "awl_left reset", NULL, NULL);
+	command_runsub("statusbar", "awl_left type window", NULL, NULL);
+	command_runsub("statusbar", "awl_left placement left", NULL, NULL);
+	for (int i = 0; i < rows; i++) {
+		char cmd[64];
+		snprintf(cmd, sizeof(cmd), "awl_left add -priority %d awl_row_%d", i, i);
+		command_runsub("statusbar", cmd, NULL, NULL);
+	}
+	awl_redraw();
+}
+
 void awl_core_init(void)
 {
 	module_register("awl", "core");
@@ -401,6 +420,9 @@ void awl_core_init(void)
 	signal_add("gui key pressed", (SIGNAL_FUNC) sig_gui_key_pressed);
 	awl_mouse_enable();
 
+	/* Bind helper */
+	command_bind("awl_setup_left", NULL, (SIGNAL_FUNC) cmd_awl_setup_left);
+
 	awl_redraw();
 }
 
@@ -415,6 +437,7 @@ void awl_core_deinit(void)
 	signal_remove("window refnum changed", (SIGNAL_FUNC) sig_window_event);
 	signal_remove("window hilight", (SIGNAL_FUNC) sig_window_event);
 	signal_remove("gui key pressed", (SIGNAL_FUNC) sig_gui_key_pressed);
+	command_unbind("awl_setup_left", (SIGNAL_FUNC) cmd_awl_setup_left);
 
 	if (setting_panel) {
 		for (int i = 0; i < 50; i++) { char iname[32]; g_snprintf(iname, sizeof(iname), "awl_row_%d", i); statusbar_item_unregister(iname); }
