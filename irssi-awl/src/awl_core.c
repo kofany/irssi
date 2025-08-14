@@ -378,13 +378,23 @@ static void cmd_awl_setup_left(const char *data)
 	if (data && *data) rows = atoi(data);
 	if (rows <= 0) rows = 8;
 
-	/* Create a window bar named awl_left and add rows */
-	command_runsub("statusbar", "awl_left reset", NULL, NULL);
-	command_runsub("statusbar", "awl_left type window", NULL, NULL);
-	command_runsub("statusbar", "awl_left placement left", NULL, NULL);
+	/* Create per-row window bars named awl_left_<n> and add matching awl_row_<n> item */
 	for (int i = 0; i < rows; i++) {
-		char cmd[64];
-		snprintf(cmd, sizeof(cmd), "awl_left add -priority %d awl_row_%d", i, i);
+		char cmd[128];
+		/* reset (create/clear) bar */
+		snprintf(cmd, sizeof(cmd), "reset awl_left_%d", i);
+		command_runsub("statusbar", cmd, NULL, NULL);
+		/* set type */
+		snprintf(cmd, sizeof(cmd), "add -type window awl_left_%d", i);
+		command_runsub("statusbar", cmd, NULL, NULL);
+		/* place at left */
+		snprintf(cmd, sizeof(cmd), "add -placement left awl_left_%d", i);
+		command_runsub("statusbar", cmd, NULL, NULL);
+		/* order (top to bottom) */
+		snprintf(cmd, sizeof(cmd), "add -position %d awl_left_%d", i, i);
+		command_runsub("statusbar", cmd, NULL, NULL);
+		/* add the row item */
+		snprintf(cmd, sizeof(cmd), "additem -priority 0 awl_row_%d awl_left_%d", i, i);
 		command_runsub("statusbar", cmd, NULL, NULL);
 	}
 	awl_redraw();
