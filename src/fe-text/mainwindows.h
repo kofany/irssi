@@ -65,7 +65,14 @@ void mainwindow_change_active(MAIN_WINDOW_REC *mainwin,
 
 int mainwindows_reserve_lines(int top, int bottom);
 int mainwindow_set_statusbar_lines(MAIN_WINDOW_REC *window,
-				   int top, int bottom);
+			   int top, int bottom);
+
+/* New: reserve columns for root-level left/right bars */
+int mainwindows_reserve_columns(int left, int right);
+/* New: set per-window columns for left/right bars */
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				      int left, int right);
+
 void mainwindows_redraw_dirty(void);
 
 GSList *mainwindows_get_sorted(int reverse);
