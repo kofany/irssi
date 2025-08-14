@@ -17,6 +17,9 @@ typedef struct SBAR_ITEM_REC SBAR_ITEM_REC;
 /* placement */
 #define STATUSBAR_TOP		1
 #define STATUSBAR_BOTTOM	2
+/* extended placements for columns */
+#define STATUSBAR_LEFT		3
+#define STATUSBAR_RIGHT	4
 
 /* visible */
 #define STATUSBAR_VISIBLE_ALWAYS        1
@@ -39,8 +42,8 @@ typedef struct {
 	char *name;
 
 	int type; /* root/window */
-	int placement; /* top/bottom */
-	int position; /* the higher the number, the lower it is in screen */
+	int placement; /* top/bottom/left/right */
+	int position; /* the higher the number, the lower it is in screen; for left/right, higher pushes further right */
 	int visible; /* active/inactive/always */
 
 	GSList *items;
@@ -98,7 +101,7 @@ STATUSBAR_REC *statusbar_find(STATUSBAR_GROUP_REC *group, const char *name,
 			      MAIN_WINDOW_REC *window);
 
 SBAR_ITEM_REC *statusbar_item_create(STATUSBAR_REC *bar,
-				     SBAR_ITEM_CONFIG_REC *config);
+			     SBAR_ITEM_CONFIG_REC *config);
 void statusbar_item_destroy(SBAR_ITEM_REC *item);
 
 /* redraw statusbar, NULL = all */

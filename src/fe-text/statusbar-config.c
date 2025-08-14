@@ -180,6 +180,12 @@ static void statusbar_read(STATUSBAR_GROUP_REC *group, CONFIG_NODE *node)
                 bar->type = STATUSBAR_TYPE_WINDOW;
 	if (g_ascii_strcasecmp(config_node_get_str(node, "placement", ""), "top") == 0)
                 bar->placement = STATUSBAR_TOP;
+	else if (g_ascii_strcasecmp(config_node_get_str(node, "placement", ""), "bottom") == 0)
+                bar->placement = STATUSBAR_BOTTOM;
+	else if (g_ascii_strcasecmp(config_node_get_str(node, "placement", ""), "left") == 0)
+                bar->placement = STATUSBAR_LEFT;
+	else if (g_ascii_strcasecmp(config_node_get_str(node, "placement", ""), "right") == 0)
+                bar->placement = STATUSBAR_RIGHT;
 	bar->position = config_node_get_int(node, "position", 0);
 
 	node = iconfig_node_section(node, "items", -1);

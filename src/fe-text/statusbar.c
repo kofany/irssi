@@ -257,6 +257,12 @@ static void statusbar_calc_item_positions(STATUSBAR_REC *bar)
 		: NULL;
 
 	max_width = window != NULL ? window->width : term_width;
+	if (bar->parent_window != NULL) {
+		if (bar->config->placement == STATUSBAR_LEFT && bar->parent_window->statusbar_columns_left > 0)
+			max_width = bar->parent_window->statusbar_columns_left;
+		else if (bar->config->placement == STATUSBAR_RIGHT && bar->parent_window->statusbar_columns_right > 0)
+			max_width = bar->parent_window->statusbar_columns_right;
+	}
 	statusbar_resize_items(bar, max_width);
 
 	/* left-aligned items */
@@ -497,18 +503,28 @@ STATUSBAR_REC *statusbar_create(STATUSBAR_GROUP_REC *group,
 	signal_remove("mainwindow resized", (SIGNAL_FUNC) sig_mainwindow_resized);
 	signal_remove("mainwindow moved", (SIGNAL_FUNC) sig_mainwindow_resized);
 
-	if (config->type == STATUSBAR_TYPE_ROOT) {
-		/* top/bottom of the screen */
-		mainwindows_reserve_lines(config->placement == STATUSBAR_TOP,
-					  config->placement == STATUSBAR_BOTTOM);
+		if (config->type == STATUSBAR_TYPE_ROOT) {
+		/* screen-level bars */
+		if (config->placement == STATUSBAR_TOP || config->placement == STATUSBAR_BOTTOM) {
+			mainwindows_reserve_lines(config->placement == STATUSBAR_TOP,
+					      config->placement == STATUSBAR_BOTTOM);
+		} else if (config->placement == STATUSBAR_LEFT || config->placement == STATUSBAR_RIGHT) {
+			mainwindows_reserve_columns(config->placement == STATUSBAR_LEFT, config->placement == STATUSBAR_RIGHT);
+		}
                 theme = current_theme;
 	} else {
-		/* top/bottom of the window */
+		/* per-window bars */
 		parent_window->statusbars =
 			g_slist_append(parent_window->statusbars, bar);
-		mainwindow_set_statusbar_lines(parent_window,
+		if (config->placement == STATUSBAR_TOP || config->placement == STATUSBAR_BOTTOM) {
+			mainwindow_set_statusbar_lines(parent_window,
 					       config->placement == STATUSBAR_TOP,
 					       config->placement == STATUSBAR_BOTTOM);
+		} else if (config->placement == STATUSBAR_LEFT || config->placement == STATUSBAR_RIGHT) {
+			mainwindow_set_statusbar_columns(parent_window,
+						 config->placement == STATUSBAR_LEFT,
+						 config->placement == STATUSBAR_RIGHT);
+		}
 		theme = parent_window != NULL && parent_window->active != NULL &&
 			parent_window->active->theme != NULL ?
 			parent_window->active->theme : current_theme;
@@ -583,12 +599,21 @@ void statusbar_destroy(STATUSBAR_REC *bar)
 
 	top = bar->config->placement == STATUSBAR_TOP;
 	if (bar->config->type == STATUSBAR_TYPE_ROOT) {
-		/* top/bottom of the screen */
-		mainwindows_reserve_lines(top ? -1 : 0, !top ? -1 : 0);
+		/* screen-level */
+		if (bar->config->placement == STATUSBAR_TOP || bar->config->placement == STATUSBAR_BOTTOM)
+			mainwindows_reserve_lines(top ? -1 : 0, !top ? -1 : 0);
+		else if (bar->config->placement == STATUSBAR_LEFT || bar->config->placement == STATUSBAR_RIGHT)
+			mainwindows_reserve_columns(bar->config->placement == STATUSBAR_LEFT ? -1 : 0,
+						  bar->config->placement == STATUSBAR_RIGHT ? -1 : 0);
 	} else if (bar->parent_window != NULL) {
-		/* top/bottom of the window */
-		mainwindow_set_statusbar_lines(bar->parent_window,
+		/* per-window */
+		if (bar->config->placement == STATUSBAR_TOP || bar->config->placement == STATUSBAR_BOTTOM)
+			mainwindow_set_statusbar_lines(bar->parent_window,
 					       top ? -1 : 0, !top ? -1 : 0);
+		else if (bar->config->placement == STATUSBAR_LEFT || bar->config->placement == STATUSBAR_RIGHT)
+			mainwindow_set_statusbar_columns(bar->parent_window,
+						   bar->config->placement == STATUSBAR_LEFT ? -1 : 0,
+						   bar->config->placement == STATUSBAR_RIGHT ? -1 : 0);
 	}
 
 	g_free(bar);

@@ -2006,3 +2006,74 @@ void mainwindows_deinit(void)
 	command_unbind("window move down", (SIGNAL_FUNC) cmd_window_move_down);
 	signal_remove("window print info", (SIGNAL_FUNC) sig_window_print_info);
 }
+
+int mainwindows_reserve_columns(int left, int right)
+{
+	MAIN_WINDOW_REC *window;
+	int ret = -1;
+
+	if (left != 0) {
+		GSList *list, *tmp;
+		g_return_val_if_fail(left > 0 || screen_reserved_left > left, -1);
+
+		ret = screen_reserved_left;
+		screen_reserved_left += left;
+
+		/* Shift windows to the right and shrink width accordingly */
+		list = mainwindows_get_line(mainwindows_find_upper(NULL));
+		for (tmp = list; tmp != NULL; tmp = tmp->next) {
+			window = tmp->data;
+			window->first_column += left;
+			window->statusbar_columns_left += left;
+			window->statusbar_columns += left;
+			mainwindow_set_rsize(window, -left);
+		}
+		g_slist_free(list);
+	}
+
+	if (right != 0) {
+		GSList *list, *tmp;
+		g_return_val_if_fail(right > 0 || screen_reserved_right > right, -1);
+
+		ret = screen_reserved_right;
+		screen_reserved_right += right;
+
+		list = mainwindows_get_line(mainwindows_find_upper(NULL));
+		for (tmp = list; tmp != NULL; tmp = tmp->next) {
+			window = tmp->data;
+			window->last_column -= right;
+			window->statusbar_columns_right += right;
+			window->statusbar_columns += right;
+			mainwindow_set_rsize(window, -right);
+		}
+		g_slist_free(list);
+	}
+
+	return ret;
+}
+
+int mainwindow_set_statusbar_columns(MAIN_WINDOW_REC *window,
+				      int left, int right)
+{
+	int ret = -1;
+	if (left != 0) {
+		ret = window->statusbar_columns_left;
+		window->statusbar_columns_left += left;
+		window->statusbar_columns += left;
+		if (left > 0) {
+			window->first_column += left;
+			mainwindow_set_rsize(window, -left);
+		}
+	}
+	if (right != 0) {
+		ret = window->statusbar_columns_right;
+		window->statusbar_columns_right += right;
+		window->statusbar_columns += right;
+		if (right > 0) {
+			window->last_column -= right;
+			mainwindow_set_rsize(window, -right);
+		}
+	}
+	if (left+right != 0) window->size_dirty = TRUE;
+	return ret;
+}
