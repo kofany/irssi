@@ -468,9 +468,13 @@ static void cmd_statusbar_add_modify(const char *data, void *server, void *witem
 			placement = "top";
 		else if (g_ascii_strcasecmp(data, "bottom") == 0)
 			placement = "bottom";
+		else if (g_ascii_strcasecmp(data, "left") == 0)
+			placement = "left";
+		else if (g_ascii_strcasecmp(data, "right") == 0)
+			placement = "right";
 		else {
 			printformat(NULL, NULL, MSGLEVEL_CLIENTERROR,
-			            TXT_STATUSBAR_UNKNOWN_PLACEMENT, data);
+						TXT_STATUSBAR_UNKNOWN_PLACEMENT, data);
 			error++;
 		}
 	}
