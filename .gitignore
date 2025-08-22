@@ -91,3 +91,7 @@ setup.cfg
 *.egg-info
 src/.DS_Store
 .DS_Store
+inst/
+Build/
+build
+build/
