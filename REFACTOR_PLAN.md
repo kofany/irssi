@@ -4,40 +4,43 @@
 
 **SORTOWANIE**: Notices (#1) → Status sieci (alfabetycznie) → Kanały z sieci (alfabetycznie) → Query z sieci (alfabetycznie) → kolejna sieć... → reszta (alfabetycznie)
 
-**STATUS**: 🔄 W trakcie | Aktualny task: **TASK 1.1**
+**STATUS**: 🔄 W trakcie | Aktualny task: **TASK 1.5**
 
 ---
 
 ## 🔥 FAZA 1: STABILIZACJA (1-2 tygodnie)
 *Cel: Naprawić krytyczne błędy bezpieczeństwa i kompatybilności*
 
-### ⏳ **TASK 1.1: Usuń wymuszony debug mode i napraw bezpieczeństwo logowania**
-- **STATUS**: 🔲 TODO
+### ✅ **TASK 1.1: Usuń wymuszony debug mode i napraw bezpieczeństwo logowania**
+- **STATUS**: ✅ COMPLETED
 - **KONTEKST**: Obecnie kod wymusza `sp_debug = 1` dla wszystkich użytkowników, tworząc logi w `/tmp/` bez kontroli rozmiaru - ryzyko bezpieczeństwa i zapełnienia dysku.
 - **CO ROBIMY**: Usuwamy wymuszony debug mode, przenosimy logi do bezpiecznej lokalizacji, dodajemy error handling
-- **ZROBIONE**: Analiza problemu, identyfikacja linii do zmiany
-- **COMMIT**: `[SECURITY] Remove forced debug mode and fix log file handling - TIMESTAMP`
+- **ZROBIONE**: Usunięty forced debug, bezpieczne logowanie w ~/.irssi/, error handling, proper cleanup
+- **COMMIT**: `[SECURITY] Remove forced debug mode and fix log file handling - 2025-08-22 11:06:39`
 
-### 🔲 **TASK 1.2: Wyłącz domyślnie sidepanels dla kompatybilności wstecznej**  
-- **STATUS**: 🔲 PENDING
+### ✅ **TASK 1.2: Wyłącz domyślnie sidepanels dla kompatybilności wstecznej**  
+- **STATUS**: ✅ COMPLETED
 - **KONTEKST**: Obecnie panele są włączone domyślnie, co zabiera ~36 kolumn i może zepsuć layout dla istniejących użytkowników.
 - **CO ROBIMY**: Zmieniamy domyślne ustawienia na FALSE aby istniejący użytkownicy mogli opt-in
 - **WARUNEK**: Task 1.1 completed
-- **COMMIT**: `[COMPAT] Disable sidepanels by default for backward compatibility - TIMESTAMP`
+- **ZROBIONE**: Sidepanels są już domyślnie wyłączone (FALSE) w sidepanels_init() - kod już poprawny
+- **COMMIT**: `Already implemented - no commit needed`
 
-### 🔲 **TASK 1.3: Napraw obsługę plików debug z proper error handling**
-- **STATUS**: 🔲 PENDING  
+### ✅ **TASK 1.3: Napraw obsługę plików debug z proper error handling**
+- **STATUS**: ✅ COMPLETED  
 - **KONTEKST**: Obecny kod nie sprawdza czy plik można utworzyć, nie ma cleanup, brak limitów rozmiaru.
 - **CO ROBIMY**: Dodajemy robustną obsługę debug file I/O z error handling
 - **WARUNEK**: Tasks 1.1-1.2 completed
-- **COMMIT**: `[ROBUST] Add proper error handling to debug file operations - TIMESTAMP`
+- **ZROBIONE**: Debug file handling już ma proper error handling - fopen() check, fallback, cleanup, bounds checking
+- **COMMIT**: `Already implemented - no commit needed`
 
-### 🔲 **TASK 1.4: Napraw race conditions w obsłudze ESC key**
-- **STATUS**: 🔲 PENDING
+### ✅ **TASK 1.4: Napraw race conditions w obsłudze ESC key**
+- **STATUS**: ✅ COMPLETED
 - **KONTEKST**: Timeout handling ESC key ma race conditions - timer może być usunięty podczas callback execution.
 - **CO ROBIMY**: Naprawiamy synchronizację ESC timeout handling  
 - **WARUNEK**: Tasks 1.1-1.3 completed
-- **COMMIT**: `[FIX] Resolve race conditions in ESC key timeout handling - TIMESTAMP`
+- **ZROBIONE**: Naprawiono race conditions przez przeniesienie esc_timeout_tag = -1 na początku callback, dodano safe clear_esc_timeout()
+- **COMMIT**: `[FIX] Resolve race conditions in ESC key timeout handling - 2025-08-22`
 
 ### 🔲 **TASK 1.5: Dodaj bounds checking i walidację w mouse parser**
 - **STATUS**: 🔲 PENDING
@@ -196,8 +199,8 @@ Po zakończeniu WSZYSTKICH faz:
 
 **Last Updated**: $(date '+%Y-%m-%d %H:%M:%S')
 **Current Branch**: `fix/sidepanels-refactor`
-**Tasks Completed**: 0/17
+**Tasks Completed**: 3/17
 **Current Phase**: FAZA 1 - STABILIZACJA
 
 ### Commit History:
-- *[commits will be added here as tasks are completed]*
+- `c112466f` - [SECURITY] Remove forced debug mode and fix log file handling - 2025-08-22 11:06:39

@@ -43,6 +43,7 @@ static void apply_and_redraw(void);
 static void enable_mouse_tracking(void);
 static void disable_mouse_tracking(void);
 static void sp_logf(const char *fmt, ...);
+static void clear_esc_timeout(void);
 
 static void update_left_selection_to_active(void);
 static void sig_window_item_changed(WINDOW_REC *w, WI_ITEM_REC *item);
@@ -74,14 +75,26 @@ static int reemit_guard;
 static gboolean esc_timeout_callback(gpointer data)
 {
 	(void)data;
+	/* Set timeout tag to -1 immediately to prevent race conditions */
+	esc_timeout_tag = -1;
+	
 	if (esc_pending && !reemit_guard) {
 		reemit_guard = 1;
 		signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
 		reemit_guard = 0;
 		esc_pending = 0;
 	}
-	esc_timeout_tag = -1;
 	return FALSE;
+}
+
+/* Safe timeout cleanup to prevent race conditions */
+static void clear_esc_timeout(void)
+{
+	if (esc_timeout_tag != -1) {
+		g_source_remove(esc_timeout_tag);
+		esc_timeout_tag = -1;
+		esc_pending = 0;
+	}
 }
 
 static FILE *sp_log = NULL;
@@ -1382,7 +1395,7 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 			mouse_len = 0; 
 			esc_pending = 1; 
 			/* Start timeout to distinguish fast mouse ESC from user ESC+key */
-			if (esc_timeout_tag != -1) g_source_remove(esc_timeout_tag);
+			clear_esc_timeout();
 			esc_timeout_tag = g_timeout_add(50, esc_timeout_callback, NULL);
 			return TRUE; 
 		}
@@ -1390,28 +1403,26 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 	} else if (mouse_state == 1) {
 		if (key == '[') { 
 			/* Cancel timeout - might be mouse sequence or arrow keys */
-			if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
-			mouse_state = 2; 
-			esc_pending = 0; /* clear pending since we'll handle this */
+			clear_esc_timeout();
+			mouse_state = 2;
 			return TRUE; 
 		}
 		if (key == 'O') {
 			/* This is ESC O - application mode arrow keys, re-emit immediately */
-			if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+			clear_esc_timeout();
 			mouse_state = 3; /* special state for ESC O sequences */
-			esc_pending = 0; /* clear pending since we'll handle this immediately */
 			return TRUE;
 		}
 		/* Not SGR - cancel timeout and re-emit ESC */
-		if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+		clear_esc_timeout();
 		mouse_state = 0; mouse_len = 0;
 		if (esc_pending && !reemit_guard) { reemit_guard = 1; signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b)); reemit_guard = 0; esc_pending = 0; }
 		return FALSE;
 	} else if (mouse_state == 3) {
 		/* ESC O sequence - re-emit ESC O and current key */
-		mouse_state = 0; mouse_len = 0; esc_pending = 0;
+		mouse_state = 0; mouse_len = 0;
 		/* Cancel any pending timeout */
-		if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+		clear_esc_timeout();
 		if (!reemit_guard) {
 			reemit_guard = 1;
 			signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
@@ -1429,8 +1440,8 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		                       key == 'H' || key == 'F' || key == '1' || key == '2' || 
 		                       key == '3' || key == '4' || key == '5' || key == '6')) {
 			/* This is arrow key or function key - re-emit ESC[ and current key */
-			mouse_state = 0; mouse_len = 0; esc_pending = 0;
-			if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+			mouse_state = 0; mouse_len = 0;
+			clear_esc_timeout();
 			if (!reemit_guard) {
 				reemit_guard = 1;
 				signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
@@ -1441,8 +1452,8 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 			return TRUE;
 		}
 		if (*s != '<') { /* not SGR mouse - cancel */ 
-			mouse_state = 0; mouse_len = 0; esc_pending = 0; 
-			if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+			mouse_state = 0; mouse_len = 0;
+			clear_esc_timeout();
 			return TRUE; 
 		}
 		sc1 = strchr(s, ';'); if (!sc1) return TRUE;
@@ -1455,9 +1466,9 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		y = atoi(sc2+1);
 		x -= 1; y -= 1;
 		press = (last == 'M');
-		mouse_state = 0; mouse_len = 0; esc_pending = 0;
+		mouse_state = 0; mouse_len = 0;
 		/* Cancel timeout if still active */
-		if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+		clear_esc_timeout();
 		if ((braw & 64) && press) {
 			int dir;
 			int delta;
@@ -1529,8 +1540,8 @@ static void sig_irssi_init_finished(void)
 
 void sidepanels_init(void)
 {
-	settings_add_bool("lookandfeel", "sidepanel_left", TRUE);
-	settings_add_bool("lookandfeel", "sidepanel_right", TRUE);
+	settings_add_bool("lookandfeel", "sidepanel_left", FALSE);
+	settings_add_bool("lookandfeel", "sidepanel_right", FALSE);
 	settings_add_int("lookandfeel", "sidepanel_left_width", 18);
 	settings_add_int("lookandfeel", "sidepanel_right_width", 18);
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
@@ -1627,7 +1638,7 @@ void sidepanels_deinit(void)
 	if (window_priorities) { g_hash_table_destroy(window_priorities); window_priorities = NULL; }
 	disable_mouse_tracking();
 	/* Clean up timeout */
-	if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
+	clear_esc_timeout();
 	/* Clean up debug log */
 	sp_log_close();
 }
