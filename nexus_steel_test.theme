@@ -208,8 +208,6 @@ abstracts = {
   whois_userhost = "%k(%y$0%k@%y$1%k)%N";
   whois_realname = "%C$0%N";
 };
-</text>
-
 
 ################################################################################
 # EVENT FORMATS - Redesigned IRC event handling
@@ -372,40 +370,45 @@ formats = {
   # SIDEPANEL THEME - Cyberpunk Nexus Steel styling for sidebar elements
   ################################################################################
 
-  "fe-text" = {
-    # === LEFT PANEL (Window List) ===
-    # Server headers - electric blue with power symbol (consistent with theme primary)
-    sidepanel_header = "%B⚡%N %b$0%N";
+"fe-text" = {
+  # === LEFT PANEL (Window List) ===
+  # Server headers - electric blue with power symbol (consistent with theme primary)
+  sidepanel_header = "%B⚡%N %b$0%N";
 
-    # Normal items - steel gray (consistent with theme secondary text)
-    sidepanel_item = "%k⚬%N %w$0%N";
+  # Normal items - steel gray (consistent with theme secondary text)
+  sidepanel_item = "%k⚬%N %w$0%N";
 
-    # Selected items - neon green highlight (consistent with theme highlights)
-    sidepanel_item_selected = "%G⧽%N %g$0%N %G⧽%N";
+  # Selected items - neon green highlight (consistent with theme highlights)
+  sidepanel_item_selected = "%G⧽%N %g$0%N %G⧽%N";
 
-    # Activity items - amber warning (consistent with theme warnings)
-    sidepanel_item_activity = "%y●%N %Y$0%N";
+  # === ACTIVITY HIERARCHY (by priority) ===
 
-    # HIGHLIGHTS - crimson alert (consistent with theme errors/critical)
-    sidepanel_item_highlight = "%R☠%N %r$0%N";
+  # PRIORITY 4 (Highest): NICK MENTION - magenta alert (when your nick is mentioned on channel)
+  sidepanel_item_nick_mention = "%M⬢%N %M$0%N";
 
-    # === RIGHT PANEL (Nick List) ===
-    # Legacy single-parameter formats (for backwards compatibility)
-    sidepanel_nick_op = "%Y@$0%N";
-    sidepanel_nick_voice = "%C+$0%N";
-    sidepanel_nick_normal = "%w$0%N";
+  # PRIORITY 4 (Highest): QUERY MESSAGE - magenta alert (new messages in query/private)
+  sidepanel_item_query_msg = "%M◆%N %M$0%N";
 
-    # New dual-parameter formats - status and nick separated for theme flexibility
-    # Operators - gold status symbol with steel nick (power users)
-    sidepanel_nick_op_status = "%Y$0%N%B$1%N";
+  # PRIORITY 3: CHANNEL ACTIVITY - yellow warning (messages on channel without mention)
+  sidepanel_item_activity = "%y●%N %Y$0%N";
 
-    # Voice users - cyan status with lighter nick (trusted users)
-    sidepanel_nick_voice_status = "%C$0%N%c$1%N";
+  # PRIORITY 1 (Lowest): EVENTS - green info (join/part/quit/nick changes)
+  sidepanel_item_events = "%g○%N %G$0%N";
 
-    # Normal users - subtle gray for clean appearance
-    sidepanel_nick_normal_status = "%k$0%N%w$1%N";
-  };
+  # PRIORITY 2: HIGHLIGHTS - red alert (keyword highlights, fallback)
+  sidepanel_item_highlight = "%R☠%N %r$0%N";
+
+  # New dual-parameter formats - status and nick separated for theme flexibility
+  # Operators - gold status symbol with steel nick (power users)
+  sidepanel_nick_op_status = "%Y$0%N%B$1%N";
+
+  # Voice users - cyan status with lighter nick (trusted users)
+  sidepanel_nick_voice_status = "%C$0%N%c$1%N";
+
+  # Normal users - subtle gray for clean appearance
+  sidepanel_nick_normal_status = "%k$0%N%w$1%N";
 };
+
 
 
 # End of Nexus Steel v1.0 Theme
