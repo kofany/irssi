@@ -1432,8 +1432,15 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 		}
 		return TRUE;
 	} else if (mouse_state >= 2) {
-		if (mouse_len < (int)sizeof(mouse_buf)-1) mouse_buf[mouse_len++] = (char)key;
-		mouse_buf[mouse_len] = '\0';
+		/* Strict bounds checking with safety margin */
+		if (mouse_len < (int)sizeof(mouse_buf) - 2) {
+			mouse_buf[mouse_len++] = (char)key;
+			mouse_buf[mouse_len] = '\0';
+		} else {
+			/* Buffer full - reset state to prevent overflow */
+			mouse_state = 0; mouse_len = 0;
+			return TRUE;
+		}
 		s = mouse_buf;
 		/* Check if this is arrow keys (A/B/C/D) or other ESC sequences */
 		if (mouse_len == 1 && (key == 'A' || key == 'B' || key == 'C' || key == 'D' || 
@@ -1456,14 +1463,39 @@ gboolean sidepanels_try_parse_mouse_key(unichar key)
 			clear_esc_timeout();
 			return TRUE; 
 		}
-		sc1 = strchr(s, ';'); if (!sc1) return TRUE;
-		sc2 = strchr(sc1+1, ';'); if (!sc2) return TRUE;
+		
+		/* Validate SGR mouse sequence format: <btn;x;yM/m */
+		sc1 = strchr(s, ';'); 
+		if (!sc1 || sc1 <= s + 1) return TRUE; /* need at least one char for button */
+		
+		sc2 = strchr(sc1+1, ';');
+		if (!sc2 || sc2 <= sc1 + 1) return TRUE; /* need at least one char for x coord */
+		
+		/* Ensure semicolons are within reasonable distance (prevent malformed sequences) */
+		if (sc1 - s > 10 || sc2 - sc1 > 10) return TRUE;
 		end = sc2+1; if (*end == '\0') return TRUE;
-		last = end[(int)strlen(end)-1];
+		
+		/* Bounds check: ensure we have at least one character after semicolon */
+		if (end >= s + sizeof(mouse_buf)) return TRUE;
+		
+		/* Safe way to get last character without strlen() */
+		{
+			char *last_pos = end;
+			while (*last_pos != '\0' && last_pos < s + sizeof(mouse_buf) - 1) last_pos++;
+			if (last_pos == end) return TRUE; /* empty string */
+			last = *(last_pos - 1);
+		}
+		
 		if (last != 'M' && last != 'm') return TRUE;
+		
+		/* Safe parsing with bounds validation */
 		braw = atoi(s+1);
 		x = atoi(sc1+1);
 		y = atoi(sc2+1);
+		
+		/* Validate reasonable coordinate ranges to prevent integer overflow issues */
+		if (braw < 0 || braw > 1000 || x < 0 || x > 9999 || y < 0 || y > 9999) return TRUE;
+		
 		x -= 1; y -= 1;
 		press = (last == 'M');
 		mouse_state = 0; mouse_len = 0;
