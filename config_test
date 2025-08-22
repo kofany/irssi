@@ -1,0 +1,246 @@
+servers = (
+  {
+    address = "irc.libera.chat";
+    chatnet = "Libera";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+    autoconnect = "yes";
+  },
+  {
+    address = "irc.oftc.net";
+    chatnet = "OFTC";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+    autoconnect = "no";
+  }
+);
+
+chatnets = {
+  Libera = {
+    type = "IRC";
+    max_kicks = "1";
+    max_msgs = "4";
+    max_modes = "4";
+    max_whois = "1";
+  };
+  OFTC = {
+    type = "IRC";
+    max_kicks = "1";
+    max_msgs = "4";
+    max_modes = "4";
+    max_whois = "1";
+  };
+};
+
+channels = (
+  { name = "#irssi"; chatnet = "Libera"; autojoin = "yes"; },
+  { name = "#test"; chatnet = "Libera"; autojoin = "yes"; }
+);
+
+aliases = {
+  ATAG = "WINDOW SERVER";
+  ADDALLCHANS = "SCRIPT EXEC foreach my \\$channel (Irssi::channels()) { Irssi::command(\"CHANNEL ADD -auto \\$channel->{visible_name} \\$channel->{server}->{tag} \\$channel->{key}\") }";
+  B = "BAN";
+  BACK = "AWAY";
+  BANS = "BAN";
+  BYE = "QUIT";
+  C = "CLEAR";
+  CALC = "EXEC - if command -v bc >/dev/null 2>&1\\; then printf '%s=' '$*'\\; echo '$*' | bc -l\\; else echo bc was not found\\; fi";
+  CHAT = "DCC CHAT";
+  DATE = "TIME";
+  DEHIGHLIGHT = "DEHILIGHT";
+  DESCRIBE = "ACTION";
+  DHL = "DEHILIGHT";
+  EXEMPTLIST = "MODE $C +e";
+  EXIT = "QUIT";
+  GOTO = "SCROLLBACK GOTO";
+  HIGHLIGHT = "HILIGHT";
+  HL = "HILIGHT";
+  HOST = "USERHOST";
+  INVITELIST = "MODE $C +I";
+  J = "JOIN";
+  K = "KICK";
+  KB = "KICKBAN";
+  KN = "KNOCKOUT";
+  LAST = "LASTLOG";
+  LEAVE = "PART";
+  M = "MSG";
+  MUB = "UNBAN *";
+  N = "NAMES";
+  NMSG = "^MSG";
+  P = "PART";
+  Q = "QUERY";
+  RESET = "SET -default";
+  RUN = "SCRIPT LOAD";
+  SAY = "MSG *";
+  SB = "SCROLLBACK";
+  SBAR = "STATUSBAR";
+  SIGNOFF = "QUIT";
+  SV = "MSG * Irssi $J ($V) - https://irssi.org";
+  T = "TOPIC";
+  UB = "UNBAN";
+  UMODE = "MODE $N";
+  UNSET = "SET -clear";
+  W = "WHO";
+  WC = "WINDOW CLOSE";
+  WG = "WINDOW GOTO";
+  WJOIN = "JOIN -window";
+  WI = "WHOIS";
+  WII = "WHOIS $0 $0";
+  WL = "WINDOW LIST";
+  WN = "WINDOW NEW HIDDEN";
+  WQUERY = "QUERY -window";
+  WW = "WHOWAS";
+};
+
+statusbar = {
+  items = {
+    barstart = "{sbstart}";
+    barend = "{sbend}";
+    topicbarstart = "{topicsbstart}";
+    topicbarend = "{topicsbend}";
+    time = "{sb %B$Z%n%W❱ %G⚡%n Connected: %G%W$tag%n %W>%B>%C> %WNexus %G<%B<%W<%W}";
+    user = "{sb %WU%wser ⇋ %B$cumode%w$N%W : ➜ %WS%wtatus {sbmode (%C+$usermode%n)}}";
+    window = "%W ➜ %n{sbmode %WC%whannel (%C+$M%n%W) %B ➜ %WW%window: %G$winref }{sbaway $A}%W  %n";
+    window_empty = "{sb $winref: {sbservertag $tag}}";
+    prompt = "%B⚡%N %k❮%B$itemname%k❯%N%C:%N ";
+    prompt_empty = "%k❮%B$winname%k❯%N ";
+    topic = "%WTopic%C:%W $topic";
+    topic_empty = " Irssi v$J - https://irssi.org";
+    lag = "{sb ⚞ %WL%wagging ⚟ %W: %R$0- }";
+    act = "{sb %WActive Windows%C: $0-}";
+    more = "%C-- %Wmore %C--";
+  };
+
+  default = {
+    window = {
+      disabled = "no";
+      type = "window";
+      placement = "bottom";
+      position = "1";
+      visible = "active";
+      items = {
+        barstart = { priority = "100"; };
+        time = { };
+        user = { };
+        window = { };
+        window_empty = { };
+        lag = { priority = "-1"; };
+        act = { priority = "10"; };
+        more = { priority = "-1"; alignment = "right"; };
+        barend = { priority = "100"; alignment = "right"; };
+      };
+    };
+
+    window_inact = {
+      type = "window";
+      placement = "bottom";
+      position = "1";
+      visible = "inactive";
+      items = {
+        barstart = { priority = "100"; };
+        window = { };
+        window_empty = { };
+        more = { priority = "-1"; alignment = "right"; };
+        barend = { priority = "100"; alignment = "right"; };
+      };
+    };
+
+    prompt = {
+      type = "root";
+      placement = "bottom";
+      position = "100";
+      visible = "always";
+      items = {
+        prompt = { priority = "-1"; };
+        prompt_empty = { priority = "-1"; };
+        input = { priority = "10"; };
+      };
+    };
+
+    topic = {
+      type = "root";
+      placement = "top";
+      position = "1";
+      visible = "always";
+      items = {
+        topicbarstart = { priority = "100"; };
+        topic = { };
+        topic_empty = { };
+        topicbarend = { priority = "100"; alignment = "right"; };
+      };
+    };
+  };
+};
+
+settings = {
+  core = {
+    real_name = "Test User";
+    user_name = "testuser";
+    nick = "testuser";
+    hostname = "";
+    recode_fallback = "CP1252";
+    recode_out_default_charset = "UTF-8";
+    recode_transliterate = "yes";
+  };
+  "fe-text" = {
+    actlist_sort = "refnum";
+    colors = "yes";
+    term_charset = "UTF-8";
+  };
+  "fe-common/core" = {
+    activity_hide_visible = "yes";
+    beep_msg_level = "";
+    beep_when_window_active = "no";
+    beep_when_away = "yes";
+    bell_beeps = "no";
+    hilight_nick_matches = "yes";
+    hilight_nick_matches_everywhere = "yes";
+    hilight_color = "%Y";
+    hilight_act_color = "%M";
+    theme = "nexus_steel_test";
+    print_active_channel = "no";
+    autocreate_query_level = "MSGS DCCMSGS";
+    autocreate_own_query = "no";
+    autoclose_query = "3600";
+    reuse_unused_windows = "yes";
+    window_auto_change = "no";
+    windows_auto_renumber = "no";
+    emphasis = "yes";
+    emphasis_replace = "yes";
+    emphasis_multiword = "no";
+    show_nickmode = "yes";
+    show_nickmode_empty = "yes";
+    show_quit_once = "no";
+    completion_char = ":";
+    completion_auto = "no";
+    use_status_window = "yes";
+    use_msgs_window = "no";
+    msgs_auto_close = "no";
+    autocreate_windows = "yes";
+    autocreate_split_windows = "no";
+    autoclose_windows = "yes";
+    reuse_unused_windows = "no";
+    window_check_level_first = "no";
+    window_default_level = "NONE";
+  };
+  "perl/core/scripts" = {
+    neat_left_actions = "no";
+    neat_left_messages = "no";
+    neat_right_actions = "no";
+    neat_right_messages = "no";
+  };
+  "lookandfeel" = {
+    sidepanel_left = "yes";
+    sidepanel_right = "yes";
+    sidepanel_left_width = "18";
+    sidepanel_right_width = "18";
+    sidepanel_right_auto_hide = "yes";
+    sidepanel_debug = "yes";
+  };
+};
+
+logs = { };
+ignores = ( );

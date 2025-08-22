@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf*)",
+      "Bash(meson*)",
+      "Bash(ninja*)",
+      "Bash(git*)",
+      "Bash(rm:*)",
+      "Bash(meson:*)",
+      "Bash(ninja:*)",
+      "Bash(git:*)",
+      "Bash(:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

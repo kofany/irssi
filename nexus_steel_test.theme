@@ -1,0 +1,312 @@
+# Nexus Steel Test Theme for Irssi with Sidepanels
+# Advanced cyberpunk-inspired theme with activity indicators
+
+replaces = { };
+
+abstracts = {
+  ##
+  ## generic
+  ##
+
+  line_start = "%B-%W!%B-%n ";
+  timestamp = "$*";
+  hilight = "%_$*%_";
+  error = "%R$*%n";
+  channel = "%_$*%_";
+  nick = "%_$*%_";
+  nickhost = "[$*]";
+  server = "%_$*%_";
+  comment = "[$*]";
+  reason = "{comment $*}";
+  mode = "{comment $*}";
+
+  ##
+  ## channel specific messages
+  ##
+
+  channick_hilight = "%C$*%n";
+  chanhost_hilight = "{nickhost %c$*%n}";
+  channick = "%c$*%n";
+  chanhost = "{nickhost $*}";
+  channelhilight = "%c$*%n";
+  ban = "%c$*%n";
+
+  ##
+  ## messages
+  ##
+
+  msgnick = "<$0$1-> %|";
+  ownmsgnick = "{msgnick $0 $1-}";
+  ownnick = "%W$*%n";
+  pubmsgnick = "{msgnick $0 {channick_hilight $1}}";
+  pubnick = "%N$*%n";
+  pubmsgmenick = "{msgnick $0 {menick $1}}";
+  menick = "%Y$*%n";
+  pubmsghinick = "{msgnick $1 {nick $0$2}}";
+  msgchannel = "%K:%c$*%n";
+  privmsg = "[%R$0%K(%r$1-%K)%n] ";
+  ownprivmsg = "[%r$0%K(%R$1-%K)%n] ";
+  ownprivmsgnick = "{msgnick  $*}";
+  ownprivnick = "%W$*%n";
+  privmsgnick = "{msgnick  %R$*%n}";
+
+  ##
+  ## Actions (/ME stuff)
+  ##
+
+  action_core = "%W * $*%n";
+  action = "{action_core $*} ";
+  ownaction = "{action $*}";
+  ownaction_target = "{action_core $0}%K:%c$1%n ";
+  pvtaction = "%W (*) $*%n ";
+  pvtaction_query = "{action $*}";
+  pubaction = "{action $*}";
+
+  ##
+  ## other IRC events
+  ##
+
+  whois = "%B⚙%N %BSCANED%N %k❮%w$0%k❯%N %k(%y$1%k@%y$2%k)%N %C→%N %c$3%N";
+  whowas = "%R⏻%N %RARCHIV%N %k❮%w$0%k❯%N %k(%y$1%k@%y$2%k)%N %C→%N %c$3%N";
+  whois_idle = "%Y⏸%N %YCOVERT%N %C$1%kd %C$2%kh %C$3%km %C$4%ks";
+  whois_idle_signon = "%Y⏸%N %YCOVERT%N %C$1%kd %C$2%kh %C$3%km %C$4%ks %k(%wlogin: %y$5%k)%N";
+  whois_server = "%G⚡%N %GDEVICE%N %C$1%N %k(%b$2%k)%N";
+  whois_oper = "%M⚡%N %MPOWERS%N %Y$1%N";
+  whois_registered = "%G☠%N %GVERIFY%N %widentity authenticated%N";
+  whois_help = "%B⚙%N %BHELPNG%N %wavailable for assistance%N";
+  whois_modes = "%C◆%N %CPERMIS%N %C$1%N";
+  whois_realhost = "%Y⚠%N %YTRACED%N %C$1-%N";
+  whois_usermode = "%M⬢%N %MSTATUS%N %C$1%N";
+  whois_channels = "%B⬡%N %BDOCKED%N %B$1%N";
+  whois_away = "%Y⏸%N %YRUNNED%N %Y$1%N";
+  whois_special = "%M⬢%N %MEXTRAS%N %Y$1%N";
+  whois_extra = "%C◆%N %CSIGNED%N %c$1%N";
+  end_of_whois = "%G⚡%N %GSYNCED%N %Wend of whois%N";
+  end_of_whowas = "%G⚡%N %GSYNCED%N %Wend of whowas%N";
+  whois_not_found = "%R☠%N %RMISSED%N %R$0%N";
+
+  ##
+  ## NickServ
+  ##
+
+  nickserv = "%_NickServ%_ %K[%C$0%K]";
+
+  ##
+  ## DCC
+  ##
+
+  dcc = "%g$*%n";
+  dccfile = "%_$*%_";
+
+  ##
+  ## statusbar
+  ##
+
+  sbservertag = "$0 %k(%n$1-%k)";
+  sbmode = "(%c+%n$*)";
+  sbaway = " (%GzZzZ%n)";
+  sbservertag = "$0 %k(%n$1-%k)";
+
+  ##
+  ## Activity in statusbar
+  ##
+
+  sb_background = "%4%w";
+  sb_prompt_bg = "%n";
+  sbstart = "";
+  sbend = " ";
+
+  topicsbstart = "{sbstart $*}";
+  topicsbend = "{sbend $*}";
+
+  prompt = "[$*] ";
+
+  sb = " %c[%n$*%c]%n";
+  sbmode = "(%c+%n$*)";
+  sbaway = " (%GzZzZ%n)";
+  sbservertag = "%9$0 %K(%n$1-%K)";
+
+  sb_act_text = "%c$*";
+  sb_act_msg = "%W$*";
+  sb_act_hilight = "%M$*";
+  sb_act_hilight_color = "$0$1-%n";
+};
+
+formats = {
+  "fe-common/core" = {
+    line_start = "{line_start}";
+    line_start_irssi = "{line_start}";
+    timestamp = "{timestamp %%H:%%M:%%S} ";
+
+    servertag = "%_[$0]%_ ";
+    daychange = "           %g-----%w-%W-%n Day changed %W-%w-%g-----%n";
+    talking_with = "%_You are now talking with%_ {nick $0}";
+    refnum_too_low = "%_Window number must be greater than 1%_";
+    error_server_sticky = "%_Window's server is sticky and it cannot be changed%_";
+    set_server_sticky = "%_Window's server set sticky%_";
+    unset_server_sticky = "%_Window's server isn't sticky anymore%_";
+    window_name_not_unique = "%_Window names must be unique%_";
+    window_level = "%_Window level is now%_ $1";
+    window_set_immortal = "%_Window is now immortal%_";
+    window_unset_immortal = "%_Window isn't immortal anymore%_";
+    window_immortal_error = "%_Window is immortal, if you really want to close it, say /WINDOW IMMORTAL OFF%_";
+    windowlist_header = "%_Ref Name                 Active item     Server          Level%_";
+    windowlist_line = "$[3]0 %|$[20]1 $[15]2 $[15]3 $4";
+    windowlist_footer = "";
+    windows_layout_saved = "%_Layout of windows is now remembered next time you start irssi%_";
+    windows_layout_reset = "%_Layout of windows reset to defaults%_";
+    window_info_header = "";
+    window_info_footer = "";
+    window_info_refnum = "%_Window  : {hilight #$0}%_";
+    window_info_refnum_sticky = "%_Window  : {hilight #$0 (sticky)}%_";
+    window_info_name = "%_Name    : $0%_";
+    window_info_history = "%_History : $0%_";
+    window_info_immortal = "%_Immortal: yes%_";
+    window_info_size = "%_Size    : $0x$1%_";
+    window_info_level = "%_Level   : $0%_";
+    window_info_server = "%_Server  : $0%_";
+    window_info_server_sticky = "%_Server  : $0 (sticky)%_";
+    window_info_theme = "%_Theme   : $0$1%_";
+    window_info_bound_items_header = "%_Bound items:%_";
+    window_info_bound_item = "%_  $[!30]0 $[!15]1 $2%_";
+    window_info_bound_items_footer = "";
+    window_info_items_header = "%_Items:%_";
+    window_info_item = "%_ $[7]0 $[!30]1%_";
+    window_info_items_footer = "";
+  };
+
+  "fe-common/irc" = {
+    netsplit = "%R⚡%N %RBREACH%N %r$0%N split from %r$1%N quits: %r$2";
+    netsplit_more = "%R⚡%N %RBREACH%N %r$0%N split from %r$1%N quits: %r$2%N (+$3 more, use /NETSPLIT to show all of them)";
+    netsplit_join = "%G⚡%N %GBRIDGE%N netsplit over, joins: %g$0%N";
+    netsplit_join_more = "%G⚡%N %GBRIDGE%N netsplit over, joins: %g$0%N (+$1 more)";
+
+    no_such_nick = "%R☠%N %RMISSED%N %r$0%N: No such nick/channel";
+    nick_in_use = "%R⚠%N %RCONFLC%N Nick %R$0%N is already in use";
+    nick_unavailable = "%R⚠%N %RDENIED%N Nick %R$0%N is temporarily unavailable";
+    your_nick_owned = "%R⚠%N %ROWNING%N Your nick is owned by %R$3%N %k[%r$1@$2%k]%N";
+
+    join = "%G⥤%N %g$0%N %k[%g$1@$2%k]%N has breached %g$3%N";
+    part = "%Y⥢%N %y$0%N %k[%y$1@$2%k]%N has withdrawn from %y$3%N {reason $4}";
+    kick = "%R⥊%N %r$0%N was expelled from %r$1%N by %R$2%N {reason $3}";
+    quit = "%R⏻%N %r$0%N %k[%r$1@$2%k]%N has disconnected {reason $3}";
+    quit_once = "%R⏻%N %r$0%N %k[%r$1@$2%k]%N has disconnected {reason $3}";
+
+    nick_changed = "%C⚡%N %c$0%N is now known as %C$1%N";
+    your_nick_changed = "%C⚡%N You're now known as %C$1%N";
+
+    pubmsg = "{pubmsgnick $2 {pubnick \00312$0}}$1";
+    own_msg = "{ownmsgnick $2 {ownnick $0}}$1";
+    own_msg_channel = "{ownmsgnick $3 {ownnick $0}{msgchannel $1}}$2";
+    own_msg_private_query = "{ownprivmsgnick {ownprivnick $2}}$1";
+    pubmsg_me = "{pubmsgmenick $2 {menick $0}}$1";
+    pubmsg_me_channel = "{pubmsgmenick $3 {menick $0}{msgchannel $1}}$2";
+    pubmsg_hilight = "%Y⬢%N {pubmsghinick $0 $3 $1}$2";
+    pubmsg_hilight_channel = "{pubmsghinick $0 $4 $1{msgchannel $2}}$3";
+    pubmsg_channel = "{pubmsgnick $3 {pubnick $0}{msgchannel $1}}$2";
+    msg_private = "{privmsg $0 $1 $2}$3";
+    msg_private_query = "{privmsgnick $0}$2";
+
+    action_private = "{pvtaction $0}$2";
+    action_private_query = "{pvtaction_query $0} $2";
+    action_public = "%W ⊙ %n$0$1";
+    action_public_channel = "{pubaction $0{msgchannel $1}}$2";
+
+    mode_change = "%C◆%N %CSTATUS%N mode /{hilight $0} by %C$1%N";
+    server_chanmode_change = "%C◆%N %CSTATUS%N {channel $0} mode /{hilight $1} by %C$2%N";
+    channel_mode = "%C◆%N %CSTATUS%N channel {channel $0} mode /{hilight $1}";
+    bantype = " %k[%r$0%k]%n";
+    ban_list = "%r$0%n$1 %k[%R$2%k]%n {comment by {nick $3}, $4 secs ago}";
+    ban_list_long = "%r$0%n$1 %k[%R$2%k]%n {comment by {nick $3}, $4}";
+    eban_list = "%r$0%n$1 %k[%R$2%k]%n {comment by {nick $3}, $4 secs ago}";
+    eban_list_long = "%r$0%n$1 %k[%R$2%k]%n {comment by {nick $3}, $4}";
+    no_bans = "%_No bans in channel%_ {channel $0}";
+    banlist_long = "%g$0%n - {channel $1}";
+
+    topic = "%W⚡%N %WTOPIC%N for {channel $0}: $1";
+    new_topic = "%W⚡%N %WTOPIC%N for {channel $0} changed by %W$1%N: $2";
+    topic_unset = "%w⚡%n %wTOPIC%n for {channel $0} unset by %w$1%n";
+
+    names = "%C⬡%N %CDOCKED%N %k{%wchannel %C$0%k}%N %W$1%N";
+    endofnames = "%C⬡%N %CSTATUS%N {channel $0}: Total of {hilight $1} nicks {comment {hilight $2} ops, {hilight $3} halfops, {hilight $4} voices, {hilight $5} normal}";
+
+    chanlist_header = "%_You are in the following channels:%_";
+    chanlist_line = "%_$[-10]0 %|$1 ($2): $3%_";
+    chanlist_footer = "%_Type /HELP for more information%_";
+
+    channel_synced = "%G⚡%N %GLINKED%N Join to {channel $0} was synced in {hilight $1} secs";
+
+    invite = "%Y⚡%N %YINVITE%N %Y$0%N invites you to {channel $1}";
+    not_invited = "%R⚠%N %RDENIED%N You have not been invited to a channel!";
+
+    new_server_connect = "%G⚡%N %GCONNEC%N Connecting to {server $0} port {hilight $1}";
+    server_connect_failed = "%R☠%N %RFAILED%N Connection to {server $0} port {hilight $1} failed: $2";
+    server_connecting = "%Y⚡%N %YLINKING%N Connecting to {server $0} [$1] port {hilight $2}";
+    connection_established = "%G⚡%N %GLINKED%N Connection to {server $0} established";
+    cant_connect = "%R☠%N %RFAILED%N Can't connect to server {server $0}";
+    connection_lost = "%R⚠%N %RLOST%N Connection lost to {server $0}";
+    lag_disconnected = "%R⚠%N %RLAGGED%N No PONG reply from server {server $0} in $1 seconds, disconnecting";
+    disconnected = "%R⚠%N %RUNLINK%N Disconnected from {server $0} {comment $1}";
+    server_quit = "%R⚠%N %RLOGOUT%N Disconnecting from server {server $0}: {reason $1}";
+    server_changed = "%C⚡%N %CSWITCH%N Changed to {server $2} server {server $1}";
+    unknown_server_tag = "%R☠%N %RERROR%N Unknown server tag {server $0}";
+
+    daychange = "           %g-----%w-%W-%n Day changed %W-%w-%g-----%n";
+    talking_with = "%_You are now talking with%_ {nick $0}";
+    refnum_too_low = "%_Window number must be greater than 1%_";
+    error_server_sticky = "%_Window's server is sticky and it cannot be changed%_";
+    set_server_sticky = "%_Window's server set sticky%_";
+    unset_server_sticky = "%_Window's server isn't sticky anymore%_";
+    window_name_not_unique = "%_Window names must be unique%_";
+    window_level = "%_Window level is now%_ $1";
+    window_set_immortal = "%_Window is now immortal%_";
+    window_unset_immortal = "%_Window isn't immortal anymore%_";
+    window_immortal_error = "%_Window is immortal, if you really want to close it, say /WINDOW IMMORTAL OFF%_";
+    windowlist_header = "%_Ref Name                 Active item     Server          Level%_";
+    windowlist_line = "$[3]0 %|$[20]1 $[15]2 $[15]3 $4";
+    windowlist_footer = "";
+    windows_layout_saved = "%_Layout of windows is now remembered next time you start irssi%_";
+    windows_layout_reset = "%_Layout of windows reset to defaults%_";
+  };
+
+  "fe-text" = {
+    # === LEFT PANEL (Window List) ===
+    # Server headers - electric blue with power symbol (consistent with theme primary)
+    sidepanel_header = "%B⚡%N %b$0%N";
+
+    # Normal items - steel gray (consistent with theme secondary text)
+    sidepanel_item = "%k⚬%N %w$0%N";
+
+    # Selected items - neon green highlight (consistent with theme highlights)
+    sidepanel_item_selected = "%G⧽%N %g$0%N %G⧽%N";
+
+    # === ACTIVITY HIERARCHY (by priority) ===
+
+    # PRIORITY 4 (Highest): NICK MENTION - magenta alert (when your nick is mentioned on channel)
+    sidepanel_item_nick_mention = "%M⬢%N %M$0%N";
+
+    # PRIORITY 4 (Highest): QUERY MESSAGE - magenta alert (new messages in query/private)
+    sidepanel_item_query_msg = "%M◆%N %M$0%N";
+
+    # PRIORITY 3: CHANNEL ACTIVITY - yellow warning (messages on channel without mention)
+    sidepanel_item_activity = "%y●%N %Y$0%N";
+
+    # PRIORITY 1 (Lowest): EVENTS - green info (join/part/quit/nick changes)
+    sidepanel_item_events = "%g○%N %G$0%N";
+
+    # PRIORITY 2: HIGHLIGHTS - red alert (keyword highlights, fallback)
+    sidepanel_item_highlight = "%R☠%N %r$0%N";
+
+    # === RIGHT PANEL (Nicklist) ===
+
+    # New dual-parameter formats - status and nick separated for theme flexibility
+    # Operators - gold status symbol with steel nick (power users)
+    sidepanel_nick_op_status = "%Y$0%N%B$1%N";
+
+    # Voice users - cyan status with lighter nick (trusted users)
+    sidepanel_nick_voice_status = "%C$0%N%c$1%N";
+
+    # Normal users - subtle gray for clean appearance
+    sidepanel_nick_normal_status = "%k$0%N%w$1%N";
+  };
+};

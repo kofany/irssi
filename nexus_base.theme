@@ -1,0 +1,340 @@
+# Nexus Steel v1.0 - Fixed
+# Modern cyberpunk IRC theme for the 21st century terminal experience
+# Based on Irssi color documentation and tahio.theme structure
+
+################################################################################
+# NEXUS STEEL COLOR PALETTE LEGEND
+################################################################################
+#
+# Irssi Color Codes used:
+# %K/%k - black/dark gray    %R/%r - red/dark red
+# %G/%g - green/dark green   %Y/%y - yellow/brown  
+# %B/%b - blue/dark blue     %M/%m - magenta/dark magenta
+# %C/%c - cyan/dark cyan     %W/%w - white/gray
+# %N/%N - reset to default   %_ - underline
+#
+# Nexus Steel Palette Mapping:
+# %K - void-black (shadows)      %R - crimson-red (errors)
+# %G - neon-green (success)      %Y - amber-yellow (warnings)  
+# %B - electric-blue (primary)   %M - plasma-purple (special)
+# %C - cyan-steel (info)         %W - silver-white (text)
+# %k - shadow-gray (disabled)    %r - hot-red (highlights)
+# %g - lime-green (highlights)   %y - gold-yellow (highlights)
+# %b - sky-blue (highlights)     %m - violet-purple (highlights)
+# %c - aqua-cyan (data)          %w - light-gray (secondary)
+#
+# UTF-8 Icons Used:
+# ⚡  ◀ ◆ ⚠ ⬢ ∞ ⧐ ⚙ ⟨ ⟩ ▸ and more.
+#
+################################################################################
+
+replaces = { ":()=" = "%K$*%N"; };
+
+abstracts = {
+
+  # Core visual elements with modern cyberpunk styling
+  line_start = "%N";
+  timestamp = "%b$*%C❱%N";
+  hilight = "%Y%_$*%_%N";
+  error = "%R☠ $*%N";
+  channel = "%b%_$*%_%N";
+  channel2 = "%B$C%N";
+  nick = "%N$*%N";
+  nickhost = "$*";
+  server = "%G$*%N";
+  comment = "%k❮%N$*%k❯%N";
+  reason = "%w(%N$*%w)%N";
+  mode = "%C❮%B%_$*%N%_%C❯%N";
+
+  # Channel nick highlights with steel palette - improved for mentions
+  channick_hilight = "%Y%_$*%_%N";
+  channick_hilight2 = "%y$*%N";
+  chanhost_hilight = "%k❮{nickhost %y$*}❯%k";
+  channick = "%w$*%N";
+  chanhost = "%k❮%w{nickhost $*}%k❯%N";
+  channelhilight = "%B$*%N";
+  ban = "$*";
+
+  # Message styling with clean separators
+  msgnick = "%w$0%k$1-%B⧽%N%| ";
+  ownmsgnick = "%g$0%k$1-%B⧽%N%| ";
+  ownnick = "%g%_$*%_%N";
+  pubmsgnick = "{msgnick $0 $1-}";
+  pubnick = "%_%_$*%_%N";
+  pubmsgmenick = "{msgnick %r$0$1}%b";
+  menick = "%b$*%N";
+  pubmsghinick = "{msgnick %Y$1 %y$0%Y$2-}";
+  msgchannel = "%B⧽%N%_$*%_";
+
+  # Private messages with modern brackets
+  privmsg = "%C❮%b$0%C❯%k❮{nickhost $1-}❯%N ";
+  ownprivmsg = "%C❮%g$0%C❯%k❮$1-❯%N ";
+  ownprivmsgnick = "%C❮%g$*%C❯%N ";
+  ownprivnick = "%_%_$*%_%N";
+  privmsgnick = "%C❮%b$*%C❯%N ";
+
+  # Actions with modern styling
+  action = "%k⚬%N";
+  ownaction = "{action} %g$0 $1-";
+  pvtaction = "%C❮%Bquery%C❯%k❮$0❯%N {action} %B➢%N $1-";
+  pvtaction_query = "%k⚬ $* {action} ";
+  pubaction = "{action} %b$* %k⚬%N";
+
+  # WHOIS information with steel styling
+  whois = "$[12]0 : $1-";
+  whois1 = "$[12]0 : $1-";
+  whois2 = "$[12]0 : $1-";
+  whois3 = "$[12]0 : $1-";
+
+  # Notices with cyberpunk design
+  ownnotice = "%C❮%Btransmission%C❯%k❮$1-❯%N ";
+  notice = "%m⬢%N %mSIGNAL%N %B⟩%b⟩%g⟩%N {nick $0}: $1";
+  pubnotice_channel = ":$*";
+  pvtnotice_host = "%k❮$*❯%N";
+  servernotice = "%G☠%N %GSYSTEM%N %B⟩%N $0";
+
+  # CTCP with clean styling
+  ownctcp = "%M❮%N$0%M❯%C❮%N$1-%C❯%N ";
+  ctcp = "%M⚙%N %MPROBE%N %B⟩%b⟩%g⟩%N {nick $0} %g$1%N $2 %b$3%N $4 $5 %g$6%N";
+
+  # Wallops with cyberpunk styling
+  wallop = " $*: ";
+  wallop_nick = " $*";
+  wallop_action = " ⚬ $* ";
+
+  # Network events with modern colors
+  netsplit = "%R$*";
+  netjoin = "%G$*";
+
+  # Names list styling
+  names_nick = "%b$0%k$[9]1-%N ";
+  names_users = "(%C$0%k(%b$1%k))";
+  names_channel = "%B$*";
+
+  # DCC transfers with enhanced styling
+  dcc = "%b$0%N $1 $3 $4 %k$5 $6 $7 $8-%N";
+  dccfile = "%_%_$*%_%N";
+  dccownmsg = "%C❮%Btransfer%C❯%k❮$*❯%N ";
+  dccownnick = "%C$*%N";
+  dccownaction = "%C❮%Btransfer%C❯%k❮$0❯%N {action} %B➢%N $1-";
+  dccmsg = "%C❮%Btransfer%C❯%k❮$*❯%N ";
+  dccquerynick = "%b$*%N";
+  dccaction = "%C❮%Btransfer%C❯%k❮$*❯%N {action}%N %|";
+
+
+  # nm2 and alignment settings
+  nickalign = "";
+  nickcolor = "%N";
+  nicktrunc = "";
+  cumode_space = "";
+
+  ##############################################################################
+  # STATUSBAR - Complete Cyberpunk Powerline Style
+  ##############################################################################
+
+  # Statusbar background and styling elements
+  sb_background = "%K";
+  # Void black background
+  sb_topic_bg = "%B%W";
+  # Electric blue + white for topic
+  sb = "%B⚡%N $0-%B ⚬%N";
+  # Electric blue lightning + bullet
+  sbmode = "$0-";
+  # Mode display
+  sbservertag = ":$0 %N(%Gchange with ^X%N)";
+  # Server tag with green hint
+  sbmore = " %R❰%r❰%k❰ %Nmore %k❱%r❱%R❱ ";
+  # Triple-layered more indicator
+  sblag = "%R☠%N %RLAG%N %w$0-%N seconds";
+  # Skull + lag in crimson red
+  sb_default_bg = "%K";
+  # Default void black background
+  sb_act_sep = "%k/%N";
+  # Shadow gray separator
+  sb_act_text = "%w$*";
+  # Silver white activity text
+  sb_act_msg = "%b$*";
+  # Sky blue activity messages
+  sb_act_hilight = "%g$*";
+  # Lime green activity highlights
+  sb_act_hilight_color = "%b$0$1-%N";
+  # Sky blue highlight with color
+  sb_info1_bg = "%B";
+  # Electric blue info1 background
+  sb_window_bg = "%B%W";
+  # Electric blue + white window bg
+  sb_window2_bg = "%B%W";
+  # Electric blue + white window2 bg
+  sb_info2_bg = "%C";
+  # Cyan steel info2 background
+
+  # User count with cyberpunk styling - uses mh_sbuserinfo output directly
+  sb_usercount = "{sb %BNode:%N %G$tag }{sb %BEntities: %b$0 %G$1-";
+  # Node + Entities terminology
+  sb_uc_normal = "%BStandard %g$*%b";
+  # Standard entities
+  sb_uc_ops = "%b%BOperators %g$*%B";
+  # Operators without separate oper count (handled by mh_sbuserinfo)
+  sb_uc_voices = "%BVoice %g$*%B";
+  # Voice users with separator
+};
+
+################################################################################
+# EVENT FORMATS - Redesigned IRC event handling
+################################################################################
+
+formats = {
+  "fe-common/core" = {
+    # Modern join/part/kick/quit with WeeChat-style layout
+    join = "%G⥤%N {channick_hilight %G$0} {chanhost_hilight %k$1} %Ghas breached%N {channel %M$2}";
+    part = "%Y⥢%N {channick_hilight2 %Y$0} {chanhost_hilight %k$1} %Yhas withdrawn from%N {channel %M$2} %w{reason $3}";
+    kick = "%R☠%N {channick_hilight2 %b$0} %Rdropped%N %wby {nick %m$2} {channel $1} %w{reason $3}";
+    quit = "%R⏻%N {channick_hilight2 %Y$0} {chanhost_hilight %k$1} %Rhas been deprecated%N %w{reason $2}";
+    notice = "{notice $0 $1}";
+    quit_once = "{channel $3} {channick $0} {chanhost $1} {reason $2}";
+    servertag = "%b❮%B$0%b❯%N ";
+    invite = "%GINVITE%N %G⚗%N {nick %b$0} %wto infiltrate {channel $1}";
+    new_topic = "%BPROTOCOL%N %B⚙%N modified by {channick %b$0} in {channel $1}: %N$2";
+    topic_unset = "%kPROTOCOL%N %k⚙%N cleared by {channick %b$0} in {channel $1}";
+    your_nick_changed = "%MEVOLVED%N %M⇶%N %winto {nick %g$1} %Csynchronized%N";
+    nick_changed = "%MEVOLUTION%N %M⬢%N {channick %b$0} %whas evolved into {channick_hilight %g$1}";
+    talking_in = "%G⚡%N You are now %GIN%N {channel $0}";
+    not_in_channels = "%R⚠%N You are %RNOT CONNECTED%N to any channels";
+    names = "%N%8%Z4C9AFF%Z4C9AFF Entities %z4C9AFF%b%z4C9AFF%n%8{channel $0}%z5f8787%b%z5f8787 %W$1 %n%Z5f8787 ";
+    names_nick = "{names_nick $0 $1}";
+    endofnames = "{channel %G$0}: %BTotal {hilight %b❮%B$1%b❯%B} %Gentities%N {comment %BOperators {hilight %b❮%B$2%b❯%B}, Voice %b❮{hilight %B$4%b}%B❯%B, Standard %b❮{hilight %B$5%b}%B❯%B}";
+
+    # Away status with modern indicators
+    away = "%YIDLE%N %Y⏸%N %wMode activated: %N$0";
+    unaway = "%GACTIVE%N %G⏵%N %wMode restored";
+
+    # Server connection events
+    server_connect = "%GSYSTEM%N %G⚡%N Interface %BONLINE%N to %B$0%N";
+    server_disconnect = "%RSYSTEM%N %R⚡%N Interface %ROFFLINE%N from %k$0%N";
+
+    # Message formats with nm2 support and improved highlights
+    pubmsg = "{pubmsgnick $nickalign$2 {pubnick $nickcolor$[.10]0$nicktrunc}}$1";
+    own_msg = "{ownmsgnick $nickalign$2 {ownnick $nickcolor$[.10]0$nicktrunc}}$1";
+    own_msg_channel = "{ownmsgnick $nickalign$3 {ownnick $nickcolor$[.10]0$nicktrunc}{msgchannel $1}}$2";
+    pubmsg_me = "{pubmsgmenick $nickalign$2 {menick $[.10]0$nicktrunc}}$1";
+    pubmsg_me_channel = "{pubmsgmenick $nickalign$3 {menick $[.10]0$nicktrunc}{msgchannel $1}}$2";
+    pubmsg_hilight = "{pubmsghinick $0 $nickalign$3 $nickcolor$[.10]1$nicktrunc}$2";
+    pubmsg_hilight_channel = "{pubmsghinick $0 $nickalign$4 $nickcolor$[.10]1$nicktrunc{msgchannel $2}}$3";
+    pubmsg_channel = "{pubmsgnick $nickalign$3 {pubnick $nickcolor$[.10]0$nicktrunc}{msgchannel $1}}$2";
+    own_msg_private_query = "{ownprivmsgnick $nickalign{ownprivnick $nickcolor$[.10]2$nicktrunc}}$1";
+    msg_private_query = "{privmsgnick $nickalign$nickcolor$[.10]0$nicktrunc}$2";
+  };
+
+  "fe-common/irc" = {
+    inviting = "%G✉%N Inviting {nick %b$0} to {channel $1}";
+    topic_info = "%B⚙%N Topic set by %b{channick $0} {comment $1}";
+    server_chanmode_change = "{netsplit %BServerMode%N}/{channelhilight $0} {mode $1} by {nick $2}";
+
+    # Enhanced WHOIS with consistent cyan-blue gradient styling
+    whois = "%N%8%Z4C9AFF%Z4C9AFF SCAN %N%Z4C9AFF%z708090%z708090 %z708090%k%W$0%z708090 %W(%z708090%Y$1%W@%Y$2%W)%z708090 identity:%z708090 %C$3 %z708090%c%N%Z708090";
+    whowas = "%N%8%ZFF6B6B%ZFF6B6B ARCHIVE %N%ZFF6B6B%z708090%z708090 %z708090%W*%z708090 %W$0%z708090 %W(%z708090%Y$1%W@%Y$2%W)%z708090 identity:%z708090 %C$3 %z708090%c%N%Z708090";
+    whois_idle = "%N%8%Z6BFF6B%Z6BFF6B AFFK %N%Z6BFF6B%z708090%z708090 %z708090%C$1d%z708090 %C$2h%z708090 %C$3m%z708090 %C$4s %z708090%c%N%Z708090";
+    whois_idle_signon = "%N%8%ZFFFF6B%ZFFFF6B AFFK %N%ZFFFF6B%z708090%z708090 %z708090%C$1d%z708090 %C$2h%z708090 %C$3m%z708090 %C$4s%z708090 %W(%z708090login:%z708090 %Y$5%W)%z708090 %c%N%Z708090";
+    whois_server = "%N%8%ZFF6BFF%ZFF6BFF NODE %N%ZFF6BFF%z708090%z708090 %z708090%C$1%z708090 %W(%z708090%B$2%W)%z708090 %c%N%Z708090";
+    whois_oper = "%N%8%Z6BFFFF%Z6BFFFF ADMIN %N%Z6BFFFF%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
+    whois_registered = "%N%8%ZFF6BD7%ZFF6BD7 VERIFIED %N%ZFF6BD7%z708090%z708090 %z708090%Widentity%z708090 %Wauthenticated%z708090 %c%N%Z708090";
+    whois_help = "%N%8%Z6BBFFF%Z6BBFFF SUPPORT %N%Z6BBFFF%z708090%z708090 %z708090%Wavailable%z708090 %Wfor%z708090 %Wassistance%z708090 %c%N%Z708090";
+    whois_modes = "%N%8%ZB6FF6B%ZB6FF6B PERMS %N%ZB6FF6B%z708090%z708090 %z708090%C$1%z708090 %c%N%Z708090";
+    whois_realhost = "%N%8%ZFFB66B%ZFFB66B TRACE %N%ZFFB66B%z708090%z708090 %z708090%C$1-%z708090 %c%N%Z708090";
+    whois_usermode = "%N%8%ZD76BFF%ZD76BFF STATUS %N%ZD76BFF%z708090%z708090 %z708090%C$1%z708090 %c%N%Z708090";
+    whois_channels = "%N%8%Z6BFFD7%Z6BFFD7 HIDEOUT %N%Z6BFFD7%z708090%z708090 %z708090%B$1%z708090 %c%N%Z708090";
+    whois_away = "%N%8%ZFF9E6B%ZFF9E6B AWAY %N%ZFF9E6B%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
+    whois_special = "%N%8%Z9E6BFF%Z9E6BFF EXTRAS %N%Z9E6BFF%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
+    end_of_whois = "%N%8%Z6BFF9E%Z6BFF9E SYNCED %N%Z6BFF9E%z708090%z708090 %z708090%Wend%z708090 %Wof%z708090 %Wwhois%z708090 %c%N%Z708090";
+    end_of_whowas = "%N%8%ZBFFF6B%ZBFFF6B SYNCED %N%ZBFFF6B%z708090%z708090 %z708090%Wend%z708090 %Wof%z708090 %Wwhowas%z708090 %c%N%Z708090";
+    whois_not_found = "%N%8%ZFF6B9E%ZFF6B9E Entity not found %N%ZFF6B9E%z708090%z708090 %z708090%R$0%z708090 %c%N%Z708090";
+
+    who = "{channelhilight %B$[!10]0%N} %|{nick $[!9]1} %B$[!3]2%N $[!2]3 $4%b@%N$5 :: $6";
+    ctcp_requested = "requested $2 from {nick $3} {ctcp {hilight $0} {comment $1}}";
+
+    # Actions with nm2 support
+    own_action = "$nickalign{ownaction $[.10]0$nicktrunc}$1";
+    action_private = "$nickalign{pvtaction $[.10]0$nicktrunc}$2";
+    action_private_query = "$nickalign{pvtaction_query $[.10]0$nicktrunc}$2";
+    action_public = "$nickalign{pubaction $[.10]0$nicktrunc}$1";
+  };
+
+  "fe-common/irc/dcc" = {
+    own_dcc = "{dccownmsg {dccownnick $1}}$2";
+    own_dcc_action = "{dccownaction_target $0 $1}$2";
+    own_dcc_action_query = "{dccownaction $0}$2";
+    own_dcc_ctcp = "{ownctcp ctcp $0}$1 $2";
+    dcc_msg = "{dccmsg $0}$1";
+    action_dcc = "{dccaction $0}$1";
+    action_dcc_query = "{dccaction $0}$1";
+    own_dcc_query = "{dccownmsg {dccownnick $0}}$2";
+    dcc_msg_query = "{dccmsg $0}$1";
+    dcc_ctcp = "{dcc %B▸▸▸ DCC CTCP {hilight $1} received from {hilight $0}: $2}";
+  };
+
+  ################################################################################
+  # AWL CONFIGURATION - Advanced Window List with Nexus Steel styling
+  ################################################################################
+
+  "Irssi::Script::adv_windowlist" = {
+    # Active window with electric blue accent and power symbol
+    awl_display_key_active = "%B⚡%N$N%b${cumode_space}%G$H$C$S";
+
+    # Inactive windows with subtle steel gray styling  
+    awl_display_key = "  %w$N%k${cumode_space}%w$H$C$S";
+
+    # Background styling consistent with statusbar
+    awl_viewer_item_bg = "%K";
+
+    # Clean header without decoration
+    awl_display_header = "";
+
+    # Windows without hotkeys using steel gray palette
+    awl_display_nokey = "  %k$N%k${cumode_space}%w$H$C$S";
+
+    # Visible windows with cyan accent and visibility indicator
+    awl_display_nokey_visible = "%C◆%N %w$N %b${cumode_space}%C$H%N$C$S";
+    awl_display_key_visible = "%C◆%N %w$N %b${cumode_space}%C$H%N$C$S";
+
+    # Active window without hotkey using power symbol
+    awl_display_nokey_active = "%B⚡%N$N%b${cumode_space}%G$H$C$S";
+
+    # Activity level colors following Nexus Steel palette
+    awl_data_level_none = "%w";
+    # silver-gray for no activity
+    awl_data_level_low = "%b";
+    # sky-blue for low activity  
+    awl_data_level_medium = "%Y";
+    # amber-yellow for medium activity
+    awl_data_level_high = "%R";
+    # crimson-red for high activity/highlights
+
+    # Additional styling options for enhanced visual consistency
+    awl_separator = "%k→%N";
+    awl_abbrev_chars = "→";
+    awl_hide_empty = "0";
+    awl_maxlines = "0";
+    awl_sort = "refnum";
+  };
+
+  ################################################################################
+  # NM2 CONFIGURATION - Nick alignment with enhanced Nexus Steel integration
+  ################################################################################
+
+  "Irssi::Script::nm2" = {
+    neat_pad_char = " ";
+    neat_left_actions = "0";
+    neat_right_actions = "0";
+    neat_left_messages = "0";
+    neat_right_messages = "0";
+    neat_maxlength = "10";
+    neat_colors = "1";
+    neat_shrink_uniq = "1";
+    neat_colorize = "1";
+    neat_allow_shrinking = "1";
+    neat_melength = "1";
+  };
+};
+
+
+# End of Nexus Steel v1.0 Theme
