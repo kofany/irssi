@@ -1,0 +1,5 @@
+inst/
+Build/
+.github/
+.claude/
+.cursor/
