@@ -84,14 +84,47 @@ static gboolean esc_timeout_callback(gpointer data)
 	return FALSE;
 }
 
-static FILE *sp_log;
-static void sp_log_open(void) { if (!sp_log) sp_log = fopen("/tmp/irssi_sidepanels.log", "a"); }
+static FILE *sp_log = NULL;
+
+static void sp_log_open(void) { 
+	if (!sp_log && sp_debug) {
+		const char *home = g_get_home_dir();
+		if (home) {
+			char *irssi_dir = g_strdup_printf("%s/.irssi", home);
+			char *logpath = g_strdup_printf("%s/sidepanels.log", irssi_dir);
+			
+			/* Ensure .irssi directory exists */
+			g_mkdir_with_parents(irssi_dir, 0700);
+			
+			sp_log = fopen(logpath, "a");
+			if (!sp_log) {
+				/* Fallback: try temp if home fails */
+				g_free(logpath);
+				logpath = g_strdup("/tmp/irssi_sidepanels.log");
+				sp_log = fopen(logpath, "a");
+			}
+			
+			g_free(irssi_dir);
+			g_free(logpath);
+		}
+	}
+}
+
+static void sp_log_close(void) {
+	if (sp_log) {
+		fclose(sp_log);
+		sp_log = NULL;
+	}
+}
+
 static void sp_logf(const char *fmt, ...)
 {
 	va_list ap;
 	if (!sp_debug) return;
+	
 	sp_log_open();
 	if (!sp_log) return;
+	
 	va_start(ap, fmt);
 	vfprintf(sp_log, fmt, ap);
 	fprintf(sp_log, "\n");
@@ -1488,8 +1521,6 @@ static void disable_mouse_tracking(void)
 
 static void sig_irssi_init_finished(void)
 {
-	/* Force debug on to see what's happening */
-	sp_debug = 1;
 	/* Renumber windows to ensure proper order */
 	renumber_windows_by_position();
 	apply_reservations_all();
@@ -1597,5 +1628,6 @@ void sidepanels_deinit(void)
 	disable_mouse_tracking();
 	/* Clean up timeout */
 	if (esc_timeout_tag != -1) { g_source_remove(esc_timeout_tag); esc_timeout_tag = -1; }
-	if (sp_log) { fclose(sp_log); sp_log = NULL; }
+	/* Clean up debug log */
+	sp_log_close();
 }
