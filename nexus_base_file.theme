@@ -8,14 +8,14 @@
 #
 # Irssi Color Codes used:
 # %K/%k - black/dark gray    %R/%r - red/dark red
-# %G/%g - green/dark green   %Y/%y - yellow/brown  
+# %G/%g - green/dark green   %Y/%y - yellow/brown
 # %B/%b - blue/dark blue     %M/%m - magenta/dark magenta
 # %C/%c - cyan/dark cyan     %W/%w - white/gray
 # %N/%N - reset to default   %_ - underline
 #
 # Nexus Steel Palette Mapping:
 # %K - void-black (shadows)      %R - crimson-red (errors)
-# %G - neon-green (success)      %Y - amber-yellow (warnings)  
+# %G - neon-green (success)      %Y - amber-yellow (warnings)
 # %B - electric-blue (primary)   %M - plasma-purple (special)
 # %C - cyan-steel (info)         %W - silver-white (text)
 # %k - shadow-gray (disabled)    %r - hot-red (highlights)
@@ -28,7 +28,15 @@
 #
 ################################################################################
 
-replaces = { ":()=" = "%K$*%N"; };
+replaces = {
+  ":()=" = "%K$*%N";
+  # Channel prefix coloring for whois channels
+  "@#" = "%Y@%g#";
+  "+#" = "%C+%c#";
+  " #" = " %b#";
+  "~#" = "%M~%m#";
+  "&" = "%R&%r";
+};
 
 abstracts = {
 
@@ -135,6 +143,8 @@ abstracts = {
   # Statusbar background and styling elements
   sb_background = "%K";
   # Void black background
+  window_border = "%B│%N";
+  # Electric blue cyberpunk border character
   sb_topic_bg = "%B%W";
   # Electric blue + white for topic
   sb = "%B⚡%N $0-%B ⚬%N";
@@ -177,7 +187,29 @@ abstracts = {
   # Operators without separate oper count (handled by mh_sbuserinfo)
   sb_uc_voices = "%BVoice %g$*%B";
   # Voice users with separator
+
+  ##############################################################################
+  # WHOIS ABSTRACTS - Cyberpunk styling for whois information
+  ##############################################################################
+
+  # Basic whois field formatting
+  whois_field = "$0-%N";
+  whois_label = "$0";
+
+  # Channel formatting with prefix colors
+  whois_chan_op = "%Y@%g$0%N";
+  whois_chan_voice = "%C+%c$0%N";
+  whois_chan_normal = "%b$0%N";
+  whois_chan_owner = "%M~%m$0%N";
+  whois_chan_admin = "%R&%r$0%N";
+
+  # Nick formatting in various contexts
+  whois_nick = "%w$0%N";
+  whois_userhost = "%k(%y$0%k@%y$1%k)%N";
+  whois_realname = "%C$0%N";
 };
+</text>
+
 
 ################################################################################
 # EVENT FORMATS - Redesigned IRC event handling
@@ -230,24 +262,25 @@ formats = {
     topic_info = "%B⚙%N Topic set by %b{channick $0} {comment $1}";
     server_chanmode_change = "{netsplit %BServerMode%N}/{channelhilight $0} {mode $1} by {nick $2}";
 
-    # Enhanced WHOIS with consistent cyan-blue gradient styling
-    whois = "%N%8%Z4C9AFF%Z4C9AFF SCAN %N%Z4C9AFF%z708090%z708090 %z708090%k%W$0%z708090 %W(%z708090%Y$1%W@%Y$2%W)%z708090 identity:%z708090 %C$3 %z708090%c%N%Z708090";
-    whowas = "%N%8%ZFF6B6B%ZFF6B6B ARCHIVE %N%ZFF6B6B%z708090%z708090 %z708090%W*%z708090 %W$0%z708090 %W(%z708090%Y$1%W@%Y$2%W)%z708090 identity:%z708090 %C$3 %z708090%c%N%Z708090";
-    whois_idle = "%N%8%Z6BFF6B%Z6BFF6B AFFK %N%Z6BFF6B%z708090%z708090 %z708090%C$1d%z708090 %C$2h%z708090 %C$3m%z708090 %C$4s %z708090%c%N%Z708090";
-    whois_idle_signon = "%N%8%ZFFFF6B%ZFFFF6B AFFK %N%ZFFFF6B%z708090%z708090 %z708090%C$1d%z708090 %C$2h%z708090 %C$3m%z708090 %C$4s%z708090 %W(%z708090login:%z708090 %Y$5%W)%z708090 %c%N%Z708090";
-    whois_server = "%N%8%ZFF6BFF%ZFF6BFF NODE %N%ZFF6BFF%z708090%z708090 %z708090%C$1%z708090 %W(%z708090%B$2%W)%z708090 %c%N%Z708090";
-    whois_oper = "%N%8%Z6BFFFF%Z6BFFFF ADMIN %N%Z6BFFFF%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
-    whois_registered = "%N%8%ZFF6BD7%ZFF6BD7 VERIFIED %N%ZFF6BD7%z708090%z708090 %z708090%Widentity%z708090 %Wauthenticated%z708090 %c%N%Z708090";
-    whois_help = "%N%8%Z6BBFFF%Z6BBFFF SUPPORT %N%Z6BBFFF%z708090%z708090 %z708090%Wavailable%z708090 %Wfor%z708090 %Wassistance%z708090 %c%N%Z708090";
-    whois_modes = "%N%8%ZB6FF6B%ZB6FF6B PERMS %N%ZB6FF6B%z708090%z708090 %z708090%C$1%z708090 %c%N%Z708090";
-    whois_realhost = "%N%8%ZFFB66B%ZFFB66B TRACE %N%ZFFB66B%z708090%z708090 %z708090%C$1-%z708090 %c%N%Z708090";
-    whois_usermode = "%N%8%ZD76BFF%ZD76BFF STATUS %N%ZD76BFF%z708090%z708090 %z708090%C$1%z708090 %c%N%Z708090";
-    whois_channels = "%N%8%Z6BFFD7%Z6BFFD7 HIDEOUT %N%Z6BFFD7%z708090%z708090 %z708090%B$1%z708090 %c%N%Z708090";
-    whois_away = "%N%8%ZFF9E6B%ZFF9E6B AWAY %N%ZFF9E6B%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
-    whois_special = "%N%8%Z9E6BFF%Z9E6BFF EXTRAS %N%Z9E6BFF%z708090%z708090 %z708090%Y$1%z708090 %c%N%Z708090";
-    end_of_whois = "%N%8%Z6BFF9E%Z6BFF9E SYNCED %N%Z6BFF9E%z708090%z708090 %z708090%Wend%z708090 %Wof%z708090 %Wwhois%z708090 %c%N%Z708090";
-    end_of_whowas = "%N%8%ZBFFF6B%ZBFFF6B SYNCED %N%ZBFFF6B%z708090%z708090 %z708090%Wend%z708090 %Wof%z708090 %Wwhowas%z708090 %c%N%Z708090";
-    whois_not_found = "%N%8%ZFF6B9E%ZFF6B9E Entity not found %N%ZFF6B9E%z708090%z708090 %z708090%R$0%z708090 %c%N%Z708090";
+    # Enhanced WHOIS with consistent Nexus Steel cyberpunk styling
+    whois = "%B⚙%N $[6]SCANED %k❮%w$0%k❯%N %k(%y$1%k@%y$2%k)%N %C→%N %c$3%N";
+    whowas = "%R⏻%N $[6]ARCHIV %k❮%w$0%k❯%N %k(%y$1%k@%y$2%k)%N %C→%N %c$3%N";
+    whois_idle = "%Y⏸%N $[6]COVERT %C$1%kd %C$2%kh %C$3%km %C$4%ks";
+    whois_idle_signon = "%Y⏸%N $[6]COVERT %C$1%kd %C$2%kh %C$3%km %C$4%ks %k(%wlogin: %y$5%k)%N";
+    whois_server = "%G⚡%N $[6]DEVICE %C$1%N %k(%b$2%k)%N";
+    whois_oper = "%M⚡%N $[6]POWERS %Y$1%N";
+    whois_registered = "%G☠%N $[6]VERIFY %widentity authenticated%N";
+    whois_help = "%B⚙%N $[6]HELPNG %wavailable for assistance%N";
+    whois_modes = "%C◆%N $[6]PERMIS %C$1%N";
+    whois_realhost = "%Y⚠%N $[6]TRACED %C$1-%N";
+    whois_usermode = "%M⬢%N $[6]STATUS %C$1%N";
+    whois_channels = "%B⬡%N $[6]DOCKED %B$1%N";
+    whois_away = "%Y⏸%N $[6]RUNNED %Y$1%N";
+    whois_special = "%M⬢%N $[6]EXTRAS %Y$1%N";
+    whois_extra = "%C◆%N $[6]SIGNED %c$1%N";
+    end_of_whois = "%G⚡%N $[6]SYNCED %Wend of whois%N";
+    end_of_whowas = "%G⚡%N $[6]SYNCED %Wend of whowas%N";
+    whois_not_found = "%R☠%N $[6]MISSED %R$0%N";
 
     who = "{channelhilight %B$[!10]0%N} %|{nick $[!9]1} %B$[!3]2%N $[!2]3 $4%b@%N$5 :: $6";
     ctcp_requested = "requested $2 from {nick $3} {ctcp {hilight $0} {comment $1}}";
@@ -280,7 +313,7 @@ formats = {
     # Active window with electric blue accent and power symbol
     awl_display_key_active = "%B⚡%N$N%b${cumode_space}%G$H$C$S";
 
-    # Inactive windows with subtle steel gray styling  
+    # Inactive windows with subtle steel gray styling
     awl_display_key = "  %w$N%k${cumode_space}%w$H$C$S";
 
     # Background styling consistent with statusbar
@@ -303,7 +336,7 @@ formats = {
     awl_data_level_none = "%w";
     # silver-gray for no activity
     awl_data_level_low = "%b";
-    # sky-blue for low activity  
+    # sky-blue for low activity
     awl_data_level_medium = "%Y";
     # amber-yellow for medium activity
     awl_data_level_high = "%R";
@@ -333,6 +366,44 @@ formats = {
     neat_colorize = "1";
     neat_allow_shrinking = "1";
     neat_melength = "1";
+  };
+
+  ################################################################################
+  # SIDEPANEL THEME - Cyberpunk Nexus Steel styling for sidebar elements
+  ################################################################################
+
+  "fe-text" = {
+    # === LEFT PANEL (Window List) ===
+    # Server headers - electric blue with power symbol (consistent with theme primary)
+    sidepanel_header = "%B⚡%N %b$0%N";
+
+    # Normal items - steel gray (consistent with theme secondary text)
+    sidepanel_item = "%k⚬%N %w$0%N";
+
+    # Selected items - neon green highlight (consistent with theme highlights)
+    sidepanel_item_selected = "%G⧽%N %g$0%N %G⧽%N";
+
+    # Activity items - amber warning (consistent with theme warnings)
+    sidepanel_item_activity = "%y●%N %Y$0%N";
+
+    # HIGHLIGHTS - crimson alert (consistent with theme errors/critical)
+    sidepanel_item_highlight = "%R☠%N %r$0%N";
+
+    # === RIGHT PANEL (Nick List) ===
+    # Legacy single-parameter formats (for backwards compatibility)
+    sidepanel_nick_op = "%Y@$0%N";
+    sidepanel_nick_voice = "%C+$0%N";
+    sidepanel_nick_normal = "%w$0%N";
+
+    # New dual-parameter formats - status and nick separated for theme flexibility
+    # Operators - gold status symbol with steel nick (power users)
+    sidepanel_nick_op_status = "%Y$0%N%B$1%N";
+
+    # Voice users - cyan status with lighter nick (trusted users)
+    sidepanel_nick_voice_status = "%C$0%N%c$1%N";
+
+    # Normal users - subtle gray for clean appearance
+    sidepanel_nick_normal_status = "%k$0%N%w$1%N";
   };
 };
 
