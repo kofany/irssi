@@ -16,11 +16,12 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/settings.h>
-#include <irssip/src/core/levels.h>
-#include <irssip/src/fe-common/core/printtext.h>
-#include <irssip/src/fe-common/core/themes.h>
+#include <src/core/signals.h>
+#include <src/core/settings.h>
+#include <src/core/levels.h>
+#include <src/core/modules.h>
+#include <src/fe-common/core/printtext.h>
+#include <src/fe-common/core/themes.h>
 
 /* Global variables */
 GSList *web_clients = NULL;
@@ -63,7 +64,7 @@ void fe_web_init(void)
 	settings_add_str("lookandfeel", "web_frontend_bind", "127.0.0.1");
 	settings_add_int("lookandfeel", "web_frontend_max_clients", FE_WEB_MAX_CLIENTS);
 	settings_add_bool("lookandfeel", "web_frontend_auth_required", TRUE);
-	settings_add_str("lookandfeel", "web_frontend_static_path", DATADIR "/irssip/web");
+	settings_add_str("lookandfeel", "web_frontend_static_path", "/opt/irssip/share/irssip/web");
 	
 	/* Initialize components */
 	fe_web_server_init();

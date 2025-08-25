@@ -6,12 +6,14 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/servers.h>
-#include <irssip/src/core/channels.h>
-#include <irssip/src/core/queries.h>
-#include <irssip/src/fe-common/core/printtext.h>
-#include <irssip/src/fe-common/core/window-items.h>
+#include <src/core/signals.h>
+#include <src/core/servers.h>
+#include <src/core/channels.h>
+#include <src/core/queries.h>
+#include <src/core/levels.h>
+#include <src/core/nicklist.h>
+#include <src/fe-common/core/printtext.h>
+#include <src/fe-common/core/window-items.h>
 
 /* Signal handlers */
 

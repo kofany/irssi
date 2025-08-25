@@ -6,8 +6,10 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/network.h>
-#include <irssip/src/fe-common/core/printtext.h>
+#include <src/core/network.h>
+#include <src/core/settings.h>
+#include <src/core/levels.h>
+#include <src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>

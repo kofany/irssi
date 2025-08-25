@@ -6,12 +6,14 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/levels.h>
+#include <src/core/levels.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <glib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/socket.h>
+#include <time.h>
 
 /* WebSocket magic string for handshake */
 #define WEBSOCKET_MAGIC_STRING "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
@@ -182,7 +184,6 @@ char *fe_web_websocket_create_response(const char *key)
 	unsigned char hash[SHA_DIGEST_LENGTH];
 	char *base64_hash;
 	char *response;
-	gsize out_len;
 	
 	if (key == NULL) return NULL;
 	

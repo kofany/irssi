@@ -1,9 +1,15 @@
 #ifndef __FE_WEB_H
 #define __FE_WEB_H
 
-#include <irssip/src/common.h>
-#include <irssip/src/core/core.h>
-#include <irssip/src/fe-common/core/fe-common-core.h>
+#include <src/common.h>
+#include <src/core/core.h>
+#include <src/core/servers.h>
+#include <time.h>
+#include <glib.h>
+
+/* Forward declarations */
+typedef struct _SERVER_REC SERVER_REC;
+typedef struct _WINDOW_REC WINDOW_REC;
 
 /* WebSocket server configuration */
 #define FE_WEB_DEFAULT_PORT 9001

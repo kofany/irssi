@@ -6,8 +6,10 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/commands.h>
-#include <irssip/src/fe-common/core/printtext.h>
+#include <src/core/commands.h>
+#include <src/core/signals.h>
+#include <src/core/levels.h>
+#include <src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -209,8 +211,9 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *data)
 	if (strstr(data, "\"type\":\"command\"") && strstr(data, "\"command\":")) {
 		char *command_start = strstr(data, "\"command\":\"");
 		if (command_start) {
+			char *command_end;
 			command_start += 11; /* Skip "command":" */
-			char *command_end = strchr(command_start, '"');
+			command_end = strchr(command_start, '"');
 			if (command_end) {
 				char *command = g_strndup(command_start, command_end - command_start);
 				fe_web_client_handle_command(client, command);

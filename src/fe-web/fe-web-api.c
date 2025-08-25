@@ -6,27 +6,27 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/servers.h>
-#include <irssip/src/core/channels.h>
-#include <irssip/src/core/queries.h>
-#include <irssip/src/core/nicklist.h>
-#include <irssip/src/fe-common/core/windows.h>
+#include <src/core/servers.h>
+#include <src/core/channels.h>
+#include <src/core/queries.h>
+#include <src/core/nicklist.h>
 
 char *fe_web_api_serialize_server(SERVER_REC *server)
 {
 	GString *json;
 	GSList *tmp;
 	char *escaped_tag, *escaped_address, *escaped_nick;
-	
+	gboolean first_channel;
+
 	if (server == NULL) return g_strdup("{}");
-	
+
 	json = g_string_new("{");
-	
+
 	escaped_tag = fe_web_escape_json_string(server->tag);
 	escaped_address = fe_web_escape_json_string(server->connrec->address);
 	escaped_nick = fe_web_escape_json_string(server->nick);
-	
-	g_string_append_printf(json, 
+
+	g_string_append_printf(json,
 		"\"tag\":%s,"
 		"\"address\":%s,"
 		"\"port\":%d,"
@@ -39,9 +39,9 @@ char *fe_web_api_serialize_server(SERVER_REC *server)
 		server->connected ? "true" : "false",
 		escaped_nick
 	);
-	
+
 	/* Add channels */
-	gboolean first_channel = TRUE;
+	first_channel = TRUE;
 	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
 		CHANNEL_REC *channel = tmp->data;
 		char *channel_json = fe_web_api_serialize_channel(channel);
@@ -69,14 +69,16 @@ char *fe_web_api_serialize_channel(CHANNEL_REC *channel)
 	GString *json;
 	GSList *tmp;
 	char *escaped_name, *escaped_topic;
-	
+	gboolean first_nick;
+	GSList *nick_tmp;
+
 	if (channel == NULL) return g_strdup("{}");
-	
+
 	json = g_string_new("{");
-	
+
 	escaped_name = fe_web_escape_json_string(channel->name);
 	escaped_topic = fe_web_escape_json_string(channel->topic);
-	
+
 	g_string_append_printf(json,
 		"\"name\":%s,"
 		"\"server\":\"%s\","
@@ -86,11 +88,11 @@ char *fe_web_api_serialize_channel(CHANNEL_REC *channel)
 		channel->server->tag,
 		escaped_topic ? escaped_topic : "null"
 	);
-	
+
 	/* Add nicks */
-	gboolean first_nick = TRUE;
-	for (tmp = channel->nicks; tmp != NULL; tmp = tmp->next) {
-		NICK_REC *nick = tmp->data;
+	first_nick = TRUE;
+	for (nick_tmp = channel->nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+		NICK_REC *nick = nick_tmp->data;
 		char *escaped_nick = fe_web_escape_json_string(nick->nick);
 		char *mode = "";
 		
@@ -127,31 +129,8 @@ char *fe_web_api_serialize_channel(CHANNEL_REC *channel)
 
 char *fe_web_api_serialize_window(WINDOW_REC *window)
 {
-	GString *json;
-	char *escaped_name;
-	
-	if (window == NULL) return g_strdup("{}");
-	
-	json = g_string_new("{");
-	
-	escaped_name = fe_web_escape_json_string(window->name);
-	
-	g_string_append_printf(json,
-		"\"refnum\":%d,"
-		"\"name\":%s,"
-		"\"active\":%s,"
-		"\"level\":%d",
-		window->refnum,
-		escaped_name ? escaped_name : "null",
-		window == active_win ? "true" : "false",
-		window->level
-	);
-	
-	g_string_append_c(json, '}');
-	
-	g_free(escaped_name);
-	
-	return g_string_free(json, FALSE);
+	/* TODO: Implement when WINDOW_REC structure is available */
+	return g_strdup("{\"error\":\"not_implemented\"}");
 }
 
 static void fe_web_api_send_server_list(WEB_CLIENT_REC *client)
@@ -191,33 +170,10 @@ static void fe_web_api_send_server_list(WEB_CLIENT_REC *client)
 static void fe_web_api_send_window_list(WEB_CLIENT_REC *client)
 {
 	WEB_MESSAGE_REC *msg;
-	GString *windows_json;
-	GSList *tmp;
-	gboolean first = TRUE;
-	
+
 	msg = fe_web_message_new(WEB_MSG_WINDOW_CHANGE);
-	msg->text = g_strdup("window_list");
-	
-	windows_json = g_string_new("[");
-	
-	for (tmp = windows; tmp != NULL; tmp = tmp->next) {
-		WINDOW_REC *window = tmp->data;
-		char *window_json = fe_web_api_serialize_window(window);
-		
-		if (!first) {
-			g_string_append_c(windows_json, ',');
-		}
-		g_string_append(windows_json, window_json);
-		first = FALSE;
-		
-		g_free(window_json);
-	}
-	
-	g_string_append_c(windows_json, ']');
-	
-	g_hash_table_insert(msg->extra_data, g_strdup("windows"), 
-	                   g_string_free(windows_json, FALSE));
-	
+	msg->text = g_strdup("window_list_not_implemented");
+
 	fe_web_client_send_message(client, msg);
 	fe_web_message_free(msg);
 }
