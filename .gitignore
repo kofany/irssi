@@ -96,3 +96,5 @@ Build/
 .cache/
 build
 build/
+web_proto/irssi-web/node_modules/
+web_proto/irssi-web/package-lock.json

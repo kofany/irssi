@@ -18,6 +18,7 @@ endif
 if want_textui
   subdir('fe-text')
 endif
+subdir('fe-web')
 if want_fuzzer
   subdir('fe-fuzz')
 endif

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>irssip - Web IRC Client</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00ffff;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .status {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .error {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .code {
+            background: #333;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        a {
+            color: #00ffff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 irssip Web Frontend</h1>
+        
+        <div class="info">
+            <h3>WebSocket Server Status</h3>
+            <p id="status" class="status">Checking connection...</p>
+            
+            <h3>Next.js Frontend</h3>
+            <p>The modern React-based IRC client interface is available at:</p>
+            <div class="code">
+                <a href="http://localhost:3000" target="_blank">http://localhost:3000</a>
+            </div>
+            
+            <h3>Configuration</h3>
+            <p>To enable the web frontend in irssi:</p>
+            <div class="code">
+                /SET web_frontend_enabled ON<br>
+                /SET web_frontend_port 9001<br>
+                /LOAD fe_web
+            </div>
+            
+            <h3>Architecture</h3>
+            <p>
+                <strong>Next.js Frontend</strong> (port 3000) ←→ WebSocket ←→ 
+                <strong>fe-web Backend</strong> (port 9001) ←→ Signals ←→ 
+                <strong>irssi Core</strong>
+            </p>
+        </div>
+        
+        <div class="info">
+            <h3>Development</h3>
+            <p>Start the Next.js development server:</p>
+            <div class="code">
+                cd web_proto/irssi-web<br>
+                npm run dev
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test WebSocket connection
+        function checkWebSocketConnection() {
+            const statusEl = document.getElementById('status');
+            
+            try {
+                const ws = new WebSocket('ws://localhost:9001');
+                
+                ws.onopen = function() {
+                    statusEl.textContent = '✅ WebSocket Server Running (port 9001)';
+                    statusEl.className = 'status';
+                    ws.close();
+                };
+                
+                ws.onerror = function() {
+                    statusEl.textContent = '❌ WebSocket Server Not Running (port 9001)';
+                    statusEl.className = 'error';
+                };
+                
+                ws.onclose = function() {
+                    if (statusEl.className !== 'status') {
+                        statusEl.textContent = '❌ WebSocket Server Not Running (port 9001)';
+                        statusEl.className = 'error';
+                    }
+                };
+                
+            } catch (error) {
+                statusEl.textContent = '❌ WebSocket Connection Failed';
+                statusEl.className = 'error';
+            }
+        }
+        
+        // Check connection on page load
+        checkWebSocketConnection();
+        
+        // Recheck every 5 seconds
+        setInterval(checkWebSocketConnection, 5000);
+    </script>
+</body>
+</html>
