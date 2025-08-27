@@ -12,7 +12,7 @@ detect_system() {
 
 SYSTEM=$(detect_system)
 
-echo "🚀 Convert Irssi to Erssi - exact changes from commit 7bb2ee9"
+echo "🚀 Convert Irssi to Erssi - exact changes from commit 7bb2ee9 + executable name"
 
 # 1. w meson.build: incdir = 'irssi' -> incdir = 'erssi'
 if [[ "$SYSTEM" == "macos" ]]; then
@@ -42,4 +42,11 @@ else
     find . -type f | xargs sed -i 's|\.irssi/|\.erssi/|g'
 fi
 
-echo "✅ Gotowe - dokładnie 4 zmiany wykonane"
+# 5. w src/fe-text/meson.build: executable('irssi', -> executable('erssi',
+if [[ "$SYSTEM" == "macos" ]]; then
+    sed -i '' "s/executable('irssi',/executable('erssi',/" src/fe-text/meson.build
+else
+    sed -i "s/executable('irssi',/executable('erssi',/" src/fe-text/meson.build
+fi
+
+echo "✅ Gotowe - dokładnie 5 zmian wykonanych"
