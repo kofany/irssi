@@ -1,74 +1,112 @@
-# [Irssi](https://irssi.org)
+# Evolved Irssi (erssi) 🚀
 
-![Build Status](https://github.com/irssi/irssi/workflows/Check%20Irssi/badge.svg?branch=master)
+[![GitHub stars](https://img.shields.io/github/stars/kofany/irssi.svg?style=social&label=Stars)](https://github.com/kofany/irssi)
+[![License](https://img.shields.io/badge/License-GPL-blue.svg)](https://opensource.org/licenses/GPL-3.0)
+[![IRC Network](https://img.shields.io/badge/Chat-IRC-green.svg)](irc://irc.libera.chat)
 
-Irssi is a modular text mode chat client. It comes with IRC support
-built in, and there are third party
-[ICB](https://github.com/jperkin/irssi-icb),
-[SILC](http://www.silcnet.org/),
-[XMPP](http://cybione.org/~irssi-xmpp/) (Jabber),
-[PSYC](http://about.psyc.eu/Irssyc) and
-[Quassel](https://github.com/phhusson/quassel-irssi) protocol modules
-available.
+## What is Evolved Irssi?
 
-![irssi](https://user-images.githubusercontent.com/5665186/32180643-cf127f60-bd92-11e7-8aa2-882313ce1d8e.png)
+Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robust foundation of the classic irssi, introducing modern features and enhanced user experience without sacrificing the simplicity and power of the original.
 
-## [Download information](https://irssi.org/download/)
+## Key Features
 
-#### Development source installation
+### 1. Whois in Active Window
+Say goodbye to context switching! Whois responses now appear directly in your current chat window, keeping your workflow smooth and uninterrupted.
 
-[Ninja](https://ninja-build.org/) 1.8 and [Meson](https://mesonbuild.com/) 0.53
+### 2. Native Sidepanels with Mouse Support
+- Full mouse interaction for channel and user lists
+- Seamless navigation without leaving keyboard mode
+- Intuitive panel management
 
-```
-git clone https://github.com/irssi/irssi
+### 3. Native Nick Alignment for Chat Windows
+- Perfectly aligned nicknames for enhanced readability
+- Consistent formatting across different chat windows
+- Improved conversation tracking
+
+## Installation
+
+### Prerequisites
+- Git
+- Build essentials (gcc, make, etc.)
+- Perl development libraries
+
+### Quick Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/kofany/irssi.git
 cd irssi
-meson Build
-ninja -C Build && sudo ninja -C Build install
+
+# Run the prekonfigurator
+./prekonfigurator.sh
+
+# Install evolved irssi
+make
+make install
 ```
 
-#### Release source installation
+### Running Evolved Irssi
 
-* Download [release](https://github.com/irssi/irssi/releases)
-* Verify signature
-```
-tar xJf irssi-*.tar.xz
-cd irssi-*
-meson Build
-ninja -C Build && sudo ninja -C Build install
+After installation, you can run erssi using:
+
+```bash
+erssi  # Launches the evolved version
+irssi  # Still launches the standard version
 ```
 
-### Requirements
+## Configuration
 
-- [glib-2.32](https://wiki.gnome.org/Projects/GLib) or greater
-- [openssl](https://www.openssl.org/)
-- [perl-5.8](https://www.perl.org/) or greater (for perl support)
-- terminfo or ncurses (for text frontend)
+Evolved Irssi maintains full compatibility with:
+- Existing irssi configuration files
+- Perl scripts
+- Themes
 
-#### See the [INSTALL](INSTALL) file for details
+Your current `~/.irssi/config` will work seamlessly with erssi.
 
-## [Documentation](https://irssi.org/documentation/)
+## Compatibility
 
-* [New users guide](https://irssi.org/New-users/)
-* [Questions and Answers](https://irssi.org/documentation/qna/)
-* Check the built-in `/HELP`, it has all the details on command syntax
+- **Perl Scripts**: 100% compatible with existing scripts
+- **Themes**: All standard irssi themes work without modifications
+- **System Irssi**: Can coexist with standard irssi installation
 
-## [Themes](https://irssi-import.github.io/themes/)
+## Contributing
 
-## [Scripts](https://scripts.irssi.org/)
+We welcome contributions! Here's how you can help:
 
-## [Modules](https://irssi.org/modules/)
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/awesome-enhancement`)
+3. Commit your changes (`git commit -m 'Add some awesome feature'`)
+4. Push to the branch (`git push origin feature/awesome-enhancement`)
+5. Open a Pull Request
 
-## [Security information](https://irssi.org/security/)
+### Reporting Issues
+- Use GitHub Issues
+- Provide detailed description
+- Include your system configuration
+- If possible, provide reproducible steps
 
-Please report security issues to staff@irssi.org. Thanks!
+## Performance & Resource Usage
 
-## [Bugs](https://github.com/irssi/irssi/issues) / Suggestions / Contributing
+Evolved Irssi is designed to be lightweight:
+- Minimal additional memory footprint
+- Negligible performance overhead
+- Maintains the speed of classic irssi
 
-Check the GitHub issues if it is already listed in there; if not, open
-an issue on GitHub or send a mail to [staff@irssi.org](mailto:staff@irssi.org).
+## License
 
-Irssi is always looking for developers. Feel free to submit patches through
-GitHub pull requests.
+Evolved Irssi is released under the GNU General Public License (GPL), consistent with the original irssi project.
 
-You can also contact the Irssi developers in
-[#irssi](https://irssi.org/support/irc/) on irc.libera.chat.
+## Acknowledgments
+
+- [Irssi Core Team](https://irssi.org/) - Original irssi project
+- [Open Source Community](https://github.com/irssi/irssi) - Continuous inspiration and support
+
+## Contact & Support
+
+- **GitHub**: [kofany/irssi](https://github.com/kofany/irssi)
+- **IRC**: `#erssi` on Libera Chat
+- **Email**: [project maintainer email]
+
+---
+
+**Evolved Irssi**: Modernizing IRC, One Feature at a Time. 💬
