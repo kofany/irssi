@@ -131,6 +131,47 @@ irssi
 - **erssi**: Creates `~/.erssi/` configuration directory
 - **irssi**: Uses existing `~/.irssi/` or creates new one
 
+## ⚙️ Configuration
+
+### Left Sidepanel Setup
+
+For optimal experience with the left sidepanel feature, we recommend configuring separate status windows for each IRC network. This creates clean visual separators in the sidepanel and improves navigation.
+
+Add this to your `~/.erssi/config` (or `~/.irssi/config`):
+
+```
+windows = {
+  1 = {
+    immortal = "yes";
+    name = "Notices";
+    level = "CRAP CLIENTCRAP NOTICES INVITES";
+    servertag = "Notices";
+  };
+  2 = {
+    name = "IRCnet";
+    level = "ALL -MODES -CRAP -CLIENTCRAP -CTCPS";
+    servertag = "IRCnet";
+  };
+  3 = {
+    name = "IRCnet2";
+    level = "ALL -MODES -CRAP -CLIENTCRAP -CTCPS";
+    servertag = "IRCnet2";
+  };
+};
+```
+
+**Key benefits:**
+- **Network Separation**: Each IRC network gets its own status window
+- **Visual Organization**: Sidepanel shows clear network boundaries
+- **Better Navigation**: Easy switching between different networks
+- **Servertag Matching**: The `servertag` field should match your server connection names
+
+**Best Practices:**
+- Create one status window per IRC network
+- Use descriptive names matching your server tags
+- Keep the "Notices" window for general system messages
+- Adjust `level` settings based on what you want to see in each window
+
 ## 🔍 Verification & Troubleshooting
 
 Check your installation:
