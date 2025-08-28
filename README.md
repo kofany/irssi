@@ -2,7 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/kofany/irssi.svg?style=social&label=Stars)](https://github.com/kofany/irssi)
 [![License](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](https://opensource.org/licenses/GPL-2.0)
-[![IRC Network](https://img.shields.io/badge/Chat-IRC-green.svg)](irc://irc.libera.chat)
+[![IRC Network](https://img.shields.io/badge/Chat-IRC-green.svg)](irc://irc.ircnet.com)
 [![Build Status](https://img.shields.io/badge/Build-Meson%2BNinja-orange.svg)](https://mesonbuild.com/)
 
 ## What is Evolved Irssi?
@@ -220,7 +220,7 @@ Evolved Irssi maintains the legendary performance of classic irssi:
 
 - **🐛 Issues**: [GitHub Issues](https://github.com/kofany/irssi/issues)
 - **💬 Discussion**: [GitHub Discussions](https://github.com/kofany/irssi/discussions)
-- **📧 IRC**: `#erssi` on Libera Chat
+- **📧 IRC**: `#erssi` on IRCnet
 - **📖 Documentation**: [Installation Guide](INSTALL-SCRIPT.md)
 
 ## 📄 License
