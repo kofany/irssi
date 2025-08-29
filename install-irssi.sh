@@ -8,6 +8,12 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Global variables
+app_name=""
+install_path=""
+system=""
+pkg_mgr=""
+
 # Print functions
 print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
 print_success() { echo -e "${GREEN}✅ $1${NC}"; }
@@ -16,28 +22,27 @@ print_error() { echo -e "${RED}❌ $1${NC}"; }
 
 detect_system() {
    case "$(uname -s)" in
-       Darwin*) echo "macos" ;;
-       Linux*) echo "linux" ;;
+       Darwin*) system="macos" ;;
+       Linux*) system="linux" ;;
        *) print_error "Unsupported system: $(uname -s)"; exit 1 ;;
    esac
 }
 
 detect_package_manager() {
-   local system="$1"
    if [[ "$system" == "macos" ]]; then
        if command -v brew >/dev/null 2>&1; then
-           echo "brew"
+           pkg_mgr="brew"
        else
            print_error "Homebrew not found. Please install Homebrew first: https://brew.sh/"
            exit 1
        fi
    else
        if command -v apt-get >/dev/null 2>&1; then
-           echo "apt"
+           pkg_mgr="apt"
        elif command -v dnf >/dev/null 2>&1; then
-           echo "dnf"
+           pkg_mgr="dnf"
        elif command -v pacman >/dev/null 2>&1; then
-           echo "pacman"
+           pkg_mgr="pacman"
        else
            print_error "Unsupported package manager. Please install dependencies manually."
            exit 1
@@ -46,9 +51,6 @@ detect_package_manager() {
 }
 
 install_dependencies() {
-   local system="$1"
-   local pkg_mgr="$2"
-
    print_info "Installing dependencies for $system using $pkg_mgr..."
 
    case "$pkg_mgr" in
@@ -105,21 +107,11 @@ check_existing_irssi() {
    fi
 }
 
-# Bezpieczna funkcja yes/no wzorowana na tahioN
+# Funkcja yes/no wzorowana na tahioN
 yes_or_no() {
-   # Sprawdź czy to terminal interaktywny
-   if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
-       print_warning "Non-interactive mode - assuming 'no'"
-       return 1
-   fi
-   
    while true; do
        echo -e "${CYAN}$* [y/n]? \c"
-       read -n 1 REPLY 2>/dev/null || {
-           echo ""
-           print_warning "Failed to read input - assuming 'no'"
-           return 1
-       }
+       read -n 1 REPLY
        echo -e "\n"
        case "$REPLY" in
            Y|y) return 0 ;;
@@ -132,13 +124,6 @@ yes_or_no() {
 }
 
 ask_installation_type() {
-   # Sprawdź czy to terminal interaktywny
-   if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
-       print_info "Non-interactive mode - using default: erssi"
-       echo "erssi"
-       return
-   fi
-
    echo ""
    print_info "Choose installation type:"
    echo "1) Install as 'irssi' (replaces system irssi if exists)"
@@ -152,31 +137,17 @@ ask_installation_type() {
 
    while true; do
        echo -e "${CYAN}Enter your choice (1 or 2): \c"
-       read -n 1 choice 2>/dev/null || {
-           echo ""
-           print_warning "Failed to read input - using default: erssi"
-           echo "erssi"
-           return
-       }
+       read -n 1 choice
        echo -e "\n"
        case "$choice" in
-           1) echo "irssi"; return ;;
-           2|"") echo "erssi"; return ;;
+           1) app_name="irssi"; break ;;
+           2) app_name="erssi"; break ;;
            *) print_error "Please enter 1 or 2" ;;
        esac
    done
 }
 
 ask_installation_location() {
-   local app_name="$1"
-   
-   # Sprawdź czy to terminal interaktywny
-   if [[ ! -t 0 ]] || [[ ! -t 1 ]]; then
-       print_info "Non-interactive mode - using local installation"
-       echo "$HOME/.local"
-       return
-   fi
-
    echo ""
    print_info "Choose installation location:"
    echo "1) Global installation to /opt/$app_name (requires sudo)"
@@ -185,24 +156,17 @@ ask_installation_location() {
 
    while true; do
        echo -e "${CYAN}Enter your choice (1 or 2): \c"
-       read -n 1 choice 2>/dev/null || {
-           echo ""
-           print_warning "Failed to read input - using local installation"
-           echo "$HOME/.local"
-           return
-       }
+       read -n 1 choice
        echo -e "\n"
        case "$choice" in
-           1) echo "/opt/$app_name"; return ;;
-           2|"") echo "$HOME/.local"; return ;;
+           1) install_path="/opt/$app_name"; break ;;
+           2) install_path="$HOME/.local"; break ;;
            *) print_error "Please enter 1 or 2" ;;
        esac
    done
 }
 
 setup_build_environment() {
-   local system="$1"
-
    # Set up environment for macOS if needed
    if [[ "$system" == "macos" ]]; then
        if [[ -d "/opt/homebrew" ]]; then
@@ -217,8 +181,6 @@ setup_build_environment() {
 
 convert_to_erssi() {
    print_info "Converting irssi to erssi..."
-   
-   local system="$1"
    
    # Sprawdź czy potrzebne pliki istnieją
    if [[ ! -f "meson.build" ]]; then
@@ -304,10 +266,6 @@ convert_to_erssi() {
 }
 
 build_and_install() {
-   local app_name="$1"
-   local install_path="$2"
-   local system="$3"
-
    print_info "Building $app_name..."
 
    # Clean previous builds
@@ -353,9 +311,6 @@ build_and_install() {
 }
 
 create_symlinks() {
-   local app_name="$1"
-   local install_path="$2"
-
    local bin_path="$install_path/bin/$app_name"
 
    if [[ ! -f "$bin_path" ]]; then
@@ -385,9 +340,6 @@ create_symlinks() {
 }
 
 show_completion_message() {
-   local app_name="$1"
-   local install_path="$2"
-
    echo ""
    print_success "🎉 $app_name installation completed!"
    echo ""
@@ -429,11 +381,8 @@ main() {
    echo "=========================================="
 
    # Detect system and package manager
-   local system
-   system=$(detect_system) || exit 1
-   
-   local pkg_mgr
-   pkg_mgr=$(detect_package_manager "$system") || exit 1
+   detect_system
+   detect_package_manager
 
    print_info "Detected system: $system"
    print_info "Package manager: $pkg_mgr"
@@ -451,31 +400,28 @@ main() {
 
    # Install dependencies
    print_info "Checking and installing dependencies..."
-   install_dependencies "$system" "$pkg_mgr"
+   install_dependencies
 
    # Setup build environment
-   setup_build_environment "$system"
+   setup_build_environment
 
    # Ask user preferences
-   local app_name
-   app_name=$(ask_installation_type)
-   
-   local install_path
-   install_path=$(ask_installation_location "$app_name")
+   ask_installation_type
+   ask_installation_location
 
    # Convert to erssi if needed
    if [[ "$app_name" == "erssi" ]]; then
-       convert_to_erssi "$system"
+       convert_to_erssi
    fi
 
    # Build and install
-   build_and_install "$app_name" "$install_path" "$system"
+   build_and_install
 
    # Create symlinks if needed
-   create_symlinks "$app_name" "$install_path"
+   create_symlinks
 
    # Show completion message
-   show_completion_message "$app_name" "$install_path"
+   show_completion_message
 
    echo ""
    print_success "Installation complete! 🎉"
