@@ -1,169 +1,214 @@
 servers = (
-  { address = "irc.dal.net";       chatnet = "DALnet";    port = "6667"; },
-  { address = "ssl.efnet.org";     chatnet = "EFNet";     port = "9999"; use_tls = "yes"; tls_verify = "no"; },
-  { address = "irc.esper.net";     chatnet = "EsperNet";  port = "6697"; use_tls = "yes"; tls_verify = "yes"; },
-  { address = "irc.libera.chat";   chatnet = "liberachat";port = "6697"; use_tls = "yes"; tls_verify = "yes"; },
-  { address = "irc.gamesurge.net"; chatnet = "GameSurge"; port = "6667"; },
-  { address = "ssl.ircnet.ovh";    chatnet = "IRCnet";    port = "6697"; use_tls = "yes"; tls_verify = "yes"; },
-  { address = "open.ircnet.net";   chatnet = "IRCnet";    port = "6667"; },
-  { address = "irc.ircsource.net"; chatnet = "IRCSource"; port = "6667"; },
-  { address = "irc.netfuze.net";   chatnet = "NetFuze";   port = "6667"; },
-  { address = "irc.oftc.net";      chatnet = "OFTC";      port = "6697"; use_tls = "yes"; tls_verify = "yes"; },
-  { address = "irc.quakenet.org";  chatnet = "QuakeNet";  port = "6667"; },
-  { address = "irc.rizon.net";     chatnet = "Rizon";     port = "6697"; use_tls = "yes"; tls_verify = "yes"; },
-  { address = "silc.silcnet.org";  chatnet = "SILC";      port = "706";  },
-  { address = "irc.undernet.org";  chatnet = "Undernet";  port = "6667"; }
+  { address = "irc.dal.net"; chatnet = "DALnet"; port = "6667"; },
+  {
+    address = "ssl.efnet.org";
+    chatnet = "EFNet";
+    port = "9999";
+    use_tls = "yes";
+    tls_verify = "no";
+  },
+  {
+    address = "irc.esper.net";
+    chatnet = "EsperNet";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  },
+  {
+    address = "irc.libera.chat";
+    chatnet = "liberachat";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  },
+  {
+    address = "irc.gamesurge.net";
+    chatnet = "GameSurge";
+    port = "6667";
+  },
+  {
+    address = "ssl.ircnet.ovh";
+    chatnet = "IRCnet";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  },
+  { address = "open.ircnet.net"; chatnet = "IRCnet"; port = "6667"; },
+  {
+    address = "irc.ircsource.net";
+    chatnet = "IRCSource";
+    port = "6667";
+  },
+  { address = "irc.netfuze.net"; chatnet = "NetFuze"; port = "6667"; },
+  {
+    address = "irc.oftc.net";
+    chatnet = "OFTC";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  },
+  { 
+    address = "irc.quakenet.org";
+    chatnet = "QuakeNet";
+    port = "6667";
+  },
+  {
+    address = "irc.rizon.net";
+    chatnet = "Rizon";
+    port = "6697";
+    use_tls = "yes";
+    tls_verify = "yes";
+  },
+  { address = "silc.silcnet.org"; chatnet = "SILC"; port = "706"; },
+  { 
+    address = "irc.undernet.org";
+    chatnet = "Undernet";
+    port = "6667";
+  }
 );
 
 chatnets = {
   DALnet = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "4";
-    max_msgs  = "20";
+    max_msgs = "20";
     max_whois = "30";
   };
-  EFNet = {
-    type      = "IRC";
+  EFNet = { 
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "4";
+    max_msgs = "4";
     max_whois = "1";
   };
   EsperNet = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "4";
+    max_msgs = "4";
     max_whois = "1";
   };
   liberachat = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "4";
+    max_msgs = "4";
     max_whois = "1";
   };
   GameSurge = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
-  IRCnet = {
-    type      = "IRC";
+  IRCnet = { 
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
   IRCSource = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "4";
+    max_msgs = "4";
     max_whois = "1";
   };
   NetFuze = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
-  OFTC = {
-    type      = "IRC";
-    max_kicks = "1";
-    max_msgs  = "1";
-    max_whois = "1";
-  };
+  OFTC = { type = "IRC"; max_kicks = "1"; max_msgs = "1"; max_whois = "1"; };
   QuakeNet = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
-  Rizon = {
-    type      = "IRC";
+  Rizon = { 
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
-  SILC = {
-    type = "SILC";
-  };
+  SILC = { type = "SILC"; };
   Undernet = {
-    type      = "IRC";
+    type = "IRC";
     max_kicks = "1";
-    max_msgs  = "1";
+    max_msgs = "1";
     max_whois = "1";
   };
 };
 
 channels = (
-  { name = "#lobby";     chatnet = "EsperNet";  autojoin = "No"; },
-  { name = "#libera";    chatnet = "liberachat";autojoin = "No"; },
-  { name = "#irssi";     chatnet = "liberachat";autojoin = "No"; },
+  { name = "#lobby"; chatnet = "EsperNet"; autojoin = "No"; },
+  { name = "#libera"; chatnet = "liberachat"; autojoin = "No"; },
+  { name = "#irssi"; chatnet = "liberachat"; autojoin = "No"; },
   { name = "#gamesurge"; chatnet = "GameSurge"; autojoin = "No"; },
-  { name = "#irssi";     chatnet = "IRCNet";    autojoin = "No"; },
+  { name = "#irssi"; chatnet = "IRCNet"; autojoin = "No"; },
   { name = "#ircsource"; chatnet = "IRCSource"; autojoin = "No"; },
-  { name = "#netfuze";   chatnet = "NetFuze";   autojoin = "No"; },
-  { name = "#oftc";      chatnet = "OFTC";      autojoin = "No"; },
-  { name = "silc";       chatnet = "SILC";      autojoin = "No"; }
+  { name = "#netfuze"; chatnet = "NetFuze"; autojoin = "No"; },
+  { name = "#oftc"; chatnet = "OFTC"; autojoin = "No"; },
+  { name = "silc"; chatnet = "SILC"; autojoin = "No"; }
 );
 
 aliases = {
-  ATAG        = "WINDOW SERVER";
+  ATAG = "WINDOW SERVER";
   ADDALLCHANS = "SCRIPT EXEC foreach my \\$channel (Irssi::channels()) { Irssi::command(\"CHANNEL ADD -auto \\$channel->{visible_name} \\$channel->{server}->{tag} \\$channel->{key}\")\\;}";
-  B           = "BAN";
-  BACK        = "AWAY";
-  BANS        = "BAN";
-  BYE         = "QUIT";
-  C           = "CLEAR";
-  CALC        = "EXEC - if command -v bc >/dev/null 2>&1\\; then printf '%s=' '$*'\\; echo '$*' | bc -l\\; else echo bc was not found\\; fi";
-  CHAT        = "DCC CHAT";
-  CS          = "QUOTE CS";
-  DATE        = "TIME";
+  B = "BAN";
+  BACK = "AWAY";
+  BANS = "BAN";
+  BYE = "QUIT";
+  C = "CLEAR";
+  CALC = "EXEC - if command -v bc >/dev/null 2>&1\\; then printf '%s=' '$*'\\; echo '$*' | bc -l\\; else echo bc was not found\\; fi";
+  CHAT = "DCC CHAT";
+  CS = "QUOTE CS";
+  DATE = "TIME";
   DEHIGHLIGHT = "DEHILIGHT";
-  DESCRIBE    = "ACTION";
-  DHL         = "DEHILIGHT";
-  EXEMPTLIST  = "MODE $C +e";
-  EXIT        = "QUIT";
-  GOTO        = "SCROLLBACK GOTO";
-  HIGHLIGHT   = "HILIGHT";
-  HL          = "HILIGHT";
-  HOST        = "USERHOST";
-  INVITELIST  = "MODE $C +I";
-  J           = "JOIN";
-  K           = "KICK";
-  KB          = "KICKBAN";
-  KN          = "KNOCKOUT";
-  LAST        = "LASTLOG";
-  LEAVE       = "PART";
-  M           = "MSG";
-  MS          = "QUOTE MS";
-  MUB         = "UNBAN *";
-  N           = "NAMES";
-  NMSG        = "^MSG";
-  NS          = "QUOTE NS";
-  OS          = "QUOTE OS";
-  P           = "PART";
-  Q           = "QUERY";
-  RESET       = "SET -default";
-  RUN         = "SCRIPT LOAD";
-  SAY         = "MSG *";
-  SB          = "SCROLLBACK";
-  SBAR        = "STATUSBAR";
-  SHELP       = "QUOTE HELP";
-  SIGNOFF     = "QUIT";
-  SV          = "MSG * Irssi $J ($V) - https://irssi.org";
-  T           = "TOPIC";
-  UB          = "UNBAN";
-  UMODE       = "MODE $N";
-  UNSET       = "SET -clear";
-  W           = "WHO";
-  WC          = "WINDOW CLOSE";
-  WG          = "WINDOW GOTO";
-  WJOIN       = "JOIN -window";
-  WI          = "WHOIS";
-  WII         = "WHOIS $0 $0";
-  WL          = "WINDOW LIST";
-  WN          = "WINDOW NEW HIDDEN";
-  WQUERY      = "QUERY -window";
-  WW          = "WHOWAS";
+  DESCRIBE = "ACTION";
+  DHL = "DEHILIGHT";
+  EXEMPTLIST = "MODE $C +e";
+  EXIT = "QUIT";
+  GOTO = "SCROLLBACK GOTO";
+  HIGHLIGHT = "HILIGHT";
+  HL = "HILIGHT";
+  HOST = "USERHOST";
+  INVITELIST = "MODE $C +I";
+  J = "JOIN";
+  K = "KICK";
+  KB = "KICKBAN";
+  KN = "KNOCKOUT";
+  LAST = "LASTLOG";
+  LEAVE = "PART";
+  M = "MSG";
+  MS = "QUOTE MS";
+  MUB = "UNBAN *";
+  N = "NAMES";
+  NMSG = "^MSG";
+  NS = "QUOTE NS";
+  OS = "QUOTE OS";
+  P = "PART";
+  Q = "QUERY";
+  RESET = "SET -default";
+  RUN = "SCRIPT LOAD";
+  SAY = "MSG *";
+  SB = "SCROLLBACK";
+  SBAR = "STATUSBAR";
+  SHELP = "QUOTE HELP";
+  SIGNOFF = "QUIT";
+  SV = "MSG * Irssi $J ($V) - https://irssi.org";
+  T = "TOPIC";
+  UB = "UNBAN";
+  UMODE = "MODE $N";
+  UNSET = "SET -clear";
+  W = "WHO";
+  WC = "WINDOW CLOSE";
+  WG = "WINDOW GOTO";
+  WJOIN = "JOIN -window";
+  WI = "WHOIS";
+  WII = "WHOIS $0 $0";
+  WL = "WINDOW LIST";
+  WN = "WINDOW NEW HIDDEN";
+  WQUERY = "QUERY -window";
+  WW = "WHOWAS";
 };
 
 statusbar = {
@@ -227,12 +272,7 @@ statusbar = {
       placement = "bottom";
     };
     info2 = {
-      items = {
-        time = { };
-        more = { };
-        act = { };
-        lag = { };
-      };
+      items = { time = { }; more = { }; act = { }; lag = { }; };
       position = "0";
     };
     add = { disabled = "yes"; };
@@ -276,6 +316,9 @@ settings = {
     hilight_nick_matches_everywhere = "yes";
     window_auto_change = "yes";
     print_active_channel = "yes";
+    theme = "default.theme";
+    nick_column_enabled = "yes";
+    nick_column_width = "10";
   };
   "fe-text" = {
     lag_min_show = "1s";
@@ -294,20 +337,14 @@ settings = {
     sidepanel_debug = "no";
     sidepanel_right_auto_hide = "yes";
   };
-  "fe-common/irc" = {
-    print_whois_rpl_in_active_window = "yes";
-  };
+  "fe-common/irc" = { print_whois_rpl_in_active_window = "yes"; };
 };
 
-hilights = (
-  { text = ""; nick = "yes"; word = "yes"; }
-);
+hilights = ( { text = ""; nick = "yes"; word = "yes"; } );
 
 logs = { };
 
 ignores = ( );
 
 # Set default window name to Notices
-windows = {
-  1 = { name = "Notices"; };
-};
+windows = { 1 = { name = "Notices"; }; };
