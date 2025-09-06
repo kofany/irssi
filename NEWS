@@ -1,3 +1,9 @@
+v1.5-erssi-0.0.3 2025-01-09  Evolved Irssi team <erssi@IRCnet>
+	+ Improved default settings for better out-of-the-box experience
+	+ Enable hash-based nick coloring by default
+	+ Set sidepanel width to 15 characters (was 18)
+	+ Set nick hash reset events to "quit part" (was "quit")
+
 v1.5-erssi-0.0.2 2025-01-09  Evolved Irssi team <erssi@IRCnet>
 
 v1.5-head 202x-xx-xx  The Irssi team <staff@irssi.org>

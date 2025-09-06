@@ -766,9 +766,9 @@ void fe_messages_init(void)
 	settings_add_int("lookandfeel", "nick_column_width", 10);
 	
 	/* Nick hash coloring settings */
-	settings_add_bool("lookandfeel", "nick_hash_color_enabled", FALSE);
+	settings_add_bool("lookandfeel", "nick_hash_color_enabled", TRUE);
 	settings_add_str("lookandfeel", "nick_hash_colors", "g r b m c y G C");
-	settings_add_str("lookandfeel", "nick_hash_reset_event", "quit");
+	settings_add_str("lookandfeel", "nick_hash_reset_event", "quit part");
 
 	signal_add_last("message public", (SIGNAL_FUNC) sig_message_public);
 	signal_add_last("message private", (SIGNAL_FUNC) sig_message_private);

@@ -1974,8 +1974,8 @@ void sidepanels_init(void)
 {
 	settings_add_bool("lookandfeel", "sidepanel_left", TRUE);
 	settings_add_bool("lookandfeel", "sidepanel_right", TRUE);
-	settings_add_int("lookandfeel", "sidepanel_left_width", 18);
-	settings_add_int("lookandfeel", "sidepanel_right_width", 18);
+	settings_add_int("lookandfeel", "sidepanel_left_width", 15);
+	settings_add_int("lookandfeel", "sidepanel_right_width", 15);
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
 
 	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
