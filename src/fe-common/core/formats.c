@@ -885,6 +885,47 @@ static char *apply_nick_column_formatting(const char *format, int formatnum)
 	return result;
 }
 
+/* Apply hash-based nick coloring */
+static char *apply_nick_hash_coloring(const char *format, int formatnum)
+{
+	char *result;
+	char *pos, *before, *after;
+	char search_param[10], replace_param[20];
+	int nick_param;
+
+	if (!format)
+		return NULL;
+
+	/* Get correct parameter number for nick in this format */
+	nick_param = get_nick_param_for_format(formatnum);
+	g_snprintf(search_param, sizeof(search_param), "${%d}", nick_param);
+	g_snprintf(replace_param, sizeof(replace_param), "${nickcolored}");
+
+	/* Replace ${X} with ${nickcolored} where X is the nick parameter */
+	pos = strstr(format, search_param);
+	if (pos) {
+		before = g_strndup(format, pos - format);
+		after = pos + strlen(search_param);
+		result = g_strdup_printf("%s%s%s", before, replace_param, after);
+		g_free(before);
+	} else {
+		/* Check if format already has nicktrunc (from column formatting) */
+		pos = strstr(format, "${nicktrunc}");
+		if (pos) {
+			/* Replace ${nicktrunc} with ${nickcolored} */
+			before = g_strndup(format, pos - format);
+			after = pos + strlen("${nicktrunc}");
+			result = g_strdup_printf("%s%s%s", before, replace_param, after);
+			g_free(before);
+		} else {
+			/* No replacement needed */
+			result = g_strdup(format);
+		}
+	}
+
+	return result;
+}
+
 char *format_get_text_theme_charargs(THEME_REC *theme, const char *module, TEXT_DEST_REC *dest,
                                      int formatnum, char **args)
 {
@@ -901,15 +942,35 @@ char *format_get_text_theme_charargs(THEME_REC *theme, const char *module, TEXT_
 
 	text = module_theme->expanded_formats[formatnum];
 
-	/* Apply nick column formatting if enabled and this is a message format */
+	/* Apply nick formatting if enabled and this is a message format */
 	/* Additional protection: avoid recursion during timestamp formatting */
-	if (settings_get_bool("nick_column_enabled") && g_strcmp0(module, "fe-common/core") == 0 &&
-	    is_message_format(formatnum) && nick_formatting_depth == 0) { /* Prevent recursion */
+	if (g_strcmp0(module, "fe-common/core") == 0 && is_message_format(formatnum) && nick_formatting_depth == 0) {
+		gboolean nick_column_enabled = settings_get_bool("nick_column_enabled");
+		gboolean nick_hash_enabled = settings_get_bool("nick_hash_color_enabled");
 
-		nick_formatting_depth++;
-		modified_text = apply_nick_column_formatting(text, formatnum);
-		text = modified_text;
-		nick_formatting_depth--;
+		if (nick_column_enabled || nick_hash_enabled) {
+			nick_formatting_depth++;
+
+			if (nick_column_enabled) {
+				/* Apply nick column formatting first */
+				modified_text = apply_nick_column_formatting(text, formatnum);
+				text = modified_text;
+			}
+
+			if (nick_hash_enabled) {
+				/* Apply hash coloring to current text (either original or already column-formatted) */
+				char *hash_text = apply_nick_hash_coloring(text, formatnum);
+				if (hash_text) {
+					if (modified_text) {
+						g_free(modified_text);
+					}
+					modified_text = hash_text;
+					text = modified_text;
+				}
+			}
+
+			nick_formatting_depth--;
+		}
 	}
 
 	result = format_get_text_args(dest, text, args);

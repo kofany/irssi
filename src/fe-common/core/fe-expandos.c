@@ -24,11 +24,28 @@
 #include <irssi/src/core/settings.h>
 #include <irssi/src/fe-common/core/printtext.h>
 #include <irssi/src/core/levels.h>
+#include <irssi/src/core/servers.h>
+#include <time.h>
 
 /* Nick column context variables */
 static char *current_nick = NULL;
 static char *current_mode = NULL;
 static gboolean nick_context_valid = FALSE;
+
+/* Hash-based nick coloring system */
+typedef struct {
+	char *nick;
+	int color_index;
+	time_t last_seen;
+} nick_color_entry;
+
+typedef struct {
+	GHashTable *nick_colors; /* nick -> nick_color_entry */
+	char *channel_name;
+	char *server_tag;
+} channel_color_context;
+
+static GHashTable *channel_contexts = NULL; /* "server:channel" -> channel_color_context */
 
 /* Window ref# */
 static char *expando_winref(SERVER_REC *server, void *item, int *free_ret)
@@ -164,6 +181,174 @@ void clear_nick_context(void)
 	nick_context_valid = FALSE;
 }
 
+/* Hash-based nick coloring functions */
+
+static void free_nick_color_entry(nick_color_entry *entry)
+{
+	if (entry) {
+		g_free(entry->nick);
+		g_free(entry);
+	}
+}
+
+static void free_channel_color_context(channel_color_context *ctx)
+{
+	if (ctx) {
+		if (ctx->nick_colors) {
+			g_hash_table_destroy(ctx->nick_colors);
+		}
+		g_free(ctx->channel_name);
+		g_free(ctx->server_tag);
+		g_free(ctx);
+	}
+}
+
+static gchar** parse_color_palette(const char *colors_str, int *count)
+{
+	gchar **colors;
+	int valid_count;
+	
+	colors = g_strsplit(colors_str, " ", -1);
+	valid_count = 0;
+	
+	/* Count valid colors */
+	for (int i = 0; colors[i]; i++) {
+		if (strlen(colors[i]) == 1 && strchr("krgybmcwKRGYBMCW", colors[i][0])) {
+			valid_count++;
+		}
+	}
+	
+	/* If no valid colors, use default palette */
+	if (valid_count == 0) {
+		g_strfreev(colors);
+		colors = g_strsplit("g r b m c y G C", " ", -1);
+		*count = 8;
+	} else {
+		*count = valid_count;
+	}
+	
+	return colors;
+}
+
+static int hash_nick_to_color_index(const char *nick, const char *channel_key, int palette_size)
+{
+	char *hash_input;
+	unsigned int hash;
+	int result;
+	
+	hash_input = g_strdup_printf("%s:%s", channel_key, nick);
+	hash = g_str_hash(hash_input);
+	result = hash % palette_size;
+	g_free(hash_input);
+	return result;
+}
+
+static int get_persistent_nick_color(const char *nick, void *item, SERVER_REC *server)
+{
+	WI_ITEM_REC *witem;
+	const char *channel;
+	const char *server_tag;
+	int palette_size;
+	gchar **palette;
+	char *channel_key;
+	channel_color_context *ctx;
+	nick_color_entry *entry;
+	int color_index;
+	
+	witem = (WI_ITEM_REC *)item;
+	channel = witem ? witem->visible_name : "query";
+	server_tag = server ? server->tag : "unknown";
+	
+	/* Parse color palette */
+	palette = parse_color_palette(settings_get_str("nick_hash_colors"), &palette_size);
+	
+	/* Create channel key */
+	channel_key = g_strdup_printf("%s:%s", server_tag, channel);
+	
+	/* Initialize channel_contexts if needed */
+	if (!channel_contexts) {
+		channel_contexts = g_hash_table_new_full(g_str_hash, g_str_equal,
+		                                         g_free, (GDestroyNotify)free_channel_color_context);
+	}
+	
+	/* Get or create channel context */
+	ctx = g_hash_table_lookup(channel_contexts, channel_key);
+	if (!ctx) {
+		ctx = g_new0(channel_color_context, 1);
+		ctx->channel_name = g_strdup(channel);
+		ctx->server_tag = g_strdup(server_tag);
+		ctx->nick_colors = g_hash_table_new_full(g_str_hash, g_str_equal,
+		                                         g_free, (GDestroyNotify)free_nick_color_entry);
+		g_hash_table_insert(channel_contexts, g_strdup(channel_key), ctx);
+	}
+	
+	/* Get or create nick color entry */
+	entry = g_hash_table_lookup(ctx->nick_colors, nick);
+	if (!entry) {
+		entry = g_new0(nick_color_entry, 1);
+		entry->nick = g_strdup(nick);
+		entry->color_index = hash_nick_to_color_index(nick, channel_key, palette_size);
+		entry->last_seen = time(NULL);
+		g_hash_table_insert(ctx->nick_colors, g_strdup(nick), entry);
+	} else {
+		entry->last_seen = time(NULL);
+	}
+	
+	color_index = entry->color_index;
+	g_free(channel_key);
+	g_strfreev(palette);
+	return color_index;
+}
+
+/* Main hash coloring expando - replaces nick with colored version */
+static char *expando_nickcolored(SERVER_REC *server, void *item, int *free_ret)
+{
+	const char *display_nick;
+	int palette_size;
+	gchar **palette;
+	int color_index;
+	char *result;
+	char *raw_format;
+	
+	if (!settings_get_bool("nick_hash_color_enabled") || !nick_context_valid || !current_nick) {
+		return "";
+	}
+	
+	/* Get nick to display - use nicktrunc if nick_column_enabled */
+	if (settings_get_bool("nick_column_enabled")) {
+		int temp_free = FALSE;
+		display_nick = expando_nicktrunc(server, item, &temp_free);
+		/* Handle memory correctly - always make our own copy */
+		if (temp_free && display_nick) {
+			/* nicktrunc allocated memory, take ownership */
+			char *temp_nick = g_strdup(display_nick);
+			g_free((char*)display_nick);
+			display_nick = temp_nick;
+		} else {
+			/* nicktrunc didn't allocate, make our own copy */
+			display_nick = display_nick ? g_strdup(display_nick) : g_strdup("");
+		}
+	} else {
+		display_nick = g_strdup(current_nick ? current_nick : "");
+	}
+	
+	/* Parse color palette */
+	palette = parse_color_palette(settings_get_str("nick_hash_colors"), &palette_size);
+	
+	/* Get persistent color index for this nick */
+	color_index = get_persistent_nick_color(current_nick, item, server);
+	
+	/* Return colored nick with proper formatting */
+	*free_ret = TRUE;
+	raw_format = g_strdup_printf("%%%s%%_%s%%_%%n", palette[color_index], display_nick);
+	result = format_string_expand(raw_format, NULL);
+	g_free(raw_format);
+	
+	g_strfreev(palette);
+	g_free((char*)display_nick);
+	return result;
+}
+
 void fe_expandos_init(void)
 {
 	expando_create("winref", expando_winref, "window changed", EXPANDO_ARG_NONE,
@@ -174,6 +359,8 @@ void fe_expandos_init(void)
 	               "message own_public", EXPANDO_ARG_NONE, NULL);
 	expando_create("nicktrunc", expando_nicktrunc, "message public", EXPANDO_ARG_NONE,
 	               "message own_public", EXPANDO_ARG_NONE, NULL);
+	expando_create("nickcolored", expando_nickcolored, "message public", EXPANDO_ARG_NONE,
+	               "message own_public", EXPANDO_ARG_NONE, NULL);
 }
 
 void fe_expandos_deinit(void)
@@ -182,4 +369,11 @@ void fe_expandos_deinit(void)
 	expando_destroy("winname", expando_winname);
 	expando_destroy("nickalign", expando_nickalign);
 	expando_destroy("nicktrunc", expando_nicktrunc);
+	expando_destroy("nickcolored", expando_nickcolored);
+	
+	/* Clean up hash coloring data */
+	if (channel_contexts) {
+		g_hash_table_destroy(channel_contexts);
+		channel_contexts = NULL;
+	}
 }
