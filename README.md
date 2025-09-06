@@ -21,8 +21,8 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 
 ### 🎯 Enhanced Nick Display
 - **Dynamic Nick Alignment**: Intelligent padding and truncation with `+` indicator for long nicks
-- **Hash-Based Nick Coloring**: Each nick assigned one of 8 predefined colors based on hash calculation
-- **Separate Mode Colors**: Distinct colors for channel modes (@, +) vs nicknames for better visual distinction
+- **Hash-Based Nick Coloring**: Consistent colors per nick per channel with configurable palette and reset events
+- **Color Reset System**: Configurable events (quit/part/nickchange) that reassign colors, plus manual `/nickhash shift` command
 - **Real-Time Updates**: All formatting applied dynamically as messages appear
 
 ### Enhanced User Experience

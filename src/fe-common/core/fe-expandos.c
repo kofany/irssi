@@ -25,6 +25,7 @@
 #include <irssi/src/fe-common/core/printtext.h>
 #include <irssi/src/core/levels.h>
 #include <irssi/src/core/servers.h>
+#include <irssi/src/core/commands.h>
 #include <time.h>
 
 /* Nick column context variables */
@@ -243,6 +244,21 @@ static int hash_nick_to_color_index(const char *nick, const char *channel_key, i
 	return result;
 }
 
+static int generate_random_color_index(int old_color, int palette_size)
+{
+	int new_color;
+	
+	if (palette_size <= 1)
+		return old_color;
+	
+	/* Generate random color different from old_color */
+	do {
+		new_color = (time(NULL) + rand()) % palette_size;
+	} while (new_color == old_color);
+	
+	return new_color;
+}
+
 static int get_persistent_nick_color(const char *nick, void *item, SERVER_REC *server)
 {
 	WI_ITEM_REC *witem;
@@ -254,6 +270,7 @@ static int get_persistent_nick_color(const char *nick, void *item, SERVER_REC *s
 	channel_color_context *ctx;
 	nick_color_entry *entry;
 	int color_index;
+	
 	
 	witem = (WI_ITEM_REC *)item;
 	channel = witem ? witem->visible_name : "query";
@@ -285,8 +302,11 @@ static int get_persistent_nick_color(const char *nick, void *item, SERVER_REC *s
 	/* Get or create nick color entry */
 	entry = g_hash_table_lookup(ctx->nick_colors, nick);
 	if (!entry) {
+		/* Nick not found - use hash color for consistency */
 		entry = g_new0(nick_color_entry, 1);
 		entry->nick = g_strdup(nick);
+		
+		/* Use hash-based color for new nicks */
 		entry->color_index = hash_nick_to_color_index(nick, channel_key, palette_size);
 		entry->last_seen = time(NULL);
 		g_hash_table_insert(ctx->nick_colors, g_strdup(nick), entry);
@@ -349,6 +369,170 @@ static char *expando_nickcolored(SERVER_REC *server, void *item, int *free_ret)
 	return result;
 }
 
+/* Reset event parser and helper functions */
+
+static gboolean should_reset_on_event(const char *event)
+{
+	const char *setting;
+	
+	setting = settings_get_str("nick_hash_reset_event");
+	if (!setting || !*setting)
+		setting = "quit";
+	
+	return strstr(setting, event) != NULL;
+}
+
+static void reset_nick_color(const char *server_tag, const char *channel, const char *nick)
+{
+	char *channel_key;
+	channel_color_context *ctx;
+	nick_color_entry *entry;
+	int old_color, new_color, palette_size;
+	gchar **palette;
+	
+	if (!channel_contexts)
+		return;
+		
+	channel_key = g_strdup_printf("%s:%s", server_tag, channel);
+	ctx = g_hash_table_lookup(channel_contexts, channel_key);
+	
+	if (!ctx || !ctx->nick_colors) {
+		g_free(channel_key);
+		return;
+	}
+	
+	entry = g_hash_table_lookup(ctx->nick_colors, nick);
+	if (!entry) {
+		g_free(channel_key);
+		return;
+	}
+	
+	/* Get palette and generate new color different from current */
+	palette = parse_color_palette(settings_get_str("nick_hash_colors"), &palette_size);
+	old_color = entry->color_index;
+	new_color = generate_random_color_index(old_color, palette_size);
+	
+	entry->color_index = new_color;
+	entry->last_seen = time(NULL);
+	
+	g_strfreev(palette);
+	g_free(channel_key);
+}
+
+static void reset_nick_on_server(const char *server_tag, const char *nick)
+{
+	GHashTableIter iter;
+	gpointer key, value;
+	channel_color_context *ctx;
+	nick_color_entry *entry;
+	char *server_prefix;
+	int old_color, new_color, palette_size;
+	gchar **palette;
+	
+	if (!channel_contexts)
+		return;
+		
+	/* Get palette for color generation */
+	palette = parse_color_palette(settings_get_str("nick_hash_colors"), &palette_size);
+	server_prefix = g_strdup_printf("%s:", server_tag);
+	
+	
+	g_hash_table_iter_init(&iter, channel_contexts);
+	while (g_hash_table_iter_next(&iter, &key, &value)) {
+		if (g_str_has_prefix((char*)key, server_prefix)) {
+			ctx = (channel_color_context*)value;
+			if (ctx && ctx->nick_colors) {
+				entry = g_hash_table_lookup(ctx->nick_colors, nick);
+				if (entry) {
+					old_color = entry->color_index;
+					new_color = generate_random_color_index(old_color, palette_size);
+					entry->color_index = new_color;
+					entry->last_seen = time(NULL);
+				}
+			}
+		}
+	}
+	
+	g_strfreev(palette);
+	g_free(server_prefix);
+}
+
+
+/* Signal handlers for cleanup events */
+
+static void cleanup_nick_on_quit(SERVER_REC *server, const char *nick, const char *address, const char *reason)
+{
+	if (!should_reset_on_event("quit") || !server || !nick)
+		return;
+		
+	reset_nick_on_server(server->tag, nick);
+}
+
+static void cleanup_nick_on_part(SERVER_REC *server, const char *channel, const char *nick, const char *address, const char *reason)
+{
+	if (!should_reset_on_event("part") || !server || !channel || !nick)
+		return;
+		
+	reset_nick_color(server->tag, channel, nick);
+}
+
+static void cleanup_nick_on_nickchange(SERVER_REC *server, const char *new_nick, const char *old_nick, const char *address)
+{
+	if (!should_reset_on_event("nickchange") || !server || !old_nick)
+		return;
+		
+	reset_nick_on_server(server->tag, old_nick);
+}
+
+/* /nickhash command handler */
+
+static void cmd_nickhash(const char *data, SERVER_REC *server, WI_ITEM_REC *item)
+{
+	char **params;
+	char *subcmd, *channel, *nick;
+	
+	if (!data || !*data) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Usage: /nickhash shift <#channel> <nick>");
+		return;
+	}
+	
+	params = g_strsplit(data, " ", 3);
+	if (!params[0]) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Usage: /nickhash shift <#channel> <nick>");
+		g_strfreev(params);
+		return;
+	}
+	
+	subcmd = g_strstrip(params[0]);
+	
+	if (g_strcmp0(subcmd, "shift") == 0) {
+		if (!params[1] || !params[2]) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Usage: /nickhash shift <#channel> <nick>");
+			g_strfreev(params);
+			return;
+		}
+		
+		channel = g_strstrip(params[1]);
+		nick = g_strstrip(params[2]);
+		
+		if (!server) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Not connected to server");
+			g_strfreev(params);
+			return;
+		}
+		
+		/* DON'T remove # prefix - keep it consistent with get_persistent_nick_color */
+			
+		reset_nick_color(server->tag, channel, nick);
+		printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Shifted color for nick %s in %s", nick, channel);
+		
+	} else {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP, "Unknown subcommand: %s", subcmd);
+	}
+	
+	g_strfreev(params);
+}
+
 void fe_expandos_init(void)
 {
 	expando_create("winref", expando_winref, "window changed", EXPANDO_ARG_NONE,
@@ -361,6 +545,14 @@ void fe_expandos_init(void)
 	               "message own_public", EXPANDO_ARG_NONE, NULL);
 	expando_create("nickcolored", expando_nickcolored, "message public", EXPANDO_ARG_NONE,
 	               "message own_public", EXPANDO_ARG_NONE, NULL);
+	
+	/* Register signal handlers for nick cleanup */
+	signal_add("message quit", (SIGNAL_FUNC) cleanup_nick_on_quit);
+	signal_add("message part", (SIGNAL_FUNC) cleanup_nick_on_part);
+	signal_add("message nick", (SIGNAL_FUNC) cleanup_nick_on_nickchange);
+	
+	/* Register command */
+	command_bind("nickhash", NULL, (SIGNAL_FUNC) cmd_nickhash);
 }
 
 void fe_expandos_deinit(void)
@@ -370,6 +562,14 @@ void fe_expandos_deinit(void)
 	expando_destroy("nickalign", expando_nickalign);
 	expando_destroy("nicktrunc", expando_nicktrunc);
 	expando_destroy("nickcolored", expando_nickcolored);
+	
+	/* Unregister signal handlers */
+	signal_remove("message quit", (SIGNAL_FUNC) cleanup_nick_on_quit);
+	signal_remove("message part", (SIGNAL_FUNC) cleanup_nick_on_part);
+	signal_remove("message nick", (SIGNAL_FUNC) cleanup_nick_on_nickchange);
+	
+	/* Unregister command */
+	command_unbind("nickhash", (SIGNAL_FUNC) cmd_nickhash);
 	
 	/* Clean up hash coloring data */
 	if (channel_contexts) {

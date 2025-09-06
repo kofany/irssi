@@ -21,6 +21,7 @@
 /ECHO \033[37m    ◆ Whois in Active Window: \033[92mEnabled\033[37m - No context switching needed\033[0m
 /ECHO \033[37m    ◆ Native Sidepanels: \033[92mActive\033[37m - Full mouse support\033[0m
 /ECHO \033[37m    ◆ Enhanced Nick Alignment: \033[92mOperational\033[37m - Perfect readability\033[0m
+/ECHO \033[37m    ◆ Hash-Based Nick Coloring: \033[92mActive\033[37m - Consistent colors per channel\033[0m
 /ECHO \033[37m    ◆ Configuration: \033[93m~/.erssi/\033[37m - Coexists with standard irssi\033[0m
 /ECHO \033[90m────────────────────────────────────────────────────────────────────────────────\033[0m
 /ECHO
@@ -35,6 +36,7 @@
 /ECHO \033[37m    ◆ \033[93m/join #channel\033[37m - Improved sidepanel navigation\033[0m
 /ECHO \033[37m    ◆ \033[93m/whois nickname\033[37m - View whois in current window\033[0m
 /ECHO \033[37m    ◆ \033[93m/set theme nexus\033[37m - Switch to premium Nexus Steel theme\033[0m
+/ECHO \033[37m    ◆ \033[93m/nickhash shift #channel nick\033[37m - Change nick color manually\033[0m
 /ECHO \033[37m    ◆ \033[93m/help\033[37m - Access evolved irssi documentation\033[0m
 /ECHO
 /ECHO \033[96m    📋 COMPATIBILITY:\033[0m
@@ -43,7 +45,7 @@
 /ECHO \033[37m    ◆ \033[92m✅ Configuration Compatible\033[37m - Import existing irssi config\033[0m
 /ECHO \033[30m═══════════════════════════════════════════════════════════════════════════════════════════\033[0m
 /ECHO
-/ECHO \033[92m🚀 EVOLVED IRSSI v1.5 - WHERE CLASSIC MEETS MODERN 🚀\033[0m
+/ECHO \033[92m🚀 EVOLVED IRSSI v1.5-erssi-0.0.2 - WHERE CLASSIC MEETS MODERN 🚀\033[0m
 /ECHO \033[37m   Visit: https://github.com/kofany/irssi/tree/evolved-irssi\033[0m
 /ECHO \033[37m   iTerm2 Color Scheme: material-erssi.itermcolors (in repo root)\033[0m
 /ECHO
