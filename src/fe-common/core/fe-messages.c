@@ -754,7 +754,7 @@ void fe_messages_init(void)
 	settings_add_bool("lookandfeel", "emphasis_italics", FALSE);
 	settings_add_bool("lookandfeel", "show_nickmode", TRUE);
 	settings_add_bool("lookandfeel", "show_nickmode_empty", TRUE);
-	settings_add_bool("lookandfeel", "print_active_channel", FALSE);
+	settings_add_bool("lookandfeel", "print_active_channel", TRUE);
 	settings_add_bool("lookandfeel", "show_quit_once", FALSE);
 	settings_add_bool("lookandfeel", "show_own_nickchange_once", FALSE);
 	settings_add_bool("lookandfeel", "away_notify_public", FALSE);
