@@ -9,6 +9,8 @@ executable('irssi',
     #### irssi sources ####
     'gui-entry.c',
     'gui-expandos.c',
+    'gui-gestures.c',
+    'gui-mouse.c',
     'gui-printtext.c',
     'gui-readline.c',
     'gui-windows.c',
@@ -52,6 +54,8 @@ executable('irssi',
 
 install_headers(
   files(
+    'gui-gestures.h',
+    'gui-mouse.h',
     'gui-printtext.h',
     'gui-windows.h',
     'mainwindows.h',

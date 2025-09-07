@@ -43,6 +43,8 @@
 #include <irssi/src/fe-text/gui-windows.h>
 #include <irssi/irssi-version.h>
 #include <irssi/src/fe-text/sidepanels.h>
+#include <irssi/src/fe-text/gui-mouse.h>
+#include <irssi/src/fe-text/gui-gestures.h>
 
 #include <signal.h>
 #include <locale.h>
@@ -189,6 +191,8 @@ static void textui_finish_init(void)
 	mainwindow_activity_init();
 	mainwindows_layout_init();
 	gui_windows_init();
+	gui_mouse_init();
+	gui_gestures_init();
 	sidepanels_init();
 	/* Temporarily raise the fatal level to abort on config errors. */
 	loglev = critical_fatal_section_begin();
@@ -249,6 +253,8 @@ static void textui_deinit(void)
 	lastlog_deinit();
 	statusbar_deinit();
 	sidepanels_deinit();
+	gui_gestures_deinit();
+	gui_mouse_deinit();
 	gui_entry_deinit();
 	gui_printtext_deinit();
 	gui_readline_deinit();

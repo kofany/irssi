@@ -1,6 +1,8 @@
 test_test_paste_join_multiline = executable('test-paste-join-multiline',
   files(
     '../../src/fe-text/gui-entry.c',
+    '../../src/fe-text/gui-gestures.c',
+    '../../src/fe-text/gui-mouse.c',
     '../../src/fe-text/gui-printtext.c',
     '../../src/fe-text/gui-windows.c',
     '../../src/fe-text/mainwindows.c',

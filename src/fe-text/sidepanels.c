@@ -19,6 +19,8 @@
 #include <irssi/src/fe-text/textbuffer-view.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "gui-mouse.h"
+#include "gui-gestures.h"
 
 /* Custom data level for channel events (join/part/quit/nick) */
 #define DATA_LEVEL_EVENT 10
@@ -41,14 +43,9 @@ static inline unichar read_unichar(const unsigned char *data, const unsigned cha
 	return chr;
 }
 
-/* Mouse Gesture Types - using enum from sidepanels.h */
-typedef MouseGestureType gesture_type_t;
-
 /* Forward declarations for static functions used before definition (C89) */
 static void apply_reservations_all(void);
 static void apply_and_redraw(void);
-static void enable_mouse_tracking(void);
-static void disable_mouse_tracking(void);
 static void sp_logf(const char *fmt, ...);
 
 static void update_left_selection_to_active(void);
@@ -57,12 +54,11 @@ static void sig_nicklist_new(CHANNEL_REC *ch, NICK_REC *nick);
 static void clear_window_full(TERM_WINDOW *tw, int width, int height);
 static void renumber_windows_by_position(void);
 
-/* Gesture system forward declarations */
+/* Local mouse handling for sidepanel-specific clicks */
 static gboolean is_in_chat_area(int x, int y);
-static gesture_type_t classify_gesture(int dx, int dy, int duration);
-static void execute_gesture_command(gesture_type_t gesture);
-static void reset_gesture_state(void);
-static gboolean handle_gesture_mouse_event(int x, int y, int button, gboolean press);
+static gboolean chat_area_validator(int x, int y, gpointer user_data);
+static gboolean handle_application_mouse_event(const GuiMouseEvent *event, gpointer user_data);
+static gboolean handle_click_at(int x, int y, int button);
 
 /* Settings */
 static int sp_left_width;
@@ -73,28 +69,8 @@ static int sp_auto_hide_right;
 static int sp_enable_mouse;
 static int sp_debug;
 
-/* Mouse Gesture Settings */
-static int mouse_gestures_enabled;
-static char *gesture_left_short_command;
-static char *gesture_left_long_command;
-static char *gesture_right_short_command;
-static char *gesture_right_long_command;
-static int gesture_sensitivity;
-static int gesture_timeout;
+/* Mouse scroll setting - still needed for sidepanel scrolling */
 static int mouse_scroll_chat;
-
-/* Mouse Gesture State */
-typedef struct {
-	gboolean active;           /* gesture detection active */
-	gboolean dragging;         /* mouse button currently pressed */
-	int start_x, start_y;      /* gesture start coordinates */
-	int current_x, current_y;  /* current mouse position */
-	int start_time;            /* gesture start time (ms) */
-	gesture_type_t detected;   /* detected gesture type */
-	gboolean in_chat_area;     /* gesture started in main chat area */
-} gesture_state_t;
-
-static gesture_state_t gesture_state = {0};
 
 /* Window Priority State - Simpler approach */
 typedef struct {
@@ -113,22 +89,6 @@ static gboolean batch_mode_active = FALSE;
 /* Forward declarations for batching system */
 static void redraw_right_panels_only(const char *event_name);
 
-static int esc_pending;
-static int esc_timeout_tag = -1; /* Timer tag for ESC timeout */
-static int reemit_guard;
-
-static gboolean esc_timeout_callback(gpointer data)
-{
-	(void) data;
-	if (esc_pending && !reemit_guard) {
-		reemit_guard = 1;
-		signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
-		reemit_guard = 0;
-		esc_pending = 0;
-	}
-	esc_timeout_tag = -1;
-	return FALSE;
-}
 
 static FILE *sp_log;
 static void sp_log_open(void)
@@ -220,18 +180,8 @@ static void read_settings(void)
 	sp_enable_mouse = TRUE; /* always on natively */
 	sp_debug = settings_get_bool("sidepanel_debug");
 
-	/* Mouse Gesture Settings */
-	mouse_gestures_enabled = settings_get_bool("mouse_gestures");
-	g_free(gesture_left_short_command);
-	g_free(gesture_left_long_command);
-	g_free(gesture_right_short_command);
-	g_free(gesture_right_long_command);
-	gesture_left_short_command = g_strdup(settings_get_str("gesture_left_short"));
-	gesture_left_long_command = g_strdup(settings_get_str("gesture_left_long"));
-	gesture_right_short_command = g_strdup(settings_get_str("gesture_right_short"));
-	gesture_right_long_command = g_strdup(settings_get_str("gesture_right_long"));
-	gesture_sensitivity = settings_get_int("gesture_sensitivity");
-	gesture_timeout = settings_get_int("gesture_timeout");
+	/* Mouse Gesture Settings - delegate to gesture system */
+	gui_gestures_reload_settings();
 	mouse_scroll_chat = settings_get_bool("mouse_scroll_chat");
 
 	/* Nick mention color is now handled through theme formats */
@@ -239,7 +189,7 @@ static void read_settings(void)
 	apply_reservations_all();
 	apply_and_redraw();
 	if (!old_mouse)
-		enable_mouse_tracking();
+		gui_mouse_enable_tracking();
 }
 
 static void apply_reservations_all(void)
@@ -1754,131 +1704,12 @@ static gboolean is_in_chat_area(int x, int y)
 	return FALSE;
 }
 
-/* Classify gesture based on distance and duration */
-static gesture_type_t classify_gesture(int dx, int dy, int duration)
+/* Wrapper function to match gesture validator signature */
+static gboolean chat_area_validator(int x, int y, gpointer user_data)
 {
-	int abs_dx = (dx < 0) ? -dx : dx;
-	int abs_dy = (dy < 0) ? -dy : dy;
-	gboolean is_horizontal, is_long;
-	
-	/* Must meet minimum distance threshold */
-	if (abs_dx < gesture_sensitivity && abs_dy < gesture_sensitivity) {
-		return (gesture_type_t)GESTURE_NONE;
-	}
-	
-	/* Determine if primarily horizontal or vertical */
-	is_horizontal = (abs_dx > abs_dy);
-	
-	/* Only process horizontal gestures for now */
-	if (!is_horizontal) {
-		return (gesture_type_t)GESTURE_NONE;
-	}
-	
-	/* Determine length based on distance */
-	is_long = (abs_dx > (gesture_sensitivity * 2));
-	
-	/* Classify direction and length */
-	if (dx < 0) { /* Left swipe */
-		return (gesture_type_t)(is_long ? GESTURE_LEFT_LONG : GESTURE_LEFT_SHORT);
-	} else { /* Right swipe */
-		return (gesture_type_t)(is_long ? GESTURE_RIGHT_LONG : GESTURE_RIGHT_SHORT);
-	}
+	(void) user_data; /* Unused parameter */
+	return is_in_chat_area(x, y);
 }
-
-/* Execute command for detected gesture */
-static void execute_gesture_command(gesture_type_t gesture)
-{
-	const char *command = NULL;
-	
-	switch ((int)gesture) {
-	case GESTURE_LEFT_SHORT:
-		command = gesture_left_short_command;
-		break;
-	case GESTURE_LEFT_LONG:
-		command = gesture_left_long_command;
-		break;
-	case GESTURE_RIGHT_SHORT:
-		command = gesture_right_short_command;
-		break;
-	case GESTURE_RIGHT_LONG:
-		command = gesture_right_long_command;
-		break;
-	default:
-		return;
-	}
-	
-	if (command && *command) {
-		sp_logf("GESTURE: Executing command: %s", command);
-		signal_emit("send command", 3, command, active_win->active_server, active_win->active);
-	}
-}
-
-/* Reset gesture tracking state */
-static void reset_gesture_state(void)
-{
-	gesture_state.active = FALSE;
-	gesture_state.dragging = FALSE;
-	gesture_state.detected = (gesture_type_t)GESTURE_NONE;
-	gesture_state.in_chat_area = FALSE;
-	gesture_state.start_x = gesture_state.start_y = 0;
-	gesture_state.current_x = gesture_state.current_y = 0;
-	gesture_state.start_time = 0;
-}
-
-/* Handle mouse events for gesture detection */
-static gboolean handle_gesture_mouse_event(int x, int y, int button, gboolean press)
-{
-	if (!mouse_gestures_enabled || button != 1) {
-		return FALSE; /* Let other handlers process */
-	}
-	
-	if (press) {
-		/* Mouse press - start gesture tracking */
-		if (!gesture_state.active) {
-			gesture_state.active = TRUE;
-			gesture_state.dragging = TRUE;
-			gesture_state.start_x = gesture_state.current_x = x;
-			gesture_state.start_y = gesture_state.current_y = y;
-			gesture_state.start_time = g_get_monotonic_time() / 1000; /* Convert to ms */
-			gesture_state.in_chat_area = is_in_chat_area(x, y);
-			gesture_state.detected = (gesture_type_t)GESTURE_NONE;
-			
-			sp_logf("GESTURE: Started at (%d,%d) chat_area=%s", 
-			        x, y, gesture_state.in_chat_area ? "yes" : "no");
-		}
-	} else {
-		/* Mouse release - end gesture and classify */
-		if (gesture_state.active && gesture_state.dragging) {
-			int current_time = g_get_monotonic_time() / 1000;
-			int duration = current_time - gesture_state.start_time;
-			int dx = gesture_state.current_x - gesture_state.start_x;
-			int dy = gesture_state.current_y - gesture_state.start_y;
-			gesture_type_t detected;
-			
-			/* Only process gestures that started in chat area */
-			if (gesture_state.in_chat_area && duration <= gesture_timeout) {
-				detected = classify_gesture(dx, dy, duration);
-				if (detected != (gesture_type_t)GESTURE_NONE) {
-					sp_logf("GESTURE: Detected gesture %d, dx=%d, dy=%d, duration=%dms", 
-					        detected, dx, dy, duration);
-					execute_gesture_command(detected);
-					reset_gesture_state();
-					return TRUE; /* Consume the event */
-				}
-			}
-			
-			reset_gesture_state();
-		}
-	}
-	
-	return FALSE; /* Let other handlers process */
-}
-
-/* Simple mouse parser state for SGR (1006) mode: ESC [ < btn ; x ; y M/m */
-static gboolean mouse_tracking_enabled = FALSE;
-static int mouse_state = 0; /* 0 idle, >0 reading sequence */
-static char mouse_buf[64];
-static int mouse_len = 0;
 
 static gboolean handle_click_at(int x, int y, int button)
 {
@@ -1960,278 +1791,101 @@ static gboolean handle_click_at(int x, int y, int button)
 	return FALSE;
 }
 
+/* Wrapper function to maintain public API - now delegates to gui-mouse */
 gboolean sidepanels_try_parse_mouse_key(unichar key)
 {
-	char *s;
-	char *sc1;
-	char *sc2;
-	char *end;
-	char last;
-	int braw;
-	int x;
-	int y;
-	gboolean press;
-	GSList *mt;
-
 	if (!sp_enable_mouse)
 		return FALSE;
-	if (reemit_guard)
-		return FALSE; /* Don't process re-emitted keys */
-	if (mouse_state == 0) {
-		if (key == 0x1b) {
-			mouse_state = 1;
-			mouse_len = 0;
-			esc_pending = 1;
-			/* Start timeout to distinguish fast mouse ESC from user ESC+key */
-			if (esc_timeout_tag != -1)
-				g_source_remove(esc_timeout_tag);
-			esc_timeout_tag = g_timeout_add(50, esc_timeout_callback, NULL);
-			return TRUE;
-		}
-		return FALSE;
-	} else if (mouse_state == 1) {
-		if (key == '[') {
-			/* Cancel timeout - might be mouse sequence or arrow keys */
-			if (esc_timeout_tag != -1) {
-				g_source_remove(esc_timeout_tag);
-				esc_timeout_tag = -1;
-			}
-			mouse_state = 2;
-			esc_pending = 0; /* clear pending since we'll handle this */
-			return TRUE;
-		}
-		if (key == 'O') {
-			/* This is ESC O - application mode arrow keys, re-emit immediately */
-			if (esc_timeout_tag != -1) {
-				g_source_remove(esc_timeout_tag);
-				esc_timeout_tag = -1;
-			}
-			mouse_state = 3; /* special state for ESC O sequences */
-			esc_pending = 0; /* clear pending since we'll handle this immediately */
-			return TRUE;
-		}
-		/* Not SGR - cancel timeout and re-emit ESC */
-		if (esc_timeout_tag != -1) {
-			g_source_remove(esc_timeout_tag);
-			esc_timeout_tag = -1;
-		}
-		mouse_state = 0;
-		mouse_len = 0;
-		if (esc_pending && !reemit_guard) {
-			reemit_guard = 1;
-			signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
-			reemit_guard = 0;
-			esc_pending = 0;
-		}
-		return FALSE;
-	} else if (mouse_state == 3) {
-		/* ESC O sequence - re-emit ESC O and current key */
-		mouse_state = 0;
-		mouse_len = 0;
-		esc_pending = 0;
-		/* Cancel any pending timeout */
-		if (esc_timeout_tag != -1) {
-			g_source_remove(esc_timeout_tag);
-			esc_timeout_tag = -1;
-		}
-		if (!reemit_guard) {
-			reemit_guard = 1;
-			signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
-			signal_emit("gui key pressed", 1, GINT_TO_POINTER('O'));
-			signal_emit("gui key pressed", 1, GINT_TO_POINTER(key));
-			reemit_guard = 0;
-		}
-		return TRUE;
-	} else if (mouse_state >= 2) {
-		if (mouse_len < (int) sizeof(mouse_buf) - 1)
-			mouse_buf[mouse_len++] = (char) key;
-		mouse_buf[mouse_len] = '\0';
-		s = mouse_buf;
-		/* Check if this is arrow keys (A/B/C/D) or other ESC sequences */
-		if (mouse_len == 1 && (key == 'A' || key == 'B' || key == 'C' || key == 'D' ||
-		                       key == 'H' || key == 'F' || key == '1' || key == '2' ||
-		                       key == '3' || key == '4' || key == '5' || key == '6')) {
-			/* This is arrow key or function key - re-emit ESC[ and current key */
-			mouse_state = 0;
-			mouse_len = 0;
-			esc_pending = 0;
-			if (esc_timeout_tag != -1) {
-				g_source_remove(esc_timeout_tag);
-				esc_timeout_tag = -1;
-			}
-			if (!reemit_guard) {
-				reemit_guard = 1;
-				signal_emit("gui key pressed", 1, GINT_TO_POINTER(0x1b));
-				signal_emit("gui key pressed", 1, GINT_TO_POINTER('['));
-				signal_emit("gui key pressed", 1, GINT_TO_POINTER(key));
-				reemit_guard = 0;
-			}
-			return TRUE;
-		}
-		if (*s != '<') { /* not SGR mouse - cancel */
-			mouse_state = 0;
-			mouse_len = 0;
-			esc_pending = 0;
-			if (esc_timeout_tag != -1) {
-				g_source_remove(esc_timeout_tag);
-				esc_timeout_tag = -1;
-			}
-			return TRUE;
-		}
-		sc1 = strchr(s, ';');
-		if (!sc1)
-			return TRUE;
-		sc2 = strchr(sc1 + 1, ';');
-		if (!sc2)
-			return TRUE;
-		end = sc2 + 1;
-		if (*end == '\0')
-			return TRUE;
-		last = end[(int) strlen(end) - 1];
-		if (last != 'M' && last != 'm')
-			return TRUE;
-		braw = atoi(s + 1);
-		x = atoi(sc1 + 1);
-		y = atoi(sc2 + 1);
-		x -= 1;
-		y -= 1;
-		press = (last == 'M');
-		mouse_state = 0;
-		mouse_len = 0;
-		esc_pending = 0;
-		/* Cancel timeout if still active */
-		if (esc_timeout_tag != -1) {
-			g_source_remove(esc_timeout_tag);
-			esc_timeout_tag = -1;
-		}
-		if ((braw & 64) && press) {
-			int dir;
-			int delta;
-			int px, py, pw, ph;
-			dir = braw - 64;
-			delta = (dir == 0 ? -3 : 3);
+	
+	/* Delegate to gui-mouse system */
+	return gui_mouse_try_parse_key(key);
+}
+
+/* Handle application-specific mouse events (scroll, clicks) */
+static gboolean handle_application_mouse_event(const GuiMouseEvent *event, gpointer user_data)
+{
+	GSList *mt;
+	
+	(void) user_data;
+	
+	/* Handle scroll events */
+	if (gui_mouse_is_scroll_event(event->raw_button) && event->press) {
+		int dir = event->raw_button - 64;
+		int delta = (dir == 0) ? -3 : 3;
+		int px, py, pw, ph;
+		
+		/* Handle chat area scrolling first if enabled */
+		if (mouse_scroll_chat && is_in_chat_area(event->x, event->y)) {
+			const char *str;
+			double count;
+			int scroll_lines;
 			
-			/* Handle chat area scrolling first if enabled */
-			if (mouse_scroll_chat && is_in_chat_area(x, y)) {
-				const char *str;
-				double count;
-				int scroll_lines;
-				
-				sp_logf("MOUSE_SCROLL: Chat area scroll, delta=%d", delta);
-				
-				/* Calculate scroll count like gui-readline.c does */
-				str = settings_get_str("scroll_page_count");
-				count = atof(str + (*str == '/'));
-				if (count == 0)
-					count = 1;
-				else if (count < 0)
-					count = active_mainwin->height - active_mainwin->statusbar_lines + count;
-				else if (count < 1)
-					count = 1.0 / count;
-				
-				if (*str == '/' || *str == '.') {
-					count = (active_mainwin->height - active_mainwin->statusbar_lines) / count;
-				}
-				scroll_lines = (int) count;
-				
-				/* Scroll active window using same function as PageUp/PageDown */
-				gui_window_scroll(active_win, delta < 0 ? -scroll_lines : scroll_lines);
-				return TRUE;
-			}
+			sp_logf("MOUSE_SCROLL: Chat area scroll, delta=%d", delta);
 			
-			/* Handle sidepanel scrolling */
-			for (mt = mainwindows; mt; mt = mt->next) {
-				MAIN_WINDOW_REC *mw = mt->data;
-				SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
-				if (!ctx)
-					continue;
-				if (ctx->left_tw) {
-					px = ctx->left_x;
-					py = ctx->left_y;
-					pw = ctx->left_w;
-					ph = ctx->left_h;
-					if (x >= px && x < px + pw && y >= py && y < py + ph) {
-						ctx->left_scroll_offset =
-						    MAX(0, ctx->left_scroll_offset + delta);
-						redraw_one(mw);
-						irssi_set_dirty();
-						return TRUE;
-					}
-				}
-				if (ctx->right_tw) {
-					px = ctx->right_x;
-					py = ctx->right_y;
-					pw = ctx->right_w;
-					ph = ctx->right_h;
-					if (x >= px && x < px + pw && y >= py && y < py + ph) {
-						ctx->right_scroll_offset =
-						    MAX(0, ctx->right_scroll_offset + delta);
-						redraw_one(mw);
-						irssi_set_dirty();
-						return TRUE;
-					}
-				}
+			/* Calculate scroll count like gui-readline.c does */
+			str = settings_get_str("scroll_page_count");
+			count = atof(str + (*str == '/'));
+			if (count == 0)
+				count = 1;
+			else if (count < 0)
+				count = active_mainwin->height - active_mainwin->statusbar_lines + count;
+			else if (count < 1)
+				count = 1.0 / count;
+			
+			if (*str == '/' || *str == '.') {
+				count = (active_mainwin->height - active_mainwin->statusbar_lines) / count;
 			}
+			scroll_lines = (int) count;
+			
+			/* Scroll active window using same function as PageUp/PageDown */
+			gui_window_scroll(active_win, delta < 0 ? -scroll_lines : scroll_lines);
 			return TRUE;
 		}
-		{
-			int button;
-			
-			/* Handle mouse drag events (button 0 with motion) - for gesture tracking */
-			if ((braw & 32)) { /* Mouse drag/motion event regardless of press state */
-				if (gesture_state.active && gesture_state.dragging) {
-					gesture_state.current_x = x;
-					gesture_state.current_y = y;
-					sp_logf("GESTURE: Drag to (%d,%d)", x, y);
-				}
-				return TRUE;
-			}
-			
-			button = (braw & 3) + 1;
-			
-			/* Handle gestures for left mouse button */
-			if (button == 1) {
-				gboolean gesture_handled = handle_gesture_mouse_event(x, y, button, press);
-				
-				if (press) {
-					/* Update current position for drag tracking */
-					if (gesture_state.active) {
-						gesture_state.current_x = x;
-						gesture_state.current_y = y;
-					}
-					/* Still process clicks normally */
-					(void) handle_click_at(x, y, button);
+		
+		/* Handle sidepanel scrolling */
+		for (mt = mainwindows; mt; mt = mt->next) {
+			MAIN_WINDOW_REC *mw = mt->data;
+			SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
+			if (!ctx)
+				continue;
+			if (ctx->left_tw) {
+				px = ctx->left_x;
+				py = ctx->left_y;
+				pw = ctx->left_w;
+				ph = ctx->left_h;
+				if (event->x >= px && event->x < px + pw && 
+				    event->y >= py && event->y < py + ph) {
+					ctx->left_scroll_offset = MAX(0, ctx->left_scroll_offset + delta);
+					redraw_one(mw);
+					irssi_set_dirty();
 					return TRUE;
-				} else {
-					/* Mouse release */
-					if (gesture_handled) {
-						return TRUE; /* Gesture consumed the event */
-					}
+				}
+			}
+			if (ctx->right_tw) {
+				px = ctx->right_x;
+				py = ctx->right_y;
+				pw = ctx->right_w;
+				ph = ctx->right_h;
+				if (event->x >= px && event->x < px + pw && 
+				    event->y >= py && event->y < py + ph) {
+					ctx->right_scroll_offset = MAX(0, ctx->right_scroll_offset + delta);
+					redraw_one(mw);
+					irssi_set_dirty();
+					return TRUE;
 				}
 			}
 		}
-		return TRUE;
+		return TRUE; /* Consume scroll events */
 	}
-	return FALSE;
+	
+	/* Handle click events */
+	if (event->button == MOUSE_BUTTON_LEFT && event->press) {
+		return handle_click_at(event->x, event->y, event->button);
+	}
+	
+	return FALSE; /* Don't consume other events */
 }
 
-static void enable_mouse_tracking(void)
-{
-	fputs("\x1b[?1000h", stdout);
-	fputs("\x1b[?1002h", stdout);  /* Enable button event tracking for gestures */
-	fputs("\x1b[?1006h", stdout);
-	fflush(stdout);
-	mouse_tracking_enabled = TRUE;
-}
-
-static void disable_mouse_tracking(void)
-{
-	fputs("\x1b[?1006l", stdout);
-	fputs("\x1b[?1002l", stdout);  /* Disable button event tracking */
-	fputs("\x1b[?1000l", stdout);
-	fflush(stdout);
-	mouse_tracking_enabled = FALSE;
-}
 
 static void sig_irssi_init_finished(void)
 {
@@ -2250,24 +1904,28 @@ void sidepanels_init(void)
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
 
 	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
-
-	/* Mouse Gesture Settings */
-	settings_add_bool("lookandfeel", "mouse_gestures", TRUE);
-	settings_add_str("lookandfeel", "gesture_left_short", "/window prev");
-	settings_add_str("lookandfeel", "gesture_left_long", "/window 1");
-	settings_add_str("lookandfeel", "gesture_right_short", "/window next");
-	settings_add_str("lookandfeel", "gesture_right_long", "/window last");
-	settings_add_int("lookandfeel", "gesture_sensitivity", 10);
-	settings_add_int("lookandfeel", "gesture_timeout", 1000);
 	settings_add_bool("lookandfeel", "mouse_scroll_chat", TRUE);
+	
 	sp_enable_mouse = TRUE; /* force native */
+	
+	/* Read settings - mouse and gesture systems are already initialized */
 	read_settings();
+	
+	/* Register event handlers */
+	gui_mouse_add_handler(gui_gestures_handle_mouse_event, NULL);
+	gui_mouse_add_handler(handle_application_mouse_event, NULL);
+	
+	/* Set up gesture area validator */
+	gui_gestures_set_area_validator(chat_area_validator, NULL);
+	
+	/* Enable mouse tracking if gestures or scroll are enabled */
+	if (gui_gestures_is_enabled() || mouse_scroll_chat) {
+		gui_mouse_enable_tracking();
+	}
+	
 	mw_to_ctx = g_hash_table_new(g_direct_hash, g_direct_equal);
 	/* Apply reservations but don't redraw yet - wait for irssi init finished */
 	apply_reservations_all();
-	enable_mouse_tracking();
-	esc_pending = 0;
-	reemit_guard = 0;
 	signal_add("irssi init finished", (SIGNAL_FUNC) sig_irssi_init_finished);
 	signal_add("mainwindow created", (SIGNAL_FUNC) sig_mainwindow_created);
 	signal_add("setup changed", (SIGNAL_FUNC) read_settings);
@@ -2369,23 +2027,9 @@ void sidepanels_deinit(void)
 		g_hash_table_destroy(window_priorities);
 		window_priorities = NULL;
 	}
-	disable_mouse_tracking();
-	/* Clean up timeout */
-	if (esc_timeout_tag != -1) {
-		g_source_remove(esc_timeout_tag);
-		esc_timeout_tag = -1;
-	}
+	gui_mouse_disable_tracking();
 	
-	/* Clean up gesture settings */
-	g_free(gesture_left_short_command);
-	g_free(gesture_left_long_command);
-	g_free(gesture_right_short_command);
-	g_free(gesture_right_long_command);
-	gesture_left_short_command = NULL;
-	gesture_left_long_command = NULL;
-	gesture_right_short_command = NULL;
-	gesture_right_long_command = NULL;
-	reset_gesture_state();
+	/* Mouse and gesture systems are cleaned up by main irssi.c */
 	
 	if (sp_log) {
 		fclose(sp_log);
