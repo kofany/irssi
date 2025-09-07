@@ -25,6 +25,13 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 - **Color Reset System**: Configurable events (quit/part/nickchange) that reassign colors, plus manual `/nickhash shift` command
 - **Real-Time Updates**: All formatting applied dynamically as messages appear
 
+### 🖱️ Mouse Gesture Navigation System
+- **Intuitive Window Switching**: Navigate between IRC windows with simple left/right mouse swipes in the chat area
+- **Four Gesture Types**: Short/long swipes in both directions for comprehensive navigation control
+- **Smart Recognition**: Only active in chat area, prevents accidental triggers in sidepanels
+- **Configurable Actions**: Map any irssi command to gestures, with intelligent defaults for IRC workflow
+- **Optimized for IRC**: Default mappings designed around common usage patterns (prev/next/home/last active)
+
 ### Enhanced User Experience
 - **Whois in Active Window**: Say goodbye to context switching! Whois responses appear directly in your current chat window
 - **Optimized Sidepanels with Mouse Support**: Intelligent redraw system for left (window list) and right (nicklist) panels with batching for mass events
@@ -151,6 +158,28 @@ irssi
 - **irssi**: Uses existing `~/.irssi/` or creates new one
 
 ## ⚙️ Configuration
+
+### 🖱️ Mouse Gesture Settings
+
+Navigate between IRC windows with intuitive mouse swipes:
+
+```bash
+# Enable mouse gestures (default: on)
+/set mouse_gestures on
+/set mouse_scroll_chat on
+
+# Default gesture mappings (optimized for IRC workflow)
+/set gesture_left_short "/window prev"    # Most common: previous window
+/set gesture_left_long "/window 1"        # Jump to network status  
+/set gesture_right_short "/window next"   # Next window in sequence
+/set gesture_right_long "/window last"    # Jump to last active window
+
+# Sensitivity and timing
+/set gesture_sensitivity 10               # Minimum swipe distance (pixels)
+/set gesture_timeout 1000                 # Maximum gesture time (ms)
+```
+
+**Quick Guide**: Drag mouse left/right in chat area to switch windows. See [Mouse Gestures Guide](docs/MOUSE-GESTURES-QUICK-GUIDE.md) for details.
 
 ### 🎨 Nick Display Settings
 
@@ -287,7 +316,9 @@ Evolved Irssi maintains the legendary performance of classic irssi:
 | **Configuration** | `~/.irssi/` | `~/.erssi/` |
 | **Binary Name** | `irssi` | `erssi` |
 | **Whois Display** | Separate window | Active window |
-| **Mouse Support** | Limited | Full sidepanel support |
+| **Mouse Support** | Limited | Full sidepanel + gestures |
+| **Window Navigation** | Keyboard only | Keyboard + mouse gestures |
+| **Gesture System** | None | 4 configurable swipe gestures |
 | **Nick Alignment** | Basic | Enhanced alignment |
 | **Perl Scripts** | ✅ Compatible | ✅ Compatible |
 | **Themes** | ✅ Compatible | ✅ Compatible |
@@ -295,7 +326,17 @@ Evolved Irssi maintains the legendary performance of classic irssi:
 
 ## 📜 Version History
 
-### v1.5-evolved (Current)
+### v1.5-erssi-v0.0.4 (Current)
+- **🖱️ Mouse Gesture System**: Fixed drag detection and motion tracking for reliable gesture recognition
+- **⚡ Enhanced Mouse Protocol**: Added SGR button event tracking (1002h) for precise motion detection
+- **🎯 Improved Gesture Sensitivity**: Optimized default sensitivity from 20 to 10 pixels for better responsiveness
+- **🔧 Technical Fixes**:
+  - Fixed drag event condition that prevented motion tracking
+  - Added proper button event tracking for gesture system
+  - Cleaned up debug logging for production use
+  - Improved gesture classification for short/long swipes
+
+### v1.5-evolved (Previous)
 - **🎨 Advanced Sidepanel System**: Granular redraw optimizations with event-specific panel updates
 - **⚡ Performance Improvements**: Batched mass event handling for channels with 400+ users
 - **🎯 Enhanced Nick Display**: Hash-based coloring system with separate mode colors and intelligent truncation

@@ -1,3 +1,10 @@
+v1.5-erssi-v0.0.4 2025-09-07  Evolved Irssi team <erssi@IRCnet>
+	+ Fixed mouse gesture drag detection and motion tracking
+	+ Enhanced SGR mouse protocol with button event tracking (1002h)
+	+ Improved gesture sensitivity from 20 to 10 pixels for better responsiveness
+	+ Cleaned up debug logging for production use
+	+ Updated documentation for working gesture system
+
 v1.5-erssi-0.0.3 2025-01-09  Evolved Irssi team <erssi@IRCnet>
 	+ Improved default settings for better out-of-the-box experience
 	+ Enable hash-based nick coloring by default
