@@ -324,6 +324,7 @@ build_and_install() {
        "--prefix=$install_path"
        "-Dwith-perl=yes"
        "-Dwith-otr=yes"
+       "-Dwith-proxy=yes"
        "-Ddisable-utf8proc=no"
    )
 
