@@ -103,3 +103,4 @@ config_test_odzyskany
 nexus_base_file_odzyskany.theme
 nexus_steel_test_odzyskany.theme
 utils/erssi-version.sh
+sidepanels_old.c
