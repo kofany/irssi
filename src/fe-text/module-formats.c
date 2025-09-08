@@ -104,20 +104,20 @@ FORMAT_REC gui_text_formats[] = {
 
 	/* ---- */
 	{ NULL, "Sidepanels", 0 },
-	{ "sidepanel_header", "%K$0", 1, { 0 } },
-	{ "sidepanel_item", "$0", 1, { 0 } },
-	{ "sidepanel_item_selected", "%U$0%U", 1, { 0 } },
-	{ "sidepanel_item_nick_mention", "%M$0", 1, { 0 } },
-	{ "sidepanel_item_query_msg", "%M$0", 1, { 0 } },
-	{ "sidepanel_item_activity", "%y$0", 1, { 0 } },
-	{ "sidepanel_item_events", "%g$0", 1, { 0 } },
-	{ "sidepanel_item_highlight", "%R$0", 1, { 0 } },
+	{ "sidepanel_header", "%B*%B$0%N", 1, { 0 } },
+	{ "sidepanel_item", "%W %W$0%N", 1, { 0 } },
+	{ "sidepanel_item_selected", "%g%w> %g%w$0%N", 1, { 0 } },
+	{ "sidepanel_item_nick_mention", "%M# %M$0%N", 1, { 0 } },
+	{ "sidepanel_item_query_msg", "%M+ %M$0%N", 1, { 0 } },
+	{ "sidepanel_item_activity", "%y* %y$0%N", 1, { 0 } },
+	{ "sidepanel_item_events", "%Go%N %G$0%N", 1, { 0 } },
+	{ "sidepanel_item_highlight", "%R! %R$0%N", 1, { 0 } },
 	{ "sidepanel_nick_op", "%Y$0", 1, { 0 } },
 	{ "sidepanel_nick_voice", "%C$0", 1, { 0 } },
 	{ "sidepanel_nick_normal", "$0", 1, { 0 } },
-	{ "sidepanel_nick_op_status", "%Y$0%n$1", 2, { 0, 0 } },
-	{ "sidepanel_nick_voice_status", "%C$0%n$1", 2, { 0, 0 } },
-	{ "sidepanel_nick_normal_status", "$0$1", 2, { 0, 0 } },
+	{ "sidepanel_nick_op_status", "%Y$0%N%B$1%N", 2, { 0, 0 } },
+	{ "sidepanel_nick_voice_status", "%C$0%N%c$1%N", 2, { 0, 0 } },
+	{ "sidepanel_nick_normal_status", "%w$0%N%w$1%N", 2, { 0, 0 } },
 
 	{ NULL, NULL, 0 }
 	/* clang-format on */
