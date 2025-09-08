@@ -43,6 +43,8 @@ void sig_message_quit(SERVER_REC *server, const char *nick, const char *address,
                      const char *reason);
 void sig_message_nick(SERVER_REC *server, const char *newnick, const char *oldnick,
                      const char *address);
+void sig_message_kick_own(SERVER_REC *server, const char *channel, const char *nick,
+                         const char *kicker, const char *address, const char *reason);
 void sig_message_kick(void);
 void sig_message_own_nick(void);
 
@@ -52,6 +54,12 @@ void sig_nick_mode_filter(CHANNEL_REC *channel, NICK_REC *nick,
 
 /* Main window handlers */
 void sig_mainwindow_resized(MAIN_WINDOW_REC *mw);
+
+/* Server connection handlers */
+void sig_server_connected(SERVER_REC *server);
+
+/* Window initialization */
+void initialize_notices_window(void);
 
 /* Signal registration/removal */
 void sidepanels_signals_register(void);

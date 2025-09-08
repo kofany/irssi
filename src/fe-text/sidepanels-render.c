@@ -215,9 +215,6 @@ void draw_str_themed(TERM_WINDOW *tw, int x, int y, WINDOW_REC *wctx, int format
 	format_create_dest(&dest, NULL, NULL, 0, wctx);
 	theme = window_get_theme(wctx);
 	out = format_get_text_theme(theme, MODULE_NAME, &dest, format_id, text);
-	/* Debug: Uncomment to trace theme format rendering issues */
-	// sp_logf("THEME_DEBUG: format_id=%d text='%s' out='%s'", format_id, text ? text :
-	// "(null)", out ? out : "(null)");
 
 	if (out != NULL && *out != '\0') {
 		/* Convert theme color codes and render with proper color handling */
@@ -306,10 +303,6 @@ void draw_str_themed_2params(TERM_WINDOW *tw, int x, int y, WINDOW_REC *wctx, in
 	args[2] = NULL;
 
 	out = format_get_text_theme_charargs(theme, MODULE_NAME, &dest, format_id, args);
-	/* Debug: Uncomment to trace 2-parameter theme format rendering */
-	// sp_logf("THEME_DEBUG_2P: format_id=%d param1='%s' param2='%s' out='%s'",
-	//        format_id, param1 ? param1 : "(null)", param2 ? param2 : "(null)", out ? out :
-	//        "(null)");
 
 	if (out != NULL && *out != '\0') {
 		/* Convert theme color codes and render with proper color handling */
@@ -649,11 +642,8 @@ void redraw_right_panels_only(const char *event_name)
 	/* Redraw only right panels (nicklists) in all main windows */
 	GSList *t;
 	SP_MAINWIN_CTX *ctx;
-	sp_logf("DEBUG: redraw_right_panels_only called by event '%s'", event_name ? event_name : "unknown");
-
 	/* Safety check: ensure mainwindows is initialized */
 	if (!mainwindows) {
-		sp_logf("DEBUG: mainwindows not initialized yet, skipping redraw_right_panels_only");
 		return;
 	}
 
@@ -662,13 +652,11 @@ void redraw_right_panels_only(const char *event_name)
 
 		/* Safety check: ensure mw is valid */
 		if (!mw) {
-			sp_logf("DEBUG: NULL mainwindow in list, skipping redraw_right_panels_only");
 			continue;
 		}
 
 		ctx = get_ctx(mw, FALSE);
 		if (!ctx) {
-			sp_logf("DEBUG: No context for mainwindow %p", (void*)mw);
 			continue;
 		}
 
@@ -688,11 +676,9 @@ void redraw_left_panels_only(const char *event_name)
 	/* Redraw only left panels (window list) in all main windows */
 	GSList *t;
 	SP_MAINWIN_CTX *ctx;
-	sp_logf("DEBUG: redraw_left_panels_only called by event '%s'", event_name ? event_name : "unknown");
 
 	/* Safety check: ensure mainwindows is initialized */
 	if (!mainwindows) {
-		sp_logf("DEBUG: mainwindows not initialized yet, skipping redraw_left_panels_only");
 		return;
 	}
 
@@ -707,7 +693,6 @@ void redraw_left_panels_only(const char *event_name)
 
 		ctx = get_ctx(mw, FALSE);
 		if (!ctx) {
-			sp_logf("DEBUG: No context for mainwindow %p", (void*)mw);
 			continue;
 		}
 
@@ -730,11 +715,9 @@ void redraw_both_panels_only(const char *event_name)
 	/* Redraw both left and right panels efficiently in all main windows */
 	GSList *t;
 	gboolean needs_redraw = FALSE;
-	sp_logf("DEBUG: redraw_both_panels_only called by event '%s'", event_name ? event_name : "unknown");
 
 	/* Safety check: ensure mainwindows is initialized */
 	if (!mainwindows) {
-		sp_logf("DEBUG: mainwindows not initialized yet, skipping redraw");
 		return;
 	}
 
@@ -744,13 +727,11 @@ void redraw_both_panels_only(const char *event_name)
 
 		/* Safety check: ensure mw is valid */
 		if (!mw) {
-			sp_logf("DEBUG: NULL mainwindow in list, skipping");
 			continue;
 		}
 
 		ctx = get_ctx(mw, FALSE);
 		if (!ctx) {
-			sp_logf("DEBUG: No context for mainwindow %p", (void*)mw);
 			continue;
 		}
 
@@ -786,7 +767,6 @@ void redraw_both_panels_only(const char *event_name)
 static gboolean batched_redraw_timeout(gpointer data)
 {
 	const char *event_name = (const char *) data;
-	sp_logf("DEBUG: batched_redraw_timeout executing for event '%s'", event_name ? event_name : "unknown");
 
 	redraw_right_panels_only(event_name);
 	redraw_pending = FALSE;
@@ -799,11 +779,9 @@ void schedule_batched_redraw(const char *event_name)
 {
 	if (redraw_pending) {
 		/* Already scheduled, just update the event name if needed */
-		sp_logf("DEBUG: schedule_batched_redraw - already pending for event '%s'", event_name ? event_name : "unknown");
 		return;
 	}
 
-	sp_logf("DEBUG: schedule_batched_redraw - scheduling for event '%s'", event_name ? event_name : "unknown");
 	redraw_pending = TRUE;
 	batch_mode_active = TRUE;
 	redraw_timer_tag = g_timeout_add(redraw_batch_timeout, batched_redraw_timeout, (gpointer) event_name);

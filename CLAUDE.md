@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **Evolved Irssi (erssi)** - a modernized IRC client based on the classic irssi with enhanced features while maintaining full compatibility. The project version is `1.5-erssi-v0.0.4` and uses the Meson build system.
+This is **Evolved Irssi (erssi)** - a modernized IRC client based on the classic irssi with enhanced features while maintaining full compatibility. The project version is `1.5-erssi-v0.0.5` and uses the Meson build system.
 
 ## Build Commands
 

@@ -37,6 +37,7 @@ static int sp_enable_right;
 static int sp_auto_hide_right;
 static int sp_enable_mouse;
 static int sp_debug;
+static int sp_auto_create_separators;
 
 /* Mouse scroll setting - still needed for sidepanel scrolling */
 static int mouse_scroll_chat;
@@ -132,6 +133,7 @@ static void read_settings(void)
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
 	sp_enable_mouse = TRUE; /* always on natively */
 	sp_debug = settings_get_bool("sidepanel_debug");
+	sp_auto_create_separators = settings_get_bool("auto_create_separators");
 
 	/* Mouse Gesture Settings - delegate to gesture system */
 	gui_gestures_reload_settings();
@@ -169,6 +171,11 @@ static void sig_mainwindow_created(MAIN_WINDOW_REC *mw)
 
 static void sig_irssi_init_finished(void)
 {
+	/* Initialize Notices window programmatically before renumbering */
+	if (get_auto_create_separators()) {
+		initialize_notices_window();
+	}
+	
 	/* Renumber windows to ensure proper order */
 	renumber_windows_by_position();
 	apply_reservations_all();
@@ -185,6 +192,7 @@ void sidepanels_init(void)
 
 	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
 	settings_add_bool("lookandfeel", "mouse_scroll_chat", TRUE);
+	settings_add_bool("lookandfeel", "auto_create_separators", TRUE);
 	
 	sp_enable_mouse = TRUE; /* force native */
 	
@@ -267,6 +275,7 @@ int get_sp_auto_hide_right(void) { return sp_auto_hide_right; }
 int get_sp_enable_mouse(void) { return sp_enable_mouse; }
 int get_sp_debug(void) { return sp_debug; }
 int get_mouse_scroll_chat(void) { return mouse_scroll_chat; }
+int get_auto_create_separators(void) { return sp_auto_create_separators; }
 
 /* =============================================================================
  * MOUSE HANDLING IMPLEMENTATION

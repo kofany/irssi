@@ -174,17 +174,25 @@ void position_tw(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 
 void renumber_windows_by_position(void)
 {
-	/* Simple implementation - just ensure windows are numbered sequentially */
-	GSList *tmp;
-	int refnum = 1;
+	GSList *sort_list, *s;
+	int position = 1;
 
-	for (tmp = windows; tmp; tmp = tmp->next) {
-		WINDOW_REC *win = tmp->data;
-		if (win->refnum != refnum) {
-			window_set_refnum(win, refnum);
+	/* Get sorted list using shared function */
+	sort_list = build_sorted_window_list();
+
+	/* Renumber all windows according to sorted order */
+	for (s = sort_list; s; s = s->next) {
+		WINDOW_SORT_REC *sort_rec = s->data;
+		WINDOW_REC *win = sort_rec->win;
+
+		if (win->refnum != position) {
+			window_set_refnum(win, position);
 		}
-		refnum++;
+		position++;
 	}
+
+	/* Clean up */
+	free_sorted_window_list(sort_list);
 }
 
 void draw_main_window_borders(MAIN_WINDOW_REC *mw)

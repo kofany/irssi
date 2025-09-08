@@ -56,7 +56,7 @@ void gui_gestures_init(void)
 	settings_add_str_module("fe-text", "lookandfeel", "gesture_left_short", "/window prev");
 	settings_add_str_module("fe-text", "lookandfeel", "gesture_left_long", "/window 1");
 	settings_add_str_module("fe-text", "lookandfeel", "gesture_right_short", "/window next");
-	settings_add_str_module("fe-text", "lookandfeel", "gesture_right_long", "/window last");
+	settings_add_str_module("fe-text", "lookandfeel", "gesture_right_long", "/window lastone");
 	settings_add_int_module("fe-text", "lookandfeel", "gesture_sensitivity", 10);
 	settings_add_int_module("fe-text", "lookandfeel", "gesture_timeout", 1000);
 	

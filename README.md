@@ -14,10 +14,12 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 ## 🌟 Key Features
 
 ### 🎨 Advanced Sidepanel System
-- **Smart Redraw Logic**: Separate functions for left panel (`redraw_left_panels_only`), right panel (`redraw_right_panels_only`), and both (`redraw_both_panels_only`)
-- **Event-Specific Updates**: Different panel updates based on IRC events (joins, parts, nick changes, channel activity)
+- **Modular Architecture**: Complete separation of concerns with dedicated modules for core, layout, rendering, activity tracking, and signal handling
+- **Smart Window Sorting**: Multi-server support with alphabetical server grouping and intelligent window positioning
+- **Kicked Channel Preservation**: Maintains channel labels and highlights with maximum priority when kicked from channels
+- **Auto-Separator Windows**: Automatic creation of server status windows with proper message level filtering
+- **Smart Redraw Logic**: Separate functions for left panel, right panel, and both panels with event-specific updates
 - **Batched Mass Events**: Hybrid batching system for mass joins/parts with timer fallback and immediate sync triggers
-- **Debug Logging**: Comprehensive event tracking with file-based debug output (`/tmp/irssi_sidepanels.log`)
 
 ### 🎯 Enhanced Nick Display
 - **Dynamic Nick Alignment**: Intelligent padding and truncation with `+` indicator for long nicks
@@ -56,6 +58,33 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 - **Meson + Ninja**: Fast, reliable builds with comprehensive dependency management
 - **Full Feature Support**: Perl scripting, OTR messaging, UTF8proc, SSL/TLS out of the box
 - **Cross-Platform**: Native support for macOS and Linux distributions
+
+## 🎉 What's New in v0.0.5 - Milestone Release
+
+### 🏗️ Complete Modular Architecture
+- **Separated Components**: Dedicated modules for core logic, layout management, rendering, activity tracking, and signal handling
+- **Clean APIs**: Well-defined interfaces between components for maintainability and extensibility
+- **Terminal Resize Fix**: Resolved issue where sidepanel content disappeared during terminal resize
+
+### 🌐 Enhanced Multi-Server Support  
+- **Intelligent Server Sorting**: Alphabetical grouping of servers with proper window positioning
+- **Server Tag Labels**: Display actual server tags instead of connection strings for clarity
+- **Scalable Architecture**: Supports unlimited number of IRC networks simultaneously
+
+### 💪 Kicked Channel Resilience
+- **Label Preservation**: Channel names remain visible even after being kicked from channels
+- **Priority Highlighting**: Kicked channels receive maximum priority (level 4) for immediate attention
+- **Position Maintenance**: Kicked channels maintain their position in window sorting instead of falling to bottom
+
+### ⚡ Smart Window Management
+- **Auto-Separator Creation**: Automatic generation of server status windows with proper message level filtering
+- **Synchronized Sorting**: Window list (`/window list`) perfectly matches sidepanel sorting
+- **Message Level Filtering**: Notices window receives all client messages (help, errors, command output) while server windows get relevant IRC traffic
+
+### 🧹 Code Quality Improvements
+- **Debug Code Cleanup**: Removed development debugging statements for production readiness
+- **Performance Optimization**: Cleaner code paths and reduced logging overhead
+- **Maintainability**: Better code organization and documentation
 
 ## 🚀 Quick Start
 

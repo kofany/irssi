@@ -94,14 +94,19 @@ GSList *build_sorted_window_list(void)
 			sort_rec->sort_group = 0;
 			sort_rec->sort_key = g_strdup("Notices");
 		} else if (sort_rec->server && !win->active) {
-			/* 2. Server status windows - no active channel/query */
-			const char *net;
-			sort_rec->sort_group = 1;
-			net = sort_rec->server->connrec && sort_rec->server->connrec->chatnet ?
-			          sort_rec->server->connrec->chatnet :
-			          (sort_rec->server->connrec ? sort_rec->server->connrec->address :
-			                                       "server");
-			sort_rec->sort_key = g_strdup(net ? net : "server");
+			/* Check if this is a kicked channel (has server, no active, but name starts with #) */
+			if (win_name && win_name[0] == '#') {
+				/* Kicked channel - treat as channel for sorting */
+				sort_rec->sort_group = 2;
+				sort_rec->sort_key = g_strdup(win_name);
+			} else {
+				/* 2. Server status windows - no active channel/query */
+				const char *server_name;
+				sort_rec->sort_group = 1;
+				/* Use server tag as display name instead of chatnet/address */
+				server_name = sort_rec->server->tag ? sort_rec->server->tag : "server";
+				sort_rec->sort_key = g_strdup(server_name);
+			}
 		} else if (win->active && win->active->server) {
 			/* Windows with active channel/query items */
 			WI_ITEM_REC *item = win->active;
@@ -157,7 +162,7 @@ static int window_sort_compare(gconstpointer a, gconstpointer b)
 {
 	WINDOW_SORT_REC *w1 = (WINDOW_SORT_REC *) a;
 	WINDOW_SORT_REC *w2 = (WINDOW_SORT_REC *) b;
-	const char *net1, *net2;
+	const char *server_tag1, *server_tag2;
 	int server_cmp;
 
 	/* 1. Notices always comes first */
@@ -168,13 +173,9 @@ static int window_sort_compare(gconstpointer a, gconstpointer b)
 
 	/* 2. Sort by server (alphabetically) */
 	if (w1->server && w2->server) {
-		net1 = w1->server->connrec && w1->server->connrec->chatnet ?
-		           w1->server->connrec->chatnet :
-		           (w1->server->connrec ? w1->server->connrec->address : "");
-		net2 = w2->server->connrec && w2->server->connrec->chatnet ?
-		           w2->server->connrec->chatnet :
-		           (w2->server->connrec ? w2->server->connrec->address : "");
-		server_cmp = g_ascii_strcasecmp(net1 ? net1 : "", net2 ? net2 : "");
+		server_tag1 = w1->server->tag ? w1->server->tag : "";
+		server_tag2 = w2->server->tag ? w2->server->tag : "";
+		server_cmp = g_ascii_strcasecmp(server_tag1, server_tag2);
 		if (server_cmp != 0)
 			return server_cmp;
 	} else if (w1->server && !w2->server) {
