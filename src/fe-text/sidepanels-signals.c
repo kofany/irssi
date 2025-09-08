@@ -6,7 +6,6 @@
 #include <irssi/src/fe-text/sidepanels-signals.h>
 #include <irssi/src/fe-text/sidepanels-render.h>
 #include <irssi/src/fe-text/sidepanels-activity.h>
-#include <irssi/src/fe-text/sidepanels-layout.h>
 #include <irssi/src/core/servers.h>
 #include <irssi/src/core/channels.h>
 #include <irssi/src/core/queries.h>
@@ -26,7 +25,6 @@
 /* External functions we need */
 extern void sp_logf(const char *fmt, ...);
 extern void update_left_selection_to_active(void);
-extern SP_MAINWIN_CTX *get_ctx(MAIN_WINDOW_REC *mw, gboolean create);
 
 void sig_window_changed(WINDOW_REC *old, WINDOW_REC *new)
 {
@@ -190,49 +188,9 @@ void sig_nick_mode_filter(CHANNEL_REC *channel, NICK_REC *nick,
 	}
 }
 
-/* Resize debouncing to prevent conflicts with main irssi redraw system */
-static int resize_timer_tag = -1;
-static GSList *pending_resize_windows = NULL;
-
-static gboolean delayed_resize_redraw(gpointer data)
-{
-	GSList *tmp;
-
-	/* Redraw all pending windows */
-	for (tmp = pending_resize_windows; tmp; tmp = tmp->next) {
-		MAIN_WINDOW_REC *mw = tmp->data;
-		if (mw) {
-			/* Use position_tw only, let main irssi handle the actual redraw */
-			SP_MAINWIN_CTX *ctx = get_ctx(mw, FALSE);
-			if (ctx) {
-				position_tw(mw, ctx);
-			}
-		}
-	}
-
-	/* Clear pending list */
-	g_slist_free(pending_resize_windows);
-	pending_resize_windows = NULL;
-	resize_timer_tag = -1;
-
-	/* Let main irssi system handle the actual refresh */
-	return FALSE; /* Don't repeat */
-}
-
 void sig_mainwindow_resized(MAIN_WINDOW_REC *mw)
 {
-	/* Add to pending list if not already there */
-	if (!g_slist_find(pending_resize_windows, mw)) {
-		pending_resize_windows = g_slist_prepend(pending_resize_windows, mw);
-	}
-
-	/* Cancel existing timer and start new one */
-	if (resize_timer_tag != -1) {
-		g_source_remove(resize_timer_tag);
-	}
-
-	/* Delay redraw by 50ms to let main irssi system settle */
-	resize_timer_tag = g_timeout_add(50, delayed_resize_redraw, NULL);
+	redraw_one(mw);
 }
 
 void sidepanels_signals_register(void)
@@ -314,15 +272,5 @@ void sidepanels_signals_init(void)
 
 void sidepanels_signals_deinit(void)
 {
-	/* Clean up resize timer */
-	if (resize_timer_tag != -1) {
-		g_source_remove(resize_timer_tag);
-		resize_timer_tag = -1;
-	}
-	if (pending_resize_windows) {
-		g_slist_free(pending_resize_windows);
-		pending_resize_windows = NULL;
-	}
-
-	/* Nothing else to clean up */
+	/* Nothing to clean up */
 }
