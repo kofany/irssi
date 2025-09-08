@@ -37,6 +37,7 @@
 #include <irssi/src/fe-text/term.h>
 #include <irssi/src/fe-text/gui-entry.h>
 #include <irssi/src/fe-text/mainwindows.h>
+#include <irssi/src/fe-text/sidepanels-render.h>
 #include <irssi/src/fe-text/gui-printtext.h>
 #include <irssi/src/fe-text/gui-readline.h>
 #include <irssi/src/fe-text/statusbar.h>
@@ -131,6 +132,7 @@ static void dirty_check(void)
 		term_refresh(NULL);
 
 		mainwindows_redraw();
+		redraw_both_panels_only("screen_clear"); /* Redraw only sidepanels after full screen clear */
 		statusbar_redraw(NULL, TRUE);
 	}
 
