@@ -59,7 +59,22 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 - **Full Feature Support**: Perl scripting, OTR messaging, UTF8proc, SSL/TLS out of the box
 - **Cross-Platform**: Native support for macOS and Linux distributions
 
-## 🎉 What's New in v0.0.5 - Milestone Release
+## 🎉 What's New in v0.0.6 - Emoji & Unicode Milestone
+
+### 🎨 Advanced Emoji Support
+- **Grapheme Cluster Detection**: Full Unicode Standard Annex #29 compliance for proper emoji rendering
+- **Multi-Codepoint Emoji**: Handles complex emoji like 👨‍👩‍👧‍👦 (family), 🧑🏻‍💻 (person with skin tone), ♥️ (heart with variation selector)
+- **Sidepanel Overflow Fix**: Emoji no longer spill from main chat window into sidepanels in modern terminals like Ghostty
+- **Transparent Implementation**: Automatic detection with fallback to legacy mode when utf8proc unavailable
+- **Zero Configuration**: Always-on improvement with no settings required
+
+### 🔧 Technical Implementation
+- **utf8proc Integration**: Leverages industry-standard Unicode library for accurate grapheme boundary detection
+- **Backward Compatibility**: Maintains full compatibility with older systems and existing configurations
+- **Performance Optimized**: Efficient cluster detection with minimal overhead
+- **Cross-Platform**: Works seamlessly on macOS and Linux with proper Unicode terminal support
+
+## 📚 Previous Release - v0.0.5 Milestone
 
 ### 🏗️ Complete Modular Architecture
 - **Separated Components**: Dedicated modules for core logic, layout management, rendering, activity tracking, and signal handling
@@ -355,7 +370,25 @@ Evolved Irssi maintains the legendary performance of classic irssi:
 
 ## 📜 Version History
 
-### v1.5-erssi-v0.0.4 (Current)
+### v1.5-erssi-v0.0.6 (Current)
+- **🎨 Advanced Emoji Support**: Full Unicode Standard Annex #29 grapheme cluster detection for proper emoji rendering
+- **🔧 Sidepanel Overflow Fix**: Emoji no longer spill from main chat window into sidepanels in modern terminals
+- **⚡ Performance Optimized**: Efficient utf8proc integration with automatic fallback to legacy mode
+- **🌍 Cross-Platform Unicode**: Enhanced support for complex emoji across macOS and Linux terminals
+- **🔧 Technical Implementation**:
+  - Transparent grapheme cluster detection using utf8proc library
+  - Updated `string_advance()`, `read_unichar()` functions for proper cluster handling
+  - Maintains full backward compatibility with older systems
+  - Zero configuration required - automatic detection and processing
+
+### v1.5-erssi-v0.0.5 (Previous)
+- **🏗️ Complete Modular Architecture**: Separated components with dedicated modules for core, layout, rendering, activity tracking
+- **🌐 Enhanced Multi-Server Support**: Intelligent server sorting with alphabetical grouping and proper positioning
+- **💪 Kicked Channel Resilience**: Label preservation and priority highlighting for kicked channels
+- **⚡ Smart Window Management**: Auto-separator creation with synchronized sorting
+- **🧹 Code Quality**: Debug cleanup and performance optimizations
+
+### v1.5-erssi-v0.0.4
 - **🖱️ Mouse Gesture System**: Fixed drag detection and motion tracking for reliable gesture recognition
 - **⚡ Enhanced Mouse Protocol**: Added SGR button event tracking (1002h) for precise motion detection
 - **🎯 Improved Gesture Sensitivity**: Optimized default sensitivity from 20 to 10 pixels for better responsiveness
