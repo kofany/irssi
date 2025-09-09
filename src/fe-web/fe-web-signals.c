@@ -6,14 +6,14 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <src/core/signals.h>
-#include <src/core/servers.h>
-#include <src/core/channels.h>
-#include <src/core/queries.h>
-#include <src/core/levels.h>
-#include <src/core/nicklist.h>
-#include <src/fe-common/core/printtext.h>
-#include <src/fe-common/core/window-items.h>
+#include <irssip/src/core/signals.h>
+#include <irssip/src/core/servers.h>
+#include <irssip/src/core/channels.h>
+#include <irssip/src/core/queries.h>
+#include <irssip/src/core/levels.h>
+#include <irssip/src/core/nicklist.h>
+#include <irssip/src/fe-common/core/printtext.h>
+#include <irssip/src/fe-common/core/window-items.h>
 
 /* Signal handlers */
 
@@ -23,13 +23,24 @@ static void sig_print_text(WINDOW_REC *window, void *server, const char *target,
 	WEB_MESSAGE_REC *msg;
 	int level = GPOINTER_TO_INT(level_p);
 	
-	if (g_slist_length(web_clients) == 0) {
+	/* DEBUG: Check client count */
+	int client_count = g_slist_length(web_clients);
+	if (client_count == 0) {
 		return; /* No clients connected */
 	}
-	
+
+	/* DEBUG: Print to irssi console */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP,
+	         "fe-web DEBUG: Sending message to %d clients: %s", client_count, text ? text : "(null)");
+
+	/* Check for NULL parameters */
+	if (!text) {
+		return; /* Skip NULL text */
+	}
+
 	msg = fe_web_message_new(WEB_MSG_CHAT);
 	msg->server_tag = server ? SERVER(server)->tag : NULL;
-	msg->target = g_strdup(target);
+	msg->target = g_strdup(target ? target : "");
 	msg->text = g_strdup(text);
 	msg->level = level;
 	msg->timestamp = time(NULL);

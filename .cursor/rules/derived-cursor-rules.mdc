@@ -1,0 +1,157 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## HEADERS
+
+## TECH STACK
+
+*   Next.js
+*   React
+*   TypeScript
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+
+## CODING STANDARDS
+
+### Zasady KISS (Keep It Simple Stupid)
+*   Funkcje opcjonalne, możliwe do wyłączenia
+*   Zachowanie wstecznej kompatybilności
+*   Minimalne zmiany w istniejących mechanizmach
+
+## DEBUGGING
+
+## WORKFLOW & RELEASE RULES
+
+### Proces deweloperski:
+1.  **Checkpointy** - commit przed większymi zmianami
+2.  **Testowanie** - samodzielne testowanie przez Ciebie
+3.  **Budowanie** - lokalne testy bez instalacji systemowej
+
+### Dwukierunkowa Komunikacja Między Interfejsami
+Akcje wykonywane przez web frontend są widoczne w text UI i vice versa.
+
+#### 1. Komendy z Web → Text UI
+```c
+// W fe-web-client.c - komendy z przeglądarki trafiają do irssi:
+signal_emit("command connect", 2, parts[1], server);
+signal_emit("command join", 2, parts[1], server); 
+signal_emit("command msg", 2, parts[1], message);
+```
+Komendy z przeglądarki są wysyłane przez ten sam system sygnałów co komendy wpisywane w terminalu.
+
+#### 2. Wiadomości z Text UI → Web
+```c
+// W fe-web-signals.c - wiadomości z irssi trafiają do przeglądarki:
+signal_add("print text", (SIGNAL_FUNC) sig_print_text);
+signal_add("message public", (SIGNAL_FUNC) sig_message_public);
+signal_add("message private", (SIGNAL_FUNC) sig_message_private);
+```
+Web frontend nasłuchuje tych samych sygnałów co terminalowy interfejs.
+
+### Stan współdzielony
+Oba frontendy współdzielą dokładnie ten sam stan:
+- ✅ Te same połączenia IRC
+- ✅ Te same kanały i wiadomości  
+- ✅ Te same nicki i tryby użytkowników
+- ✅ Te same komendy i ustawienia
+
+Możesz:
+- Dołączyć do kanału w przeglądarce → zobaczysz to w terminalu
+- Napisać wiadomość w terminalu → zobaczysz to w przeglądarce  
+- Zmiana nicka w jednym miejscu → zmiana widoczna w obu
+
+**Wyjątek:** Ustawienia specyficzne dla danego frontend (np. kolory w text UI vs wygląd w web)
+
+### Pełna Integracja ze Skryptami
+Web frontend ma pełny dostęp do outputu skryptów i wszystkich innych funkcji irssi.
+
+#### Jak To Działa - Szczegółowy Przepływ
+
+##### 1. Skrypty Perl (`Irssi::print`, `Irssi::printformat`)
+```perl
+# W skrypcie Perl:
+Irssi::print("Hello from script!");
+Irssi::printformat(MSGLEVEL_CLIENTCRAP, "script_loaded", "MyScript");
+```
+
+**Przepływ:**
+1. `Irssi::print()` → `printtext_dest()` (w `Formats.xs` linia 158)
+2. `Irssi::printformat()` → `printformat_module_perl()` (w `Themes.xs` linia 15)  
+3. Ostatecznie → `printformat_module_dest_charargs()` → **system printtext**
+
+##### 2. System printtext (src/fe-common/core/printtext.c)
+```c
+// Wszystkie wywołania trafiają tutaj:
+void printtext(void *server, const char *target, int level, const char *text, ...)
+{
+    TEXT_DEST_REC dest;
+    va_list va;
+    
+    format_create_dest(&dest, server, target, level, NULL);
+    printtext_dest_args(&dest, text, va);  // ← TU
+}
+```
+
+##### 3. Sygnał "print text" (linia 485 w printtext.c)
+```c
+// Ostateczny sygnał wysyłany do wszystkich frontendów:
+signal_emit_id(signal_print_text, 3, dest, str, stripped);
+```
+
+##### 4. Web Frontend odbiera wszystko (src/fe-web/fe-web-signals.c)
+```c
+// Web frontend nasłuchuje dokładnie tego sygnału:
+signal_add("print text", (SIGNAL_FUNC) sig_print_text);
+```
+
+#### Co To Oznacza w Praktyce
+
+**Web frontend widzi:**
+- ✅ Output wszystkich skryptów Perl
+- ✅ Wiadomości IRC ze wszystkich kanałów
+- ✅ Komunikaty systemowe irssi
+- ✅ Powiadomienia o błędach
+- ✅ Status połączeń
+- ✅ Zmiany na liście nicków
+- ✅ Wszystkie zdarzenia formatowane przez motywy
+
+**Przykład działania:**
+```bash
+# W terminalu irssi:
+/SCRIPT LOAD autoop.pl
+/Load perlscript.pl
+```
+
+```javascript
+// W przeglądarce - web frontend otrzymuje:
+{
+  "type": "chat",
+  "server": "freenode", 
+  "text": "Script autoop.pl loaded",
+  "level": 524288,  // MSGLEVEL_CLIENTCRAP
+  "timestamp": 1703123456
+}
+```
+
+#### Dlaczego To Działa Tak Dobrze
+
+1. **Centralny system sygnałów** - Wszystko przechodzi przez jeden punkt
+2. **Jednolity interfejs** - Wszystkie frontendy używają tych samych mechanizmów
+3. **Pełna kompatybilność wsteczna** - Web frontend to równorzędny frontend
+4. **Brak dodatkowych warstw** - Bezpośredni dostęp do rdzenia irssi
+
+#### Stan Integracji: 100%
+
+| Komponent | Widoczność w Web Frontend |
+|-----------|---------------------------|
+| **Wiadomości IRC** | ✅ **Pełna** |
+| **Skrypty Perl** | ✅ **Pełna** |
+| **Komendy systemowe** | ✅ **Pełna** |
+| **Powiadomienia** | ✅ **Pełna** |
+| **Status serwera** | ✅ **Pełna** |
+| **Lista nicków** | ✅ **Pełna** |
+| **Motywy/formatowanie** | ✅ **Pełna** |
+
+**Wniosek:** Web frontend irssi ma dokładnie taki sam dostęp do danych jak terminalowy interfejs. Nie ma żadnych różnic w widoczności informacji - wszystko co zobaczysz w terminalu, zobaczysz również w przeglądarce. To nie jest "dodatkowa aplikacja", ale **pełnoprawny frontend irssi** współdzielący dokładnie ten sam stan i wszystkie funkcje.

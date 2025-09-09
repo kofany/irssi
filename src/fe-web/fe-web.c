@@ -16,14 +16,16 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <src/core/signals.h>
-#include <src/core/settings.h>
-#include <src/core/levels.h>
-#include <src/core/modules.h>
-#include <src/fe-common/core/printtext.h>
-#include <src/fe-common/core/themes.h>
+#include <irssip/src/core/signals.h>
+#include <irssip/src/core/settings.h>
+#include <irssip/src/core/levels.h>
+#include <irssip/src/core/modules.h>
+#include <irssip/src/fe-common/core/printtext.h>
+#include <irssip/src/fe-common/core/themes.h>
 
 /* Global variables */
+#define MODULE_NAME "fe-web"
+
 GSList *web_clients = NULL;
 int web_server_fd = -1;
 gboolean web_server_running = FALSE;
@@ -78,7 +80,7 @@ void fe_web_init(void)
 	/* Auto-start if enabled */
 	sig_settings_changed();
 	
-	module_register("core", "fe-web");
+	module_register("web", "fe");
 	
 	printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP,
 	         "Web frontend module loaded. Use /SET web_frontend_enabled ON to start.");
@@ -97,4 +99,9 @@ void fe_web_deinit(void)
 	
 	printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP,
 	         "Web frontend module unloaded.");
+}
+
+void fe_web_abicheck(int *version)
+{
+	*version = IRSSI_ABI_VERSION;
 }

@@ -6,7 +6,7 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <src/core/levels.h>
+#include <irssip/src/core/levels.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <glib.h>

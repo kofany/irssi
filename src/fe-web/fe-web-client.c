@@ -6,10 +6,10 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <src/core/commands.h>
-#include <src/core/signals.h>
-#include <src/core/levels.h>
-#include <src/fe-common/core/printtext.h>
+#include <irssip/src/core/commands.h>
+#include <irssip/src/core/signals.h>
+#include <irssip/src/core/levels.h>
+#include <irssip/src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
 #include <unistd.h>
@@ -146,35 +146,44 @@ gboolean fe_web_client_websocket_handshake(WEB_CLIENT_REC *client, const char *r
 	return FALSE;
 }
 
-static void fe_web_client_handle_command(WEB_CLIENT_REC *client, const char *command)
+static void fe_web_client_handle_command(WEB_CLIENT_REC *client, const char *command, const char *server_tag)
 {
 	char **parts;
 	const char *cmd;
-	
+	SERVER_REC *server = NULL;
+
 	if (command == NULL || !g_str_has_prefix(command, "/")) {
 		return;
 	}
-	
+
+	/* Find server by tag */
+	if (server_tag && *server_tag) {
+		server = server_find_tag(server_tag);
+	}
+	if (!server) {
+		server = server_find_tag(NULL); /* Get active server */
+	}
+
 	parts = g_strsplit(command + 1, " ", -1); /* Skip leading / */
 	if (parts[0] == NULL) {
 		g_strfreev(parts);
 		return;
 	}
-	
+
 	cmd = parts[0];
 	
 	/* Handle basic IRC commands */
 	if (g_ascii_strcasecmp(cmd, "connect") == 0) {
 		if (parts[1]) {
-			signal_emit("command connect", 2, parts[1], "");
+			signal_emit("command connect", 2, parts[1], server);
 		}
 	} else if (g_ascii_strcasecmp(cmd, "join") == 0) {
 		if (parts[1]) {
-			signal_emit("command join", 2, parts[1], "");
+			signal_emit("command join", 2, parts[1], server);
 		}
 	} else if (g_ascii_strcasecmp(cmd, "part") == 0) {
 		if (parts[1]) {
-			signal_emit("command part", 2, parts[1], parts[2] ? parts[2] : "");
+			signal_emit("command part", 2, parts[1], server);
 		}
 	} else if (g_ascii_strcasecmp(cmd, "msg") == 0) {
 		if (parts[1] && parts[2]) {
@@ -207,19 +216,35 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *data)
 	
 	if (client == NULL || data == NULL) return;
 	
-	/* Look for command in JSON: {"type":"command","command":"/join #test"} */
+	/* Look for command in JSON: {"type":"command","server":"ircal","command":"/join #test"} */
 	if (strstr(data, "\"type\":\"command\"") && strstr(data, "\"command\":")) {
 		char *command_start = strstr(data, "\"command\":\"");
+		char *server_start = strstr(data, "\"server\":\"");
+		char *server_tag = NULL;
+
+		/* Parse server tag */
+		if (server_start) {
+			char *server_end;
+			server_start += 10; /* Skip "server":" */
+			server_end = strchr(server_start, '"');
+			if (server_end) {
+				server_tag = g_strndup(server_start, server_end - server_start);
+			}
+		}
+
+		/* Parse command */
 		if (command_start) {
 			char *command_end;
 			command_start += 11; /* Skip "command":" */
 			command_end = strchr(command_start, '"');
 			if (command_end) {
 				char *command = g_strndup(command_start, command_end - command_start);
-				fe_web_client_handle_command(client, command);
+				fe_web_client_handle_command(client, command, server_tag);
 				g_free(command);
 			}
 		}
+
+		g_free(server_tag);
 	}
 }
 

@@ -58,10 +58,23 @@ W przypadku zmian wymagających modyfikacji plików config lub theme, edytujemy:
 ### 2. Modyfikacja Wyświetlania WHOIS
 Wyświetlanie outputu komendy whois w aktualnie aktywnym oknie zamiast w oknie status czy sieci
 
-## Aktualny Projekt: Wyrównanie Nicków w Oknie Czatu
+## ✅ Zakończony Projekt: Wyrównanie Nicków w Oknie Czatu
+
+### Status: ZAIMPLEMENTOWANE I DZIAŁA ✅
+Stała szerokość pola z nickiem osoby piszącej na kanale z wyrównaniem do prawej została pomyślnie zaimplementowana. Efekt jednej kolumny dla wszystkich wiadomości działa bez konieczności używania zewnętrznych skryptów jak nm2.
+
+## 🚀 Aktualny Projekt: Web Frontend dla irssi
 
 ### Cel Implementacji
-Stała szerokość pola z nickiem osoby piszącej na kanale z wyrównaniem do prawej, aby uzyskać efekt jednej kolumny dla wszystkich wiadomości bez konieczności używania zewnętrznych skryptów jak nm2.
+Stworzenie modułu web frontend dla irssi, który umożliwi dostęp do irssi przez przeglądarkę internetową. Moduł będzie oferował interfejs webowy do zarządzania połączeniami IRC, kanałami i wiadomościami.
+
+### Aktualny Stan (2025-01-25)
+- ✅ Podstawowa struktura modułu `fe_web` utworzona
+- ✅ Poprawne includes z `irssip/src/...` we wszystkich plikach
+- ✅ Funkcje init/deinit/abicheck zaimplementowane
+- ✅ Moduł kompiluje się bez błędów
+- 🔄 W trakcie: Testowanie ładowania modułu w irssi
+- 📋 Następne: Implementacja WebSocket serwera i interfejsu web
 
 ### Oczekiwany Efekt Wizualny
 ```
@@ -82,10 +95,13 @@ Alternatywny przykład z nawiasami kątowymi i skróceniem długiego nicka dodat
 ```
 
 ### Wymagania Techniczne
-- Implementacja **musi** wspierać aktualne formatowanie linii w theme
-- Zachowanie kompatybilności z istniejącymi motywami
-- Możliwość konfiguracji szerokości pola wyświetlania nicka z formatowamiem.
-- Obsługa długich nicków z obcinaniem i wskaźnikiem
+- Implementacja WebSocket serwera dla komunikacji z przeglądarką
+- Interfejs webowy do zarządzania połączeniami IRC
+- Obsługa kanałów, query i wiadomości przez przeglądarkę
+- Zachowanie kompatybilności z istniejącymi funkcjami irssi
+
+### Rozwiązanie Finalne Wyrównania Nicków (ZREALIZOWANE)
+Implementacja została zakończona sukcesem przy użyciu rozszerzenia systemu wyrównywania irssi z flagą `ALIGN_COMBINE_MODE`. Projekt działa i jest gotowy do użycia.
 
 ## Dotychczasowe Próby Implementacji
 

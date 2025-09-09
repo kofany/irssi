@@ -1,5 +1,5 @@
-#ifndef __FE_WEB_MODULE_H
-#define __FE_WEB_MODULE_H
+#ifndef FE_WEB_MODULE_H
+#define FE_WEB_MODULE_H
 
 #include <irssip/src/common.h>
 

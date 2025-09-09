@@ -64,6 +64,15 @@ servers = (
     address = "irc.undernet.org";
     chatnet = "Undernet";
     port = "6667";
+  },
+  {
+    address = "irc.al";
+    chatnet = "ircal";
+    port = "6667";
+    use_tls = "no";
+    tls_verify = "yes";
+    own_host = "0.0.0.0";
+    no_proxy = "yes";
   }
 );
 
@@ -136,6 +145,7 @@ chatnets = {
     max_msgs = "1";
     max_whois = "1";
   };
+  ircal = { type = "IRC"; };
 };
 
 channels = (
@@ -328,6 +338,8 @@ settings = {
     colors = "yes";
     actlist_sort = "refnum";
     colors_ansi_24bit = "yes";
+    sidepanel_left_width = "16";
+    sidepanel_left = "yes";
   };
   lookandfeel = {
     sidepanel_left = "yes";
@@ -338,6 +350,7 @@ settings = {
     sidepanel_right_auto_hide = "yes";
   };
   "fe-common/irc" = { print_whois_rpl_in_active_window = "yes"; };
+  "fe-web" = { web_frontend_enabled = "yes"; };
 };
 
 hilights = ( { text = ""; nick = "yes"; word = "yes"; } );

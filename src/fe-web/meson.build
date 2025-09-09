@@ -9,27 +9,19 @@ fe_web_sources = [
   'fe-web-api.c',
 ]
 
-# Check for OpenSSL (required for WebSocket handshake)
-openssl_dep = dependency('openssl', required: true)
-
-# Build fe-web as a shared module
-shared_module('fe_web',
+# Build static library first (following irc module pattern)
+libfe_web_a = static_library('fe_web',
   fe_web_sources,
+  include_directories : rootinc,
+  implicit_include_directories : false,
+  dependencies : dep)
+
+# Build shared module (following working module pattern)
+shared_module('fe_web',
   name_suffix : module_suffix,
   install : true,
   install_dir : moduledir,
-  include_directories : rootinc,
-  implicit_include_directories : false,
-  dependencies : dep + [openssl_dep],
-  link_with : [
-    libcore_a,
-    libfe_common_core_a,
-  ],
-  c_args : [
-    def_helpdir,
-    def_themesdir,
-  ]
-)
+  link_whole : libfe_web_a)
 
 # Install web static files
 install_subdir('static',

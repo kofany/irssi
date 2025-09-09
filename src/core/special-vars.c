@@ -19,14 +19,14 @@
 */
 
 #include "module.h"
-#include <irssip/src/core/expandos.h>
-#include <irssip/src/core/misc.h>
-#include <irssip/src/core/refstrings.h>
-#include <irssip/src/core/servers.h>
-#include <irssip/src/core/settings.h>
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/special-vars.h>
-#include <irssip/src/core/utf8.h>
+#include "expandos.h"
+#include "misc.h"
+#include "refstrings.h"
+#include "servers.h"
+#include "settings.h"
+#include "signals.h"
+#include "special-vars.h"
+#include "utf8.h"
 
 #define isvarchar(c) \
         (i_isalnum(c) || (c) == '_')

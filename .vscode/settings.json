@@ -8,5 +8,9 @@
     "notebook.markup.fontFamily": "FiraCode Nerd Font Mono",
     "notebook.output.fontFamily": "FiraCode Nerd Font Mono",
     "chat.editor.fontFamily": "FiraCode Nerd Font Mono",
-    "terminal.integrated.fontLigatures.enabled": true
+    "terminal.integrated.fontLigatures.enabled": true,
+    "files.associations": {
+        "levels.h": "c",
+        "fe-web": "cpp"
+    }
 }

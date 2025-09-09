@@ -6,10 +6,10 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <src/core/network.h>
-#include <src/core/settings.h>
-#include <src/core/levels.h>
-#include <src/fe-common/core/printtext.h>
+#include <irssip/src/core/network.h>
+#include <irssip/src/core/settings.h>
+#include <irssip/src/core/levels.h>
+#include <irssip/src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -21,7 +21,7 @@ static GIOChannel *web_server_channel = NULL;
 static guint web_server_tag = 0;
 
 /* HTTP response for serving static files */
-static const char *http_response_header = 
+static const char *http_response_header __attribute__((unused)) =
 	"HTTP/1.1 200 OK\r\n"
 	"Content-Type: text/html; charset=utf-8\r\n"
 	"Content-Length: %d\r\n"
@@ -29,7 +29,7 @@ static const char *http_response_header =
 	"\r\n";
 
 /* WebSocket handshake response */
-static const char *websocket_response = 
+static const char *websocket_response __attribute__((unused)) =
 	"HTTP/1.1 101 Switching Protocols\r\n"
 	"Upgrade: websocket\r\n"
 	"Connection: Upgrade\r\n"
