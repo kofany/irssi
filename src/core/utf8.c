@@ -28,8 +28,67 @@
 /* Provide is_utf8(): */
 #include <irssi/src/core/recode.h>
 
+#ifdef HAVE_LIBUTF8PROC
+#include <utf8proc.h>
+
+/* Advance the str pointer one grapheme cluster further when utf8proc is available,
+ * or fall back to single character advancement. Returns display width. */
+static int string_advance_with_grapheme_support(char const **str, int policy)
+{
+	utf8proc_int32_t codepoint, prev_codepoint = 0;
+	utf8proc_int32_t state = 0;
+	const char *start = *str;
+	const char *pos = *str;
+	int cluster_width = 0;
+	utf8proc_ssize_t bytes;
+
+	if (policy != TREAT_STRING_AS_UTF8) {
+		/* Fall back to byte-based processing */
+		*str += 1;
+		return 1;
+	}
+
+	if (*pos == '\0') {
+		return 0;
+	}
+
+	/* Process codepoints until we find a grapheme boundary */
+	while (*pos != '\0') {
+		bytes = utf8proc_iterate((const utf8proc_uint8_t *)pos, -1, &codepoint);
+		if (bytes < 0) {
+			/* Invalid UTF-8, skip one byte */
+			*str = pos + 1;
+			return 1;
+		}
+
+		/* Check if this is a grapheme boundary */
+		if (pos != start && utf8proc_grapheme_break_stateful(prev_codepoint, codepoint, &state)) {
+			/* We found the end of the current cluster */
+			break;
+		}
+
+		/* Add this codepoint's width to the cluster */
+		if (unichar_isprint(codepoint)) {
+			int char_width = i_wcwidth(codepoint);
+			if (char_width > cluster_width) {
+				cluster_width = char_width;
+			}
+		}
+
+		prev_codepoint = codepoint;
+		pos += bytes;
+	}
+
+	*str = pos;
+	return cluster_width > 0 ? cluster_width : 1;
+}
+#endif
+
 int string_advance(char const **str, int policy)
 {
+#ifdef HAVE_LIBUTF8PROC
+	return string_advance_with_grapheme_support(str, policy);
+#else
 	if (policy == TREAT_STRING_AS_UTF8) {
 		gunichar c;
 
@@ -43,6 +102,7 @@ int string_advance(char const **str, int policy)
 
 		return 1;
 	}
+#endif
 }
 
 int string_policy(const char *str)
