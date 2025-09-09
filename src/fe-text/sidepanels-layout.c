@@ -139,16 +139,17 @@ void position_tw(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 	}
 
 	if (show_right) {
+		int padding = get_sp_right_padding();
 		w = ctx->right_w;
 		if (ctx->right_tw) {
-			/* Panel already exists, space already reserved, use current last_column */
-			x = mw->last_column + 1;
+			/* Panel already exists, space already reserved, use current last_column + padding */
+			x = mw->last_column + 1 + padding;
 			term_window_move(ctx->right_tw, x, y, w, h);
 		} else {
-			/* Reserve space for right panel - this shrinks main window */
-			mainwindows_reserve_columns(0, ctx->right_w);
-			/* After reservation, right panel should be at the new last_column + 1 */
-			x = mw->last_column + 1;
+			/* Reserve space for right panel + padding - this shrinks main window */
+			mainwindows_reserve_columns(0, ctx->right_w + padding);
+			/* After reservation, right panel should be at the new last_column + 1 + padding */
+			x = mw->last_column + 1 + padding;
 			ctx->right_tw = term_window_create(x, y, w, h);
 			/* Force statusbar redraw to fix input box positioning */
 			signal_emit("mainwindow resized", 1, mw);
@@ -158,13 +159,14 @@ void position_tw(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		ctx->right_y = y;
 		ctx->right_h = h;
 	} else if (ctx->right_tw) {
+		int padding = get_sp_right_padding();
 		/* Clear the right panel area before destroying */
 		clear_window_full(ctx->right_tw, ctx->right_w, ctx->right_h);
 		term_window_destroy(ctx->right_tw);
 		ctx->right_tw = NULL;
 		ctx->right_h = 0;
-		/* Free reserved space - this expands main window */
-		mainwindows_reserve_columns(0, -ctx->right_w);
+		/* Free reserved space + padding - this expands main window */
+		mainwindows_reserve_columns(0, -(ctx->right_w + padding));
 		/* Force complete recreation of mainwindows to clear artifacts */
 		mainwindows_recreate();
 		/* Force statusbar redraw to fix input box positioning */
