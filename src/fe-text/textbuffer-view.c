@@ -154,8 +154,10 @@ static inline unichar read_unichar(const unsigned char *data, const unsigned cha
 		*next = data + 1;
 		*width = 1;
 	} else {
-		*next = (unsigned char *)g_utf8_next_char(data);
-		*width = unichar_isprint(chr) ? i_wcwidth(chr) : 1;
+		/* Use string_advance for proper grapheme cluster handling */
+		char const *str_ptr = (char const *)data;
+		*width = string_advance(&str_ptr, TREAT_STRING_AS_UTF8);
+		*next = (unsigned char *)str_ptr;
 	}
 	return chr;
 }

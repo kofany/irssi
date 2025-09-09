@@ -53,10 +53,10 @@ static inline unichar read_unichar(const unsigned char *data, const unsigned cha
 		*next = data + 1;
 		*width = 1;
 	} else {
-		*next = (unsigned char *) g_utf8_next_char(data);
-		*width = unichar_isprint(chr) ? i_wcwidth(chr) : 1;
-		if (*width < 0)
-			*width = 1;
+		/* Use string_advance for proper grapheme cluster handling */
+		char const *str_ptr = (char const *)data;
+		*width = string_advance(&str_ptr, TREAT_STRING_AS_UTF8);
+		*next = (unsigned char *)str_ptr;
 	}
 	return chr;
 }
@@ -373,14 +373,12 @@ char *truncate_nick_for_sidepanel(const char *nick, int max_width)
 			p = nick;
 			width = 0;
 			while (*p && width < max_width - 1) {
-				unichar chr = g_utf8_get_char(p);
-				int char_width = unichar_isprint(chr) ? i_wcwidth(chr) : 1;
-				if (char_width < 0)
-					char_width = 1;
+				char const *str_ptr = p;
+				int char_width = string_advance(&str_ptr, TREAT_STRING_AS_UTF8);
 				if (width + char_width > max_width - 1)
 					break;
 				width += char_width;
-				p = g_utf8_next_char(p);
+				p = str_ptr;
 			}
 
 			if (p > nick) {
