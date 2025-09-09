@@ -26,9 +26,6 @@
 #include "gui-mouse.h"
 #include "gui-gestures.h"
 
-/* Custom data level for channel events (join/part/quit/nick) */
-#define DATA_LEVEL_EVENT 10
-
 /* Settings */
 static int sp_left_width;
 static int sp_right_width;

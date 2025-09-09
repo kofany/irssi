@@ -39,15 +39,17 @@ void handle_new_activity(WINDOW_REC *window, int data_level)
 	if (!window || !window_priorities)
 		return;
 
-	/* Map data levels to priority levels */
-	if (data_level >= MSGLEVEL_HILIGHT) {
-		new_priority = 2; /* Highlight */
-	} else if (data_level >= MSGLEVEL_MSGS) {
-		new_priority = 4; /* Nick/query activity */
-	} else if (data_level >= MSGLEVEL_PUBLIC) {
-		new_priority = 3; /* Activity */
-	} else if (data_level == DATA_LEVEL_EVENT) {
+	/* Map data levels to priority levels - restored from v0.0.4 logic */
+	if (data_level == DATA_LEVEL_EVENT) {
 		new_priority = 1; /* Events (join/part/quit/nick) */
+	} else if (data_level == DATA_LEVEL_HILIGHT) {
+		new_priority = 4; /* PRIORITY 4: Nick mentions (magenta) */
+	} else if (data_level == DATA_LEVEL_MSG) {
+		new_priority = 4; /* PRIORITY 4: Query messages (magenta) */
+	} else if (data_level == DATA_LEVEL_TEXT) {
+		new_priority = 3; /* PRIORITY 3: Channel activity (yellow) */
+	} else {
+		new_priority = 0; /* No activity */
 	}
 
 	/* Get or create state for this window */
@@ -266,8 +268,22 @@ void sig_print_text(TEXT_DEST_REC *dest, const char *msg)
 		return;
 	}
 
-	/* Get the data level from the message level */
-	data_level = dest->level;
+	/* Convert MSGLEVEL to DATA_LEVEL - restored from v0.0.4 logic */
+	if (dest->level & MSGLEVEL_HILIGHT) {
+		data_level = DATA_LEVEL_HILIGHT;
+	} else if (dest->level & (MSGLEVEL_MSGS | MSGLEVEL_NOTICES)) {
+		/* Check if this is a query or channel */
+		item = window->active;
+		if (item && IS_QUERY(item)) {
+			data_level = DATA_LEVEL_MSG; /* Query messages */
+		} else {
+			data_level = DATA_LEVEL_TEXT; /* Channel messages */
+		}
+	} else if (dest->level & MSGLEVEL_PUBLIC) {
+		data_level = DATA_LEVEL_TEXT; /* Public channel text */
+	} else {
+		data_level = DATA_LEVEL_TEXT; /* Default to text level */
+	}
 
 	/* Get item information for debugging */
 	item = window->active;

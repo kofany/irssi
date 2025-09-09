@@ -4,6 +4,13 @@
 #include <glib.h>
 #include <irssi/src/common.h>
 
+/* Custom data levels for activity tracking - restored from v0.0.4 */
+#define DATA_LEVEL_NONE 0
+#define DATA_LEVEL_TEXT 1
+#define DATA_LEVEL_MSG 2
+#define DATA_LEVEL_HILIGHT 3
+#define DATA_LEVEL_EVENT 10
+
 /* Main sidepanels API - implemented in sidepanels-core.c */
 void sidepanels_init(void);
 void sidepanels_deinit(void);
