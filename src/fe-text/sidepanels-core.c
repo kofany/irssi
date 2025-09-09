@@ -35,7 +35,6 @@ static int sp_auto_hide_right;
 static int sp_enable_mouse;
 static int sp_debug;
 static int sp_auto_create_separators;
-static int sp_right_padding;
 
 /* Mouse scroll setting - still needed for sidepanel scrolling */
 static int mouse_scroll_chat;
@@ -129,7 +128,6 @@ static void read_settings(void)
 	sp_enable_left = settings_get_bool("sidepanel_left");
 	sp_enable_right = settings_get_bool("sidepanel_right");
 	sp_auto_hide_right = settings_get_bool("sidepanel_right_auto_hide");
-	sp_right_padding = settings_get_int("sidepanel_right_padding");
 	sp_enable_mouse = TRUE; /* always on natively */
 	sp_debug = settings_get_bool("sidepanel_debug");
 	sp_auto_create_separators = settings_get_bool("auto_create_separators");
@@ -188,7 +186,6 @@ void sidepanels_init(void)
 	settings_add_int("lookandfeel", "sidepanel_left_width", 15);
 	settings_add_int("lookandfeel", "sidepanel_right_width", 15);
 	settings_add_bool("lookandfeel", "sidepanel_right_auto_hide", TRUE);
-	settings_add_int("lookandfeel", "sidepanel_right_padding", 1);
 
 	settings_add_bool("lookandfeel", "sidepanel_debug", FALSE);
 	settings_add_bool("lookandfeel", "mouse_scroll_chat", TRUE);
@@ -276,7 +273,6 @@ int get_sp_enable_mouse(void) { return sp_enable_mouse; }
 int get_sp_debug(void) { return sp_debug; }
 int get_mouse_scroll_chat(void) { return mouse_scroll_chat; }
 int get_auto_create_separators(void) { return sp_auto_create_separators; }
-int get_sp_right_padding(void) { return sp_right_padding; }
 
 /* =============================================================================
  * MOUSE HANDLING IMPLEMENTATION
