@@ -27,6 +27,8 @@
 
 /* Provide is_utf8(): */
 #include <irssi/src/core/recode.h>
+#include <irssi/src/core/signals.h>
+#include <irssi/src/core/settings.h>
 
 #ifdef HAVE_LIBUTF8PROC
 #include <utf8proc.h>
@@ -192,4 +194,205 @@ int string_chars_for_width(const char *str, int policy, unsigned int n, unsigned
 		*bytes = c - str;
 	}
 	return char_count;
+}
+
+int unichar_width(unichar chr)
+{
+	int width;
+
+	/* For individual codepoints, fall back to standard wcwidth.
+	 * This is not grapheme-cluster aware, but better than nothing
+	 * for GUI code that works with unichar arrays instead of UTF-8 strings.
+	 *
+	 * Note: For proper emoji support, use string_advance() on UTF-8 strings
+	 * instead of processing individual codepoints.
+	 */
+	if (!unichar_isprint(chr))
+		return 1;
+
+	width = i_wcwidth(chr);
+	return width < 0 ? 1 : width;
+}
+
+int unichar_array_advance_cluster(const unichar *text, int text_len, int *pos)
+{
+#ifdef HAVE_LIBUTF8PROC
+	utf8proc_int32_t state = 0;
+	int cluster_width = 0;
+	utf8proc_int32_t first_codepoint, codepoint;
+	int char_width;
+	int has_variation_selector = 0;
+
+	if (*pos >= text_len) {
+		return 0;
+	}
+
+	/* Process first codepoint */
+	first_codepoint = text[*pos];
+
+	if (unichar_isprint(first_codepoint)) {
+		char_width = i_wcwidth(first_codepoint);
+		if (char_width > cluster_width) {
+			cluster_width = char_width;
+		}
+	}
+
+	(*pos)++;
+
+	/* Process additional codepoints until we find a grapheme boundary */
+	while (*pos < text_len) {
+		codepoint = text[*pos];
+
+		/* Check if this is a grapheme boundary */
+		if (utf8proc_grapheme_break_stateful(text[*pos - 1], codepoint, &state)) {
+			/* We found the end of the current cluster */
+			break;
+		}
+
+		/* Check for variation selector */
+		if (codepoint == 0xFE0F) {
+			has_variation_selector = 1;
+		}
+
+		/* Add this codepoint's width to the cluster (usually 0 for combining chars) */
+		if (unichar_isprint(codepoint)) {
+			char_width = i_wcwidth(codepoint);
+			if (char_width > cluster_width) {
+				cluster_width = char_width;
+			}
+		}
+
+		(*pos)++;
+	}
+
+	/* Special handling for emoji with variation selector */
+	if (has_variation_selector && cluster_width == 1) {
+		/* Base emoji (like ❣ U+2763, ♥ U+2665) + variation selector should have width 2 */
+		cluster_width = 2;
+	}
+
+	return cluster_width > 0 ? cluster_width : 1;
+#else
+	/* Fall back to single character processing when utf8proc unavailable */
+	unichar chr;
+	int width;
+
+	if (*pos >= text_len) {
+		return 0;
+	}
+
+	chr = text[*pos];
+	(*pos)++;
+
+	/* Bounds check after increment */
+	if (*pos > text_len) {
+		*pos = text_len;
+	}
+
+	if (!unichar_isprint(chr))
+		return 1;
+
+	width = i_wcwidth(chr);
+	return width < 0 ? 1 : width;
+#endif
+}
+
+int unichar_array_move_cluster_backward(const unichar *text, int text_len, int *pos)
+{
+#ifdef HAVE_LIBUTF8PROC
+	utf8proc_int32_t state = 0;
+	int cluster_start;
+	int cluster_width = 0;
+	int temp_pos;
+
+	if (*pos <= 0) {
+		return 0;
+	}
+
+	/* Move back one codepoint first */
+	(*pos)--;
+
+	/* Find the beginning of the current grapheme cluster by going backwards */
+	cluster_start = *pos;
+
+	/* Go back to find cluster boundary */
+	while (cluster_start > 0) {
+		/* Check if there's a grapheme boundary between previous char and current */
+		if (utf8proc_grapheme_break_stateful(text[cluster_start - 1], text[cluster_start], &state)) {
+			/* Found boundary, cluster starts here */
+			break;
+		}
+		cluster_start--;
+	}
+
+	/* Calculate width of this cluster */
+	temp_pos = cluster_start;
+	while (temp_pos < text_len && temp_pos < *pos + 1) {
+		unichar codepoint = text[temp_pos];
+		if (unichar_isprint(codepoint)) {
+			int char_width = i_wcwidth(codepoint);
+			if (char_width > cluster_width) {
+				cluster_width = char_width;
+			}
+		}
+		temp_pos++;
+	}
+
+	*pos = cluster_start;
+	return cluster_width > 0 ? cluster_width : 1;
+#else
+	/* Fall back to single character processing when utf8proc unavailable */
+	unichar chr;
+	int width;
+
+	if (*pos <= 0) {
+		return 0;
+	}
+
+	(*pos)--;
+	chr = text[*pos];
+
+	if (!unichar_isprint(chr))
+		return 1;
+
+	width = i_wcwidth(chr);
+	return width < 0 ? 1 : width;
+#endif
+}
+
+int unichar_array_find_cluster_start(const unichar *text, int text_len, int pos)
+{
+#ifdef HAVE_LIBUTF8PROC
+	utf8proc_int32_t state = 0;
+	int cluster_start = pos;
+
+	if (pos <= 0 || pos >= text_len) {
+		return pos;
+	}
+
+	/* Go back to find cluster boundary */
+	while (cluster_start > 0) {
+		/* Check if there's a grapheme boundary between previous char and current */
+		if (utf8proc_grapheme_break_stateful(text[cluster_start - 1], text[cluster_start], &state)) {
+			/* Found boundary, cluster starts here */
+			break;
+		}
+		cluster_start--;
+	}
+
+	return cluster_start;
+#else
+	/* Fall back to single character processing when utf8proc unavailable */
+	return pos;
+#endif
+}
+
+void utf8_init(void)
+{
+	/* no-op */
+}
+
+void utf8_deinit(void)
+{
+	/* Nothing to clean up currently */
 }

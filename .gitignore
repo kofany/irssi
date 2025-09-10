@@ -98,7 +98,11 @@ build
 build/
 .specstory/
 .cursor/
+.cursorindexingignore
 .cursorignore
+.kombai/
+.claude/
+inst/
 config_test_odzyskany
 nexus_base_file_odzyskany.theme
 nexus_steel_test_odzyskany.theme
