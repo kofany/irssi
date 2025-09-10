@@ -59,20 +59,29 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 - **Full Feature Support**: Perl scripting, OTR messaging, UTF8proc, SSL/TLS out of the box
 - **Cross-Platform**: Native support for macOS and Linux distributions
 
-## 🎉 What's New in v0.0.6 - Emoji & Unicode Milestone
+## 🎉 What's New in v0.0.7 - Perfect UTF-8 Display
+
+### 🎨 Critical Chat Window Fixes
+- **Emoji Overflow Eliminated**: Completely resolved text overflow from chat window into sidepanels
+- **Unified Display Logic**: Chat window and input field now use identical emoji width calculation
+- **Variation Selector Mastery**: Perfect handling of emoji with variation selectors (❣️, ♥️, etc.)
+- **Modern Terminal Excellence**: Flawless rendering in Ghostty without requiring legacy mode
+- **Display Precision**: Accurate text measurement prevents any layout corruption
+
+### 🔧 Enhanced Implementation
+- **Consistent Grapheme Logic**: Both input and display systems use same advanced UTF-8 processing
+- **Special Emoji Handling**: Proper width calculation for base emoji + variation selector combinations
+- **Zero Breaking Changes**: All existing functionality preserved and enhanced
+- **Cross-Platform Stability**: Reliable operation across all supported terminals and systems
+
+## 📚 Previous Release - v0.0.6 - Emoji & Unicode Milestone
 
 ### 🎨 Advanced Emoji Support
 - **Grapheme Cluster Detection**: Full Unicode Standard Annex #29 compliance for proper emoji rendering
 - **Multi-Codepoint Emoji**: Handles complex emoji like 👨‍👩‍👧‍👦 (family), 🧑🏻‍💻 (person with skin tone), ♥️ (heart with variation selector)
-- **Sidepanel Overflow Fix**: Emoji no longer spill from main chat window into sidepanels in modern terminals like Ghostty
+- **Initial Sidepanel Fixes**: Major improvements to emoji handling in modern terminals
 - **Transparent Implementation**: Automatic detection with fallback to legacy mode when utf8proc unavailable
 - **Zero Configuration**: Always-on improvement with no settings required
-
-### 🔧 Technical Implementation
-- **utf8proc Integration**: Leverages industry-standard Unicode library for accurate grapheme boundary detection
-- **Backward Compatibility**: Maintains full compatibility with older systems and existing configurations
-- **Performance Optimized**: Efficient cluster detection with minimal overhead
-- **Cross-Platform**: Works seamlessly on macOS and Linux with proper Unicode terminal support
 
 ## 📚 Previous Release - v0.0.5 Milestone
 
@@ -370,18 +379,24 @@ Evolved Irssi maintains the legendary performance of classic irssi:
 
 ## 📜 Version History
 
-### v1.5-erssi-v0.0.6 (Current)
+### v1.5-erssi-v0.0.7 (Current)
+- **🎯 CRITICAL FIX**: Completely eliminated emoji overflow from chat window into sidepanels
+- **🔧 Unified UTF-8 Logic**: Chat window and input field now use identical grapheme cluster processing
+- **✨ Perfect Emoji Handling**: Flawless rendering of variation selector emoji (❣️, ♥️) in all contexts
+- **🌟 Modern Terminal Excellence**: Native support for Ghostty without legacy mode requirement
+- **🔧 Technical Implementation**:
+  - Enhanced `string_advance_with_grapheme_support()` with special emoji variation selector logic
+  - Consistent width calculation between input and display systems
+  - Fixed base emoji + variation selector combinations to properly display as width 2
+  - Zero breaking changes - all existing functionality preserved and enhanced
+
+### v1.5-erssi-v0.0.6 (Previous)
 - **🎨 Advanced Emoji Support**: Full Unicode Standard Annex #29 grapheme cluster detection for proper emoji rendering
-- **🔧 Sidepanel Overflow Fix**: Emoji no longer spill from main chat window into sidepanels in modern terminals
+- **🔧 Initial Sidepanel Fixes**: Major improvements to emoji handling in modern terminals
 - **⚡ Performance Optimized**: Efficient utf8proc integration with automatic fallback to legacy mode
 - **🌍 Cross-Platform Unicode**: Enhanced support for complex emoji across macOS and Linux terminals
-- **🔧 Technical Implementation**:
-  - Transparent grapheme cluster detection using utf8proc library
-  - Updated `string_advance()`, `read_unichar()` functions for proper cluster handling
-  - Maintains full backward compatibility with older systems
-  - Zero configuration required - automatic detection and processing
 
-### v1.5-erssi-v0.0.5 (Previous)
+### v1.5-erssi-v0.0.5
 - **🏗️ Complete Modular Architecture**: Separated components with dedicated modules for core, layout, rendering, activity tracking
 - **🌐 Enhanced Multi-Server Support**: Intelligent server sorting with alphabetical grouping and proper positioning
 - **💪 Kicked Channel Resilience**: Label preservation and priority highlighting for kicked channels

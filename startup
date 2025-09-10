@@ -23,7 +23,7 @@
 /ECHO \033[37m    ◆ Enhanced Nick Alignment: \033[92mOperational\033[37m - Perfect readability\033[0m
 /ECHO \033[37m    ◆ Hash-Based Nick Coloring: \033[92mActive\033[37m - Consistent colors per channel\033[0m
 /ECHO \033[37m    ◆ Mouse Gesture Navigation: \033[92mActive\033[37m - Swipe gestures in chat area\033[0m
-/ECHO \033[37m    ◆ Advanced Emoji Support: \033[92mActive\033[37m - Proper Unicode grapheme clusters\033[0m
+/ECHO \033[37m    ◆ Perfect Emoji Display: \033[92mActive\033[37m - Fixed chat window overflow, unified UTF-8\033[0m
 /ECHO \033[37m    ◆ Configuration: \033[93m~/.erssi/\033[37m - Coexists with standard irssi\033[0m
 /ECHO \033[90m────────────────────────────────────────────────────────────────────────────────\033[0m
 /ECHO
@@ -47,7 +47,7 @@
 /ECHO \033[37m    ◆ \033[92m✅ Configuration Compatible\033[37m - Import existing irssi config\033[0m
 /ECHO \033[30m═══════════════════════════════════════════════════════════════════════════════════════════\033[0m
 /ECHO
-/ECHO \033[92m🚀 EVOLVED IRSSI v1.5-erssi-v0.0.6 - WHERE CLASSIC MEETS MODERN 🚀\033[0m
+/ECHO \033[92m🚀 EVOLVED IRSSI v1.5-erssi-v0.0.7 - WHERE CLASSIC MEETS MODERN 🚀\033[0m
 /ECHO \033[37m   Visit: https://github.com/kofany/irssi/tree/evolved-irssi\033[0m
 /ECHO \033[37m   iTerm2 Color Scheme: material-erssi.itermcolors (in repo root)\033[0m
 /ECHO

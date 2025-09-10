@@ -60,6 +60,18 @@
 - **IRC Workflow**: Idealna dla szybkiego przeskakiwania na koniec listy okien gdzie często jest aktywność
 - **Consistent Behavior**: Zachowuje się przewidywalnie - zawsze idzie do okna o najwyższym numerze
 
+## 🎯 Perfect UTF-8 & Emoji Support (v0.0.7)
+
+**Opis**: Kompleksowa implementacja obsługi UTF-8 z idealnym wyświetlaniem emoji w nowoczesnych terminalach.
+
+- **Unified Grapheme Logic**: Identyczna logika grupowania grafemów w input field i chat window
+- **Variation Selector Mastery**: Perfekcyjna obsługa emoji z selektorami wariantów (❣️, ♥️)
+- **Chat Window Fix**: Całkowite wyeliminowanie overflow emoji z okna czatu do sidepaneli
+- **Modern Terminal Support**: Natywne wsparcie dla Ghostty bez trybu legacy
+- **Enhanced string_advance**: Rozszerzona funkcja `string_advance_with_grapheme_support()` z logiką specjalną dla emoji
+- **Consistent Width Calculation**: Ujednolicone obliczanie szerokości między systemami input i display
+- **Zero Breaking Changes**: Wszystkie istniejące funkcjonalności zachowane i ulepszone
+
 ## ⚡ Performance Optimizations
 
 **Opis**: Optymalizacje wydajności skupione na redukcji niepotrzebnych operacji odświeżania.
