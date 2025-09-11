@@ -1,23 +1,23 @@
-# irssip - Informacje Krytyczne dla Rozwoju I Implementacji
+# irssi - Informacje Krytyczne dla Rozwoju I Implementacji
 
 ## Zasady Separacji od Systemowego irssi
 Nie używamy nazwy binarnej `irssi` ani standardowych folderów, w których instaluje się oryginalne irssi. Nie używamy również `~/.irssi` jako katalogu domowego. Wszystko po to, by rozwój nie kolidował z systemowym irssi i jego bibliotekami (używamy nowszej wersji niż pakiet zainstalowany).
 
 ### Konwencje Nazewnictwa
-Plik binarny oraz podstawowa nazwa dla używanych katalogów to **irssip** (od irssi panels):
-- Plik binarny: `irssip`
-- Katalog instalacji: `/opt/irssip`
-- Katalog domowy: `~/.irssip`
+Plik binarny oraz podstawowa nazwa dla używanych katalogów to **irssi** (od irssi panels):
+- Plik binarny: `irssi`
+- Katalog instalacji: `/opt/irssi`
+- Katalog domowy: `~/.irssi`
 
 ### Konfiguracja Środowiska Deweloperskiego
 Dla przyspieszenia i ułatwienia testów na żywo, pliki config i default.theme w rzeczywistości znajdują się w naszym workspace:
 
 ```bash
-ls -la /Users/kfn/.irssip/config
-lrwxr-xr-x 1 kfn staff 27 Aug 23 22:13 /Users/kfn/.irssip/config -> /Users/kfn/irssi/config_dev
+ls -la /Users/kfn/.irssi/config
+lrwxr-xr-x 1 kfn staff 27 Aug 23 22:13 /Users/kfn/.irssi/config -> /Users/kfn/irssi/config_dev
 
-ls -la /Users/kfn/.irssip/default.theme
-lrwxr-xr-x 1 kfn staff 37 Aug 23 02:59 /Users/kfn/.irssip/default.theme -> /Users/kfn/irssi/themes/default.theme
+ls -la /Users/kfn/.irssi/default.theme
+lrwxr-xr-x 1 kfn staff 37 Aug 23 02:59 /Users/kfn/.irssi/default.theme -> /Users/kfn/irssi/themes/default.theme
 ```
 
 ## Filozofia Rozwoju
@@ -33,8 +33,8 @@ lrwxr-xr-x 1 kfn staff 37 Aug 23 02:59 /Users/kfn/.irssip/default.theme -> /User
 2. **Testowanie**: Tylko ja testuję wprowadzone zmiany. Ty możesz testować Build lokalnie bez instalacji
 3. **Budowanie**: Proces budowania do testów:
 ```bash
-sudo rm -rf /opt/irssip && rm -rf $(pwd)/Build && \
-meson setup $(pwd)/Build -Dprefix=/opt/irssip -Dwith-perl=yes -Dwith-proxy=yes && \
+sudo rm -rf /opt/irssi && rm -rf $(pwd)/Build && \
+meson setup $(pwd)/Build -Dprefix=/opt/irssi -Dwith-perl=yes -Dwith-proxy=yes && \
 ninja -C Build && sudo ninja -C Build install
 ```
 
@@ -98,7 +98,7 @@ Stworzenie modułu web frontend dla irssi, który umożliwi dostęp do irssi prz
 
 ### Aktualny Stan (2025-01-25)
 - ✅ Podstawowa struktura modułu `fe_web` utworzona
-- ✅ Poprawne includes z `irssip/src/...` we wszystkich plikach
+- ✅ Poprawne includes z `irssi/src/...` we wszystkich plikach
 - ✅ Funkcje init/deinit/abicheck zaimplementowane
 - ✅ Moduł kompiluje się bez błędów
 - 🔄 W trakcie: Testowanie ładowania modułu w irssi

@@ -1,15 +1,15 @@
 /*
  fe-web-client.c : WebSocket client handling for web frontend
 
-    Copyright (C) 2025 irssip project
+    Copyright (C) 2025 irssi project
 */
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/commands.h>
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/levels.h>
-#include <irssip/src/fe-common/core/printtext.h>
+#include <irssi/src/core/commands.h>
+#include <irssi/src/core/signals.h>
+#include <irssi/src/core/levels.h>
+#include <irssi/src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
 #include <unistd.h>

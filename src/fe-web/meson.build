@@ -25,6 +25,6 @@ shared_module('fe_web',
 
 # Install web static files
 install_subdir('static',
-  install_dir : get_option('datadir') / 'irssip' / 'web',
+  install_dir : get_option('datadir') / 'irssi' / 'web',
   strip_directory : true
 )

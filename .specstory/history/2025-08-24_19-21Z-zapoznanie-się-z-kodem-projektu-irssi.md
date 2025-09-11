@@ -121,7 +121,7 @@ Read file: undefined
 
 ## 📋 Analiza Aktualnego Projektu irssi
 
-Na podstawie analizy kodu źródłowego i dokumentacji, przedstawiam kompleksowy obraz projektu **irssip** (irssi panels):
+Na podstawie analizy kodu źródłowego i dokumentacji, przedstawiam kompleksowy obraz projektu **irssi** (irssi panels):
 
 ### 🎯 **Główny Cel Projektu**
 Projekt rozwija **moduł web frontend dla irssi** - nowoczesny interfejs webowy do zarządzania połączeniami IRC przez przeglądarkę internetową.
@@ -176,14 +176,14 @@ Bogaty interfejs React z komponentami:
 
 #### **Symlinki dla dewelopmentu:**
 ```bash
-~/.irssip/config -> /Users/kfn/irssi/config_dev
-~/.irssip/default.theme -> /Users/kfn/irssi/themes/default.theme
+~/.irssi/config -> /Users/kfn/irssi/config_dev
+~/.irssi/default.theme -> /Users/kfn/irssi/themes/default.theme
 ```
 
 #### **Proces budowania:**
 ```bash
-sudo rm -rf /opt/irssip && rm -rf $(pwd)/Build
-meson setup $(pwd)/Build -Dprefix=/opt/irssip -Dwith-perl=yes -Dwith-proxy=yes
+sudo rm -rf /opt/irssi && rm -rf $(pwd)/Build
+meson setup $(pwd)/Build -Dprefix=/opt/irssi -Dwith-perl=yes -Dwith-proxy=yes
 ninja -C Build && sudo ninja -C Build install
 ```
 
@@ -249,7 +249,7 @@ Next.js Frontend (port 3000) ←→ WebSocket ←→ fe-web Backend (port 9001) 
 
 ### 💡 **Kluczowe Osiągnięcia**
 
-- **Kompletna separacja** od systemowego irssi (irssip)
+- **Kompletna separacja** od systemowego irssi (irssi)
 - **Modułowa architektura** - łatwe rozszerzanie
 - **Nowoczesny stack** - Next.js + React + TypeScript
 - **Zachowanie estetyki** - terminalowy wygląd w przeglądarce
@@ -347,7 +347,7 @@ Read file: undefined
 
 ---
 
-Na podstawie analizy kodu źródłowego, mogę teraz dokładnie ocenić stan implementacji WebSocket w projekcie irssip. Oto szczegółowa analiza:
+Na podstawie analizy kodu źródłowego, mogę teraz dokładnie ocenić stan implementacji WebSocket w projekcie irssi. Oto szczegółowa analiza:
 
 ## 📊 **Stan Implementacji WebSocket - Ocena Szczegółowa**
 

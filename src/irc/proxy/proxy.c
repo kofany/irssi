@@ -19,13 +19,13 @@
 */
 
 #include "module.h"
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/settings.h>
-#include <irssip/src/core/levels.h>
+#include <irssi/src/core/signals.h>
+#include <irssi/src/core/settings.h>
+#include <irssi/src/core/levels.h>
 
-#include <irssip/src/fe-common/core/printtext.h>
+#include <irssi/src/fe-common/core/printtext.h>
 
-/* SYNTAX: IRSSIPROXY STATUS */
+/* SYNTAX: irssiproxy STATUS */
 static void cmd_irssiproxy_status(const char *data, IRC_SERVER_REC *server)
 {
 	GSList *tmp;
@@ -52,7 +52,7 @@ static void cmd_irssiproxy_status(const char *data, IRC_SERVER_REC *server)
 	}
 }
 
-/* SYNTAX: IRSSIPROXY */
+/* SYNTAX: irssiproxy */
 static void cmd_irssiproxy(const char *data, IRC_SERVER_REC *server, void *item)
 {
 	if (*data == '\0') {

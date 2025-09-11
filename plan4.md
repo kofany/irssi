@@ -13,7 +13,7 @@
 **Rzeczywiste mapowanie argumentów:**
 ```
 $0 = mode ("@", "+", "")
-$1 = nick ("kofany", "irssip_user") 
+$1 = nick ("kofany", "irssi_user") 
 $2 = address/msg (zależnie od kontekstu)
 $3 = msg/channel (zależnie od kontekstu)
 ```
@@ -167,13 +167,13 @@ pubmsgnick = "{msgnick $0 $1-}";
 
 **Wiadomości:**
 - `@kofany` (7 znaków) → padding 5 → `"     @kofany"`
-- `irssip_user` (10 znaków) → padding 2 → `"  irssip_user"`
+- `irssi_user` (10 znaków) → padding 2 → `"  irssi_user"`
 - `@verylongnickname` (17 znaków) → przytnij → `"@verylongn+"`
 
 **Wynik:**
 ```
 22:11:35> <     @kofany> test wiadomość
-22:12:24> <  irssip_user> odpowiedź
+22:12:24> <  irssi_user> odpowiedź
 22:12:38> < @verylongn+> długi nick
 ```
 

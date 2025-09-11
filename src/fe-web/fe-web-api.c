@@ -1,15 +1,15 @@
 /*
  fe-web-api.c : JSON API for web frontend
 
-    Copyright (C) 2025 irssip project
+    Copyright (C) 2025 irssi project
 */
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/servers.h>
-#include <irssip/src/core/channels.h>
-#include <irssip/src/core/queries.h>
-#include <irssip/src/core/nicklist.h>
+#include <irssi/src/core/servers.h>
+#include <irssi/src/core/channels.h>
+#include <irssi/src/core/queries.h>
+#include <irssi/src/core/nicklist.h>
 
 char *fe_web_api_serialize_server(SERVER_REC *server)
 {

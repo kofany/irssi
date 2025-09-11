@@ -125,7 +125,7 @@ if (settings_get_bool("debug_nick_column")) {
 ```bash
 git add -A
 git commit -m "[nick_column] FAZA 1-4: Infrastruktura + logika padding - 2025-01-24 15:30"
-git push origin irssip
+git push origin irssi
 ```
 
 ## HARMONOGRAM IMPLEMENTACJI

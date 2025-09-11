@@ -1,7 +1,7 @@
 /*
  fe-web.c : Web frontend for irssi
 
-    Copyright (C) 2025 irssip project
+    Copyright (C) 2025 irssi project
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,12 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/signals.h>
-#include <irssip/src/core/settings.h>
-#include <irssip/src/core/levels.h>
-#include <irssip/src/core/modules.h>
-#include <irssip/src/fe-common/core/printtext.h>
-#include <irssip/src/fe-common/core/themes.h>
+#include <irssi/src/core/signals.h>
+#include <irssi/src/core/settings.h>
+#include <irssi/src/core/levels.h>
+#include <irssi/src/core/modules.h>
+#include <irssi/src/fe-common/core/printtext.h>
+#include <irssi/src/fe-common/core/themes.h>
 
 /* Global variables */
 #define MODULE_NAME "fe-web"
@@ -66,7 +66,7 @@ void fe_web_init(void)
 	settings_add_str("lookandfeel", "web_frontend_bind", "127.0.0.1");
 	settings_add_int("lookandfeel", "web_frontend_max_clients", FE_WEB_MAX_CLIENTS);
 	settings_add_bool("lookandfeel", "web_frontend_auth_required", TRUE);
-	settings_add_str("lookandfeel", "web_frontend_static_path", "/opt/irssip/share/irssip/web");
+	settings_add_str("lookandfeel", "web_frontend_static_path", "/opt/irssi/share/irssi/web");
 	
 	/* Initialize components */
 	fe_web_server_init();

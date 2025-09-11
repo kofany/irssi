@@ -1,12 +1,12 @@
 /*
  fe-web-utils.c : Utility functions for web frontend
 
-    Copyright (C) 2025 irssip project
+    Copyright (C) 2025 irssi project
 */
 
 #include "module.h"
 #include "fe-web.h"
-#include <irssip/src/core/levels.h>
+#include <irssi/src/core/levels.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
 #include <glib.h>

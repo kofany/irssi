@@ -1,9 +1,9 @@
 #ifndef __FE_WEB_H
 #define __FE_WEB_H
 
-#include <irssip/src/common.h>
-#include <irssip/src/core/core.h>
-#include <irssip/src/core/servers.h>
+#include <irssi/src/common.h>
+#include <irssi/src/core/core.h>
+#include <irssi/src/core/servers.h>
 #include <time.h>
 #include <glib.h>
 

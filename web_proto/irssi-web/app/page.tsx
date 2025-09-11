@@ -223,7 +223,7 @@ export default function IRCClient() {
     <div className="h-screen bg-black text-gray-100 font-mono text-xs flex flex-col overflow-hidden">
       <div className="bg-gray-900 border-b border-gray-700 px-3 py-1 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <span className="text-cyan-400 font-bold text-sm">irssip</span>
+          <span className="text-cyan-400 font-bold text-sm">irssi</span>
           <span className="text-gray-600">|</span>
           <span className={`text-xs ${connected ? "text-green-400" : "text-red-400"}`}>
             {connected ? "● WebSocket Connected" : "● WebSocket Disconnected"}
