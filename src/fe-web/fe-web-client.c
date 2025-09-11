@@ -9,6 +9,8 @@
 #include <irssi/src/core/commands.h>
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/levels.h>
+#include <irssi/src/core/channels.h>
+#include <irssi/src/core/queries.h>
 #include <irssi/src/fe-common/core/printtext.h>
 
 #include <sys/socket.h>
@@ -155,13 +157,13 @@ gboolean fe_web_client_websocket_handshake(WEB_CLIENT_REC *client, const char *r
 	return FALSE;
 }
 
-static void fe_web_client_handle_command(WEB_CLIENT_REC *client, const char *command, const char *server_tag)
+static void fe_web_client_handle_command(WEB_CLIENT_REC *client, const char *command,
+                                        const char *server_tag, const char *target)
 {
-	char **parts;
-	const char *cmd;
 	SERVER_REC *server = NULL;
+	WI_ITEM_REC *item = NULL;
 
-	if (command == NULL || !g_str_has_prefix(command, "/")) {
+	if (command == NULL) {
 		return;
 	}
 
@@ -173,63 +175,45 @@ static void fe_web_client_handle_command(WEB_CLIENT_REC *client, const char *com
 		server = server_find_tag(NULL); /* Get active server */
 	}
 
-	parts = g_strsplit(command + 1, " ", -1); /* Skip leading / */
-	if (parts[0] == NULL) {
-		g_strfreev(parts);
-		return;
+	/* Find window item (channel/query) if target is specified */
+	if (server && target && *target) {
+		/* Try to find channel first */
+		item = (WI_ITEM_REC *) channel_find(server, target);
+		if (!item) {
+			/* Try to find query */
+			item = (WI_ITEM_REC *) query_find(server, target);
+		}
 	}
 
-	cmd = parts[0];
-	
-	/* Handle basic IRC commands */
-	if (g_ascii_strcasecmp(cmd, "connect") == 0) {
-		if (parts[1]) {
-			signal_emit("command connect", 2, parts[1], server);
-		}
-	} else if (g_ascii_strcasecmp(cmd, "join") == 0) {
-		if (parts[1]) {
-			signal_emit("command join", 2, parts[1], server);
-		}
-	} else if (g_ascii_strcasecmp(cmd, "part") == 0) {
-		if (parts[1]) {
-			signal_emit("command part", 2, parts[1], server);
-		}
-	} else if (g_ascii_strcasecmp(cmd, "msg") == 0) {
-		if (parts[1] && parts[2]) {
-			char *message = g_strjoinv(" ", parts + 2);
-			signal_emit("command msg", 2, parts[1], message);
-			g_free(message);
-		}
-	} else if (g_ascii_strcasecmp(cmd, "nick") == 0) {
-		if (parts[1]) {
-			signal_emit("command nick", 2, parts[1], "");
-		}
-	} else if (g_ascii_strcasecmp(cmd, "quit") == 0) {
-		char *reason = parts[1] ? g_strjoinv(" ", parts + 1) : NULL;
-		signal_emit("command quit", 2, reason ? reason : "", "");
-		g_free(reason);
+	/* Handle both commands (starting with /) and regular text */
+	if (g_str_has_prefix(command, "/")) {
+		/* Command - pass to irssi command system */
+		signal_emit("send command", 3, command, server, item);
 	} else {
-		/* Forward unknown commands to irssi */
-		char *full_command = g_strjoinv(" ", parts);
-		signal_emit("send command", 1, full_command);
-		g_free(full_command);
+		/* Regular text - send to target if specified */
+		if (item) {
+			signal_emit("send text", 3, command, server, item);
+		} else {
+			/* No target - treat as command anyway (might be a command without /) */
+			signal_emit("send command", 3, command, server, item);
+		}
 	}
-	
-	g_strfreev(parts);
 }
 
 void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *data)
 {
 	/* Simple JSON parsing for client messages */
 	/* In production, you'd use a proper JSON library */
-	
+
 	if (client == NULL || data == NULL) return;
-	
-	/* Look for command in JSON: {"type":"command","server":"ircal","command":"/join #test"} */
+
+	/* Look for command in JSON: {"type":"command","server":"ircal","channel":"#test","command":"/join #test"} */
 	if (strstr(data, "\"type\":\"command\"") && strstr(data, "\"command\":")) {
 		char *command_start = strstr(data, "\"command\":\"");
 		char *server_start = strstr(data, "\"server\":\"");
+		char *channel_start = strstr(data, "\"channel\":\"");
 		char *server_tag = NULL;
+		char *target = NULL;
 
 		/* Parse server tag */
 		if (server_start) {
@@ -241,6 +225,16 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *data)
 			}
 		}
 
+		/* Parse target (channel/nick) */
+		if (channel_start) {
+			char *channel_end;
+			channel_start += 11; /* Skip "channel":" */
+			channel_end = strchr(channel_start, '"');
+			if (channel_end) {
+				target = g_strndup(channel_start, channel_end - channel_start);
+			}
+		}
+
 		/* Parse command */
 		if (command_start) {
 			char *command_end;
@@ -248,12 +242,13 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *data)
 			command_end = strchr(command_start, '"');
 			if (command_end) {
 				char *command = g_strndup(command_start, command_end - command_start);
-				fe_web_client_handle_command(client, command, server_tag);
+				fe_web_client_handle_command(client, command, server_tag, target);
 				g_free(command);
 			}
 		}
 
 		g_free(server_tag);
+		g_free(target);
 	}
 }
 
