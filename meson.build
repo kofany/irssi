@@ -1,5 +1,5 @@
 project('irssi', 'c',
-  version : '1.5-head',
+  version : '1.5-erssi-v0.0.6',
   meson_version : '>=0.53',
   default_options : ['warning_level=1'])
 
@@ -74,6 +74,7 @@ def_sysconfdir = '-D' + 'SYSCONFDIR' + '="' + (get_option('prefix') / get_option
 def_helpdir    = '-D' + 'HELPDIR'    + '="' + (get_option('prefix') / helpdir) + '"'
 def_themesdir  = '-D' + 'THEMESDIR'  + '="' + (get_option('prefix') / themedir) + '"'
 def_scriptdir  = '-D' + 'SCRIPTDIR'  + '="' + (get_option('prefix') / scriptdir) + '"'
+def_datadir    = '-D' + 'PKGDATADIR'  + '="' + (get_option('prefix') / get_option('datadir') / incdir) + '"'
 
 def_suppress_printf_fallback = '-D' + 'SUPPRESS_PRINTF_FALLBACK'
 
@@ -687,6 +688,9 @@ subdir('docs')
 subdir('scripts')
 subdir('themes')
 # subdir('utils')
+
+# Install startup banner for erssi
+install_data('startup', install_dir : get_option('datadir') / incdir)
 
 ############################
 ############################

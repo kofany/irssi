@@ -2,120 +2,109 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Build System
+## Project Overview
 
-Irssi uses the **Meson** build system with **Ninja** as the backend.
+This is **Evolved Irssi (erssi)** - a modernized IRC client based on the classic irssi with enhanced features while maintaining full compatibility. The project version is `1.5-erssi-v0.0.5` and uses the Meson build system.
 
-### Essential Commands
+## Build Commands
 
+### Development Build
 ```bash
-# Initial setup
-meson Build
-
-# Build the project
+meson setup Build --prefix=/opt/erssi -Dwith-perl=yes -Dwith-otr=yes -Ddisable-utf8proc=no
 ninja -C Build
+```
 
-# Install (requires sudo for system-wide install)
+### Installation (requires sudo for global install)
+```bash
 sudo ninja -C Build install
+```
 
-# Run tests
+### Testing
+```bash
+# Run tests from build directory
 ninja -C Build test
+```
 
-# Clean build
+### Clean Build
+```bash
 rm -rf Build
 ```
 
+## Key Architecture Components
+
+### Core Systems
+- **Sidepanel System** (`src/fe-text/sidepanels*`): Modular architecture with separate left (window list) and right (nicklist) panels
+  - `sidepanels-core.c`: Main coordination and settings management
+  - `sidepanels-render.c`: Rendering logic with optimized redraw functions
+  - `sidepanels-activity.c`: Activity tracking and batch processing
+  - `sidepanels-signals.c`: IRC event signal handling
+  - `sidepanels-layout.c`: Panel layout and positioning
+
+### Enhanced Features
+- **Mouse Gesture System** (`src/fe-text/gui-mouse.c`): SGR protocol parsing with configurable swipe gestures for window navigation
+- **Nick Display Enhancement** (`src/fe-common/core/fe-expandos.c`): Hash-based coloring, alignment, and truncation
+- **Performance Optimizations**: Granular panel redraws instead of full screen refreshes
+
 ### Build Configuration
+- **Primary Build Tool**: Meson + Ninja (not autotools/make)
+- **Key Features Enabled**: Perl scripting, OTR messaging, UTF8proc, SSL/TLS, terminal UI with mouse support
+- **Dependency Management**: Automatic GLib download/build if system version unavailable
 
-Common meson options (pass to `meson Build -Doption=value`):
+### Installation Variants
+- **Standard Mode**: Installs as `irssi`, uses `~/.irssi/` config
+- **Evolved Mode**: Installs as `erssi`, uses `~/.erssi/` config (independent coexistence)
+- **Conversion Script**: `erssi-convert.sh` transforms branding and config paths
 
-- `-Dwith-perl=yes/no` - Enable/disable Perl scripting support (default: auto)
-- `-Dwith-proxy=yes` - Build irssi-proxy module
-- `-Dwith-bot=yes` - Build irssi-bot
-- `-Dwithout-textui=yes` - Build without text frontend
-- `-Dwith-otr=yes/no` - Enable OTR encryption support
-- `-Dstatic-dependency=yes` - Request static dependencies
+## Common Development Tasks
 
-## Architecture Overview
+### Adding New Sidepanel Features
+- Implement in appropriate `sidepanels-*.c` file
+- Add settings to `sidepanels-core.c` settings system
+- Update header declarations in corresponding `.h` files
+- Use targeted redraw functions (`redraw_left_panels_only`, `redraw_right_panels_only`) instead of global redraws
 
-Irssi is a modular IRC client with a layered architecture:
+### Mouse Event Handling
+- Mouse events flow through `gui-mouse.c` SGR parser
+- Gesture system uses drag detection with configurable sensitivity/timeout
+- Events forwarded to sidepanel system via callback chain
 
-### Core Layers
+### Performance Considerations
+- **Batch Operations**: Mass join/part events use hybrid batching (timer + event marker)
+- **Debug Logging**: File-based debug output to `/tmp/irssi_sidepanels.log` when enabled
+- **Memory Management**: C89/C90 compliant code with careful pointer handling
 
-1. **Core (`src/core/`)** - Base functionality (servers, channels, networking, protocols)
-2. **Chat Protocols (`src/irc/core/`)** - IRC-specific protocol handling
-3. **Frontend Common (`src/fe-common/`)** - Shared frontend logic
-4. **Frontend Implementations** - Multiple frontends:
-   - **Text UI (`src/fe-text/`)** - Traditional terminal interface
-   - **Web UI (`src/fe-web/`)** - WebSocket-based web interface (custom development)
-   - **None (`src/fe-none/`)** - Headless mode
+## Configuration and Settings
 
-### Key Components
+### Key Settings Locations
+- **Build Options**: `meson_options.txt` - configure features like Perl, OTR, UTF8proc
+- **Default Config**: `irssi.conf` - base configuration template
+- **Themes**: `themes/` directory with multiple theme options
+- **Startup Banner**: `startup` file for erssi branding
 
-- **Modules System** - Dynamic loading via `src/core/modules.c`
-- **Signal System** - Event-driven architecture in `src/core/signals.c`
-- **Settings** - Configuration management in `src/core/settings.c`
-- **Perl Integration** - Extensive scripting support in `src/perl/`
-- **Plugin Architecture** - Loadable modules for DCC, flood control, notifications, etc.
-
-### Web Frontend (fe-web)
-
-Current development focus on a modern web-based frontend:
-
-- **WebSocket Server** (`fe-web-server.c`) - Real-time communication
-- **JSON API** (`fe-web-api.c`) - Serialization of Irssi objects
-- **Signal Bridge** (`fe-web-signals.c`) - Maps Irssi events to web messages
-- **Client Management** (`fe-web-client.c`) - WebSocket client handling
-- **Frontend Prototype** (`web_proto/irssi-web/`) - Next.js React application
-
-## Development Workflow
-
-1. **Code Changes** - Modify source in `src/`
-2. **Build** - `ninja -C Build`
-3. **Test** - `ninja -C Build test` (limited test coverage currently)
-4. **Install** - For system testing: `sudo ninja -C Build install`
-
-### Module Development
-
-- New modules go in appropriate subdirectories under `src/`
-- Each module needs `meson.build` file
-- Use existing modules as templates (e.g., `src/irc/dcc/`)
-- Register with module system via `module.h`
-
-## Project Structure
-
-```
-src/
-├── core/           # Core Irssi functionality
-├── fe-common/      # Shared frontend code
-│   ├── core/       # Common UI components
-│   └── irc/        # IRC-specific UI
-├── fe-text/        # Terminal interface
-├── fe-web/         # Web interface (active development)
-├── irc/            # IRC protocol implementation
-│   ├── core/       # Core IRC handling  
-│   ├── dcc/        # Direct Client-to-Client
-│   ├── flood/      # Flood protection
-│   └── notifylist/ # Friend notifications
-├── perl/           # Perl scripting engine
-└── lib-config/     # Configuration parser
+### Debug Settings
+```bash
+/set debug_sidepanel_redraws on  # Enable debug logging
+/set mouse_gestures on           # Enable mouse gesture system
+/set gesture_sensitivity 10      # Mouse swipe sensitivity (pixels)
 ```
 
-## Dependencies
+## Important Files for Development
+- `src/fe-text/sidepanels-core.c` - Main sidepanel coordination
+- `src/fe-text/gui-mouse.c` - Mouse event handling and gestures  
+- `src/fe-common/core/fe-expandos.c` - Nick display formatting
+- `meson.build` - Primary build configuration
+- `install-irssi.sh` - Main installation script with cross-platform support
+- `erssi-convert.sh` - Transforms irssi into erssi variant
 
-- **GLib 2.32+** - Core data structures and utilities
-- **OpenSSL** - TLS/SSL support
-- **Perl 5.8+** - For scripting support (optional)
-- **ncurses/terminfo** - For text frontend
-- **Meson 0.53+ & Ninja 1.8+** - Build system
+## Testing and Debugging
 
-## Special Notes
+### Debug Output
+- Sidepanel debug: `/tmp/irssi_sidepanels.log`
+- Build output: Check `Build/` directory for compilation artifacts
+- Installation verification: Use `check-installation.sh` script
 
-- **Cross-platform** - Supports Linux, macOS, FreeBSD, etc.
-- **Modular Design** - Components can be built/excluded independently
-- **Signal-driven** - Heavy use of signal/callback patterns
-- **Memory Management** - Manual memory management throughout
-- **Thread Safety** - Generally single-threaded design
-- **Plugin API** - Rich API for both C modules and Perl scripts
-
-The `fe-web` branch contains active development of a modern web interface to complement the traditional terminal UI.
+### Common Issues
+- **Build Failures**: Ensure all dependencies installed via install script
+- **Mouse Issues**: Verify terminal supports SGR mouse protocol (1002h mode)
+- **Panel Glitches**: Check debug output for batch processing timing
+- TEST AND BUILD CAN BE DONE ONLY BY USER!!

@@ -754,7 +754,7 @@ void fe_messages_init(void)
 	settings_add_bool("lookandfeel", "emphasis_italics", FALSE);
 	settings_add_bool("lookandfeel", "show_nickmode", TRUE);
 	settings_add_bool("lookandfeel", "show_nickmode_empty", TRUE);
-	settings_add_bool("lookandfeel", "print_active_channel", FALSE);
+	settings_add_bool("lookandfeel", "print_active_channel", TRUE);
 	settings_add_bool("lookandfeel", "show_quit_once", FALSE);
 	settings_add_bool("lookandfeel", "show_own_nickchange_once", FALSE);
 	settings_add_bool("lookandfeel", "away_notify_public", FALSE);
@@ -762,8 +762,13 @@ void fe_messages_init(void)
 	settings_add_bool("lookandfeel", "show_account_notify", FALSE);
 
 	/* Nick column feature settings */
-	settings_add_bool("lookandfeel", "nick_column_enabled", FALSE);
-	settings_add_int("lookandfeel", "nick_column_width", 12);
+	settings_add_bool("lookandfeel", "nick_column_enabled", TRUE);
+	settings_add_int("lookandfeel", "nick_column_width", 10);
+	
+	/* Nick hash coloring settings */
+	settings_add_bool("lookandfeel", "nick_hash_color_enabled", TRUE);
+	settings_add_str("lookandfeel", "nick_hash_colors", "g r b m c y G C");
+	settings_add_str("lookandfeel", "nick_hash_reset_event", "quit part");
 
 	signal_add_last("message public", (SIGNAL_FUNC) sig_message_public);
 	signal_add_last("message private", (SIGNAL_FUNC) sig_message_private);

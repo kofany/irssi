@@ -96,5 +96,15 @@ Build/
 .cache/
 build
 build/
-web_proto/irssi-web/node_modules/
-web_proto/irssi-web/package-lock.json
+.specstory/
+.cursor/
+.cursorindexingignore
+.cursorignore
+.kombai/
+.claude/
+inst/
+config_test_odzyskany
+nexus_base_file_odzyskany.theme
+nexus_steel_test_odzyskany.theme
+utils/erssi-version.sh
+sidepanels_old.c
