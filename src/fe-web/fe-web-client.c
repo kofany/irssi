@@ -123,6 +123,15 @@ gboolean fe_web_client_websocket_handshake(WEB_CLIENT_REC *client, const char *r
 	g_strfreev(lines);
 	
 	if (!is_websocket || !websocket_key) {
+		/* Not a WebSocket request - send simple HTTP response */
+		const char *http_response = 
+			"HTTP/1.1 200 OK\r\n"
+			"Content-Type: text/plain\r\n"
+			"Content-Length: 23\r\n"
+			"Connection: close\r\n"
+			"\r\n"
+			"fe-web server running\r\n";
+		send(client->fd, http_response, strlen(http_response), 0);
 		g_free(websocket_key);
 		return FALSE;
 	}

@@ -29,9 +29,7 @@ static void sig_print_text(WINDOW_REC *window, void *server, const char *target,
 		return; /* No clients connected */
 	}
 
-	/* DEBUG: Print to irssi console */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTCRAP,
-	         "fe-web DEBUG: Sending message to %d clients: %s", client_count, text ? text : "(null)");
+	/* DEBUG: Print to irssi console - REMOVED to prevent recursion */
 
 	/* Check for NULL parameters */
 	if (!text) {
