@@ -1,3 +1,30 @@
+v1.5-erssi-v0.0.7 2025-10-06  Evolved Irssi team <erssi@IRCnet>
+	+ CRITICAL FIX: Eliminated emoji overflow from chat window into sidepanels
+	+ Unified grapheme cluster logic between chat display and input field
+	+ Enhanced string_advance_with_grapheme_support() with variation selector handling
+	+ Perfect emoji rendering with variation selectors (❣️, ♥️) across all contexts
+	+ Consistent width calculation for base emoji + variation selector combinations
+	+ Flawless rendering in modern terminals (Ghostty) without legacy mode
+	+ Zero breaking changes - all existing functionality preserved
+
+v1.5-erssi-v0.0.6 2025-09-08  Evolved Irssi team <erssi@IRCnet>
+	+ Advanced Unicode grapheme cluster detection (UAX #29 compliance)
+	+ Transparent utf8proc integration with automatic fallback
+	+ Fixed emoji overflow in sidepanels for complex multi-codepoint emoji
+	+ Enhanced string_advance() with grapheme cluster support
+	+ Support for complex emoji: 👨‍👩‍👧‍👦, 🧑🏻‍💻, ♥️
+	+ Updated sidepanels-render.c and textbuffer-view.c for proper emoji width
+	+ Zero configuration required - always-on improvement
+
+v1.5-erssi-v0.0.5 2025-09-08  Evolved Irssi team <erssi@IRCnet>
+	+ Complete modular architecture with separated components
+	+ Dedicated modules for core, layout, rendering, activity, signals
+	+ Enhanced multi-server support with alphabetical server grouping
+	+ Kicked channel label preservation with priority highlighting
+	+ Auto-separator window creation with proper message level filtering
+	+ Terminal resize fix - sidepanel content no longer disappears
+	+ Code quality improvements and debug cleanup
+
 v1.5-erssi-v0.0.4 2025-09-07  Evolved Irssi team <erssi@IRCnet>
 	+ Fixed mouse gesture drag detection and motion tracking
 	+ Enhanced SGR mouse protocol with button event tracking (1002h)
