@@ -27,6 +27,7 @@
 #include <irssi/src/lib-config/iconfig.h>
 #include <irssi/src/core/recode.h>
 #include <irssi/src/core/settings.h>
+#include <irssi/src/core/credential.h>
 #include "default-config.h"
 
 #include <signal.h>
@@ -86,7 +87,11 @@ settings_get_str_type(const char *key, SettingType type)
 
 const char *settings_get_str(const char *key)
 {
-	return settings_get_str_type(key, SETTING_TYPE_ANY);
+	const char *value = settings_get_str_type(key, SETTING_TYPE_ANY);
+	if (g_strcmp0(key, "sasl_password") == 0) {
+		g_warning("settings_get_str for sasl_password RETURNING: %s", value ? value : "(null)");
+	}
+	return value;
 }
 
 int settings_get_int(const char *key)
@@ -761,6 +766,9 @@ static CONFIG_REC *parse_configfile(const char *fname)
         else
 		config_parse_data(config, default_config, "internal");
 
+	/* HOOK: After loading - decrypt credentials if needed */
+	credential_config_read_hook(config);
+
 	config_change_file_name(config, fname, 0660);
         irssi_config_save_state(fname);
 	return config;
@@ -836,7 +844,14 @@ int settings_save(const char *fname, int autosave)
 	if (fname == NULL)
 		fname = mainconfig->fname;
 
+	/* HOOK: Before save - encrypt credentials if needed */
+	credential_config_write_hook(mainconfig);
+
 	error = config_write(mainconfig, fname, 0660) != 0;
+
+	/* HOOK: After save - restore original decrypted data in memory */
+	credential_config_read_hook(mainconfig);
+	
 	irssi_config_save_state(fname);
 	config_last_modifycounter = mainconfig->modifycounter;
 	if (error) {

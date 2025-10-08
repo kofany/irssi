@@ -36,6 +36,7 @@
 #include <irssi/src/core/chat-protocols.h>
 #include <irssi/src/core/chatnets.h>
 #include <irssi/src/core/commands.h>
+#include <irssi/src/core/credential.h>
 #include <irssi/src/core/expandos.h>
 #include <irssi/src/core/ignore.h>
 #include <irssi/src/core/log.h>
@@ -260,8 +261,9 @@ void core_init(void)
 
 	settings_init();
 	commands_init();
+	credential_init();
 	nickmatch_cache_init();
-        session_init();
+	       session_init();
 #ifdef HAVE_CAPSICUM
 	capsicum_init();
 #endif
@@ -341,8 +343,9 @@ void core_deinit(void)
 #endif
         session_deinit();
         nickmatch_cache_deinit();
-	commands_deinit();
-	settings_deinit();
+ commands_deinit();
+ credential_deinit();
+ settings_deinit();
 	signals_deinit();
 	net_disconnect_deinit();
 

@@ -89,3 +89,6 @@ subprojects/*
 Irssi-Dist
 setup.cfg
 *.egg-info
+builddir
+build
+inst
