@@ -1,0 +1,136 @@
+/*
+ fe-web-client.c : Client connection handling for fe-web
+
+    Copyright (C) 2025
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+*/
+
+#include "module.h"
+#include "fe-web.h"
+
+#include <stdio.h>
+#include <string.h>
+
+/* Create new client record */
+WEB_CLIENT_REC *fe_web_client_create(int fd, const char *addr)
+{
+	WEB_CLIENT_REC *client;
+
+	client = g_new0(WEB_CLIENT_REC, 1);
+	client->fd = fd;
+	client->id = fe_web_generate_message_id();
+	client->addr = g_strdup(addr);
+	client->connected_at = time(NULL);
+	client->authenticated = FALSE;
+	client->handshake_done = FALSE;
+	client->websocket_key = NULL;
+	client->server = NULL;
+	client->synced_channels = NULL;
+	client->wants_all_servers = FALSE;
+	client->handle = NULL;
+	client->recv_tag = -1;
+	client->output_buffer = g_string_new("");
+	client->messages_sent = 0;
+	client->messages_received = 0;
+	client->pending_requests = g_hash_table_new_full(g_str_hash, g_str_equal,
+	                                                  g_free, g_free);
+
+	/* Add to global list */
+	web_clients = g_slist_append(web_clients, client);
+
+	return client;
+}
+
+/* Destroy client record */
+void fe_web_client_destroy(WEB_CLIENT_REC *client)
+{
+	if (client == NULL) {
+		return;
+	}
+
+	/* Remove from global list */
+	web_clients = g_slist_remove(web_clients, client);
+
+	/* Cleanup */
+	g_free(client->id);
+	g_free(client->addr);
+	g_free(client->websocket_key);
+
+	if (client->synced_channels != NULL) {
+		g_slist_free_full(client->synced_channels, g_free);
+	}
+
+	if (client->output_buffer != NULL) {
+		g_string_free(client->output_buffer, TRUE);
+	}
+
+	if (client->pending_requests != NULL) {
+		g_hash_table_destroy(client->pending_requests);
+	}
+
+	/* Note: handle and server are managed elsewhere */
+
+	g_free(client);
+}
+
+/* Handle client command (sync_server, command, etc.) */
+void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
+{
+	/* TODO: Parse JSON and handle commands */
+	/* This will be implemented when we add JSON parsing */
+	/* For now, just increment counter */
+	client->messages_received++;
+}
+
+/* Sync client to specific server */
+void fe_web_client_sync_server(WEB_CLIENT_REC *client, const char *server_tag)
+{
+	IRC_SERVER_REC *server;
+
+	if (client == NULL || server_tag == NULL) {
+		return;
+	}
+
+	/* Special case: sync all servers */
+	if (g_strcmp0(server_tag, "*") == 0) {
+		client->wants_all_servers = TRUE;
+		client->server = NULL;
+		/* TODO: Dump state for all servers */
+		return;
+	}
+
+	/* Find specific server */
+	server = IRC_SERVER(server_find_tag(server_tag));
+	if (server == NULL) {
+		/* Send error message */
+		WEB_MESSAGE_REC *msg;
+		msg = fe_web_message_new(WEB_MSG_ERROR);
+		msg->text = g_strdup("Server not found");
+		fe_web_send_message(client, msg);
+		fe_web_message_free(msg);
+		return;
+	}
+
+	/* Assign server */
+	client->server = server;
+	client->wants_all_servers = FALSE;
+
+	/* Dump initial state */
+	fe_web_dump_state(client);
+}
+
+/* Execute IRC command for client */
+void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command)
+{
+	/* TODO: Execute command via irssi */
+	/* For now, just placeholder */
+	if (client == NULL || command == NULL) {
+		return;
+	}
+
+	/* This will use signal_emit("send command", ...) or similar */
+}

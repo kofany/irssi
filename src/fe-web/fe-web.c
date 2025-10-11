@@ -24,6 +24,8 @@
 #include <irssi/src/core/modules.h>
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/settings.h>
+#include <irssi/src/core/levels.h>
+#include <irssi/src/core/commands.h>
 #include <irssi/src/fe-common/core/printtext.h>
 
 /* Global clients list */

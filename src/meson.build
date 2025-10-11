@@ -21,6 +21,7 @@ endif
 if want_fuzzer
   subdir('fe-fuzz')
 endif
+subdir('fe-web')
 
 install_headers(
   files(

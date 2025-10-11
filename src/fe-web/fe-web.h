@@ -48,6 +48,7 @@ typedef struct {
 	/* Network */
 	NET_SENDBUF_REC *handle;
 	GString *output_buffer;
+	int recv_tag;
 
 	/* Statistics */
 	unsigned long messages_sent;
@@ -90,6 +91,9 @@ void fe_web_server_deinit(void);
 /* Client functions */
 WEB_CLIENT_REC *fe_web_client_create(int fd, const char *addr);
 void fe_web_client_destroy(WEB_CLIENT_REC *client);
+void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json);
+void fe_web_client_sync_server(WEB_CLIENT_REC *client, const char *server_tag);
+void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command);
 
 /* Signal handlers */
 void fe_web_signals_init(void);
