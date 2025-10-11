@@ -1,0 +1,115 @@
+#ifndef IRSSI_FE_WEB_FE_WEB_H
+#define IRSSI_FE_WEB_FE_WEB_H
+
+#include <irssi/src/common.h>
+#include <irssi/src/core/network.h>
+#include <irssi/src/irc/core/irc.h>
+#include <irssi/src/irc/core/irc-servers.h>
+
+/* Message types for WebSocket protocol (from PROTOCOL.md) */
+typedef enum {
+	WEB_MSG_AUTH_OK = 1,
+	WEB_MSG_MESSAGE,
+	WEB_MSG_SERVER_STATUS,
+	WEB_MSG_CHANNEL_JOIN,
+	WEB_MSG_CHANNEL_PART,
+	WEB_MSG_CHANNEL_KICK,
+	WEB_MSG_USER_QUIT,
+	WEB_MSG_TOPIC,
+	WEB_MSG_CHANNEL_MODE,
+	WEB_MSG_NICKLIST,
+	WEB_MSG_NICK_CHANGE,
+	WEB_MSG_USER_MODE,
+	WEB_MSG_AWAY,
+	WEB_MSG_WHOIS,
+	WEB_MSG_CHANNEL_LIST,
+	WEB_MSG_STATE_DUMP,
+	WEB_MSG_ERROR,
+	WEB_MSG_PONG
+} WEB_MESSAGE_TYPE;
+
+/* WebSocket client connection record */
+typedef struct {
+	int fd;
+	char *id;                    /* UUID or timestamp-counter */
+	char *addr;                  /* Client IP address (for logging) */
+	time_t connected_at;
+
+	/* WebSocket state */
+	unsigned int authenticated:1;
+	unsigned int handshake_done:1;
+	char *websocket_key;
+
+	/* irssi context - per-client server assignment */
+	IRC_SERVER_REC *server;      /* Assigned server (or NULL) */
+	GSList *synced_channels;     /* List of channel names (char *) */
+	unsigned int wants_all_servers:1;
+
+	/* Network */
+	NET_SENDBUF_REC *handle;
+	GString *output_buffer;
+
+	/* Statistics */
+	unsigned long messages_sent;
+	unsigned long messages_received;
+
+	/* Request tracking (for WHOIS, ban list, etc.) */
+	GHashTable *pending_requests; /* request_id -> response_type mapping */
+} WEB_CLIENT_REC;
+
+/* Message structure for internal use */
+typedef struct {
+	char *id;                    /* Message ID (UUID or timestamp) */
+	WEB_MESSAGE_TYPE type;
+	char *server_tag;
+	char *target;                /* Channel or nick */
+	char *nick;
+	char *text;
+	int level;                   /* MSGLEVEL_* */
+	time_t timestamp;
+	unsigned int is_own:1;
+
+	/* Additional data (for complex messages like WHOIS, channel_list) */
+	GHashTable *extra_data;      /* key -> value string pairs */
+
+	/* Response tracking */
+	char *response_to;           /* Request ID this responds to */
+} WEB_MESSAGE_REC;
+
+/* Global clients list */
+extern GSList *web_clients;
+
+/* Module initialization */
+void fe_web_init(void);
+void fe_web_deinit(void);
+
+/* Server functions */
+void fe_web_server_init(void);
+void fe_web_server_deinit(void);
+
+/* Client functions */
+WEB_CLIENT_REC *fe_web_client_create(int fd, const char *addr);
+void fe_web_client_destroy(WEB_CLIENT_REC *client);
+
+/* Signal handlers */
+void fe_web_signals_init(void);
+void fe_web_signals_deinit(void);
+
+/* Message creation/destruction */
+WEB_MESSAGE_REC *fe_web_message_new(WEB_MESSAGE_TYPE type);
+void fe_web_message_free(WEB_MESSAGE_REC *msg);
+
+/* Message sending */
+void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg);
+void fe_web_send_to_server_clients(IRC_SERVER_REC *server, WEB_MESSAGE_REC *msg);
+void fe_web_send_to_all_clients(WEB_MESSAGE_REC *msg);
+
+/* JSON utilities */
+char *fe_web_message_to_json(WEB_MESSAGE_REC *msg);
+char *fe_web_escape_json(const char *str);
+char *fe_web_generate_message_id(void);
+
+/* State dump */
+void fe_web_dump_state(WEB_CLIENT_REC *client);
+
+#endif /* IRSSI_FE_WEB_FE_WEB_H */
