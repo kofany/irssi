@@ -230,8 +230,35 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 		                      msg->is_own ? "true" : "false");
 	}
 
-	/* extra_data (TODO: implement serialization of hash table) */
-	/* This will be needed for complex messages like WHOIS */
+	/* extra_data - serialize hash table if not empty */
+	if (msg->extra_data != NULL && g_hash_table_size(msg->extra_data) > 0) {
+		GHashTableIter iter;
+		gpointer key;
+		gpointer value;
+		int first;
+
+		g_string_append(json, ",\"extra\":{");
+
+		first = 1;
+		g_hash_table_iter_init(&iter, msg->extra_data);
+		while (g_hash_table_iter_next(&iter, &key, &value)) {
+			char *escaped_key;
+			char *escaped_value;
+
+			if (!first) {
+				g_string_append_c(json, ',');
+			}
+			first = 0;
+
+			escaped_key = fe_web_escape_json((const char *)key);
+			escaped_value = fe_web_escape_json((const char *)value);
+			g_string_append_printf(json, "\"%s\":\"%s\"", escaped_key, escaped_value);
+			g_free(escaped_key);
+			g_free(escaped_value);
+		}
+
+		g_string_append_c(json, '}');
+	}
 
 	g_string_append_c(json, '}');
 

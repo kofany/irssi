@@ -12,6 +12,7 @@
 #include "module.h"
 #include "fe-web.h"
 
+#include <irssi/src/core/signals.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -80,10 +81,52 @@ void fe_web_client_destroy(WEB_CLIENT_REC *client)
 /* Handle client command (sync_server, command, etc.) */
 void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 {
-	/* TODO: Parse JSON and handle commands */
-	/* This will be implemented when we add JSON parsing */
-	/* For now, just increment counter */
+	char *type;
+	char *id;
+
+	if (client == NULL || json == NULL) {
+		return;
+	}
+
 	client->messages_received++;
+
+	/* Parse message type */
+	type = fe_web_json_get_string(json, "type");
+	if (type == NULL) {
+		return;
+	}
+
+	/* Get message ID for responses */
+	id = fe_web_json_get_string(json, "id");
+
+	/* Handle different message types */
+	if (g_strcmp0(type, "sync_server") == 0) {
+		char *server_tag;
+		server_tag = fe_web_json_get_string(json, "server");
+		if (server_tag != NULL) {
+			fe_web_client_sync_server(client, server_tag);
+			g_free(server_tag);
+		}
+	} else if (g_strcmp0(type, "command") == 0) {
+		char *command;
+		command = fe_web_json_get_string(json, "command");
+		if (command != NULL) {
+			fe_web_client_execute_command(client, command);
+			g_free(command);
+		}
+	} else if (g_strcmp0(type, "ping") == 0) {
+		WEB_MESSAGE_REC *msg;
+		msg = fe_web_message_new(WEB_MSG_PONG);
+		msg->id = fe_web_generate_message_id();
+		if (id != NULL) {
+			msg->response_to = g_strdup(id);
+		}
+		fe_web_send_message(client, msg);
+		fe_web_message_free(msg);
+	}
+
+	g_free(type);
+	g_free(id);
 }
 
 /* Sync client to specific server */
@@ -126,11 +169,22 @@ void fe_web_client_sync_server(WEB_CLIENT_REC *client, const char *server_tag)
 /* Execute IRC command for client */
 void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command)
 {
-	/* TODO: Execute command via irssi */
-	/* For now, just placeholder */
 	if (client == NULL || command == NULL) {
 		return;
 	}
 
-	/* This will use signal_emit("send command", ...) or similar */
+	/* Check if client has a server assigned */
+	if (client->server == NULL) {
+		WEB_MESSAGE_REC *msg;
+		msg = fe_web_message_new(WEB_MSG_ERROR);
+		msg->id = fe_web_generate_message_id();
+		msg->text = g_strdup("Not connected to any server");
+		fe_web_send_message(client, msg);
+		fe_web_message_free(msg);
+		return;
+	}
+
+	/* Send command to server */
+	/* Signal: "send command", SERVER_REC, cmd, active_win */
+	signal_emit("send command", 3, client->server, command, NULL);
 }

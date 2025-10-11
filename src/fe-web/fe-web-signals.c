@@ -14,6 +14,7 @@
 
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/levels.h>
+#include <irssi/src/core/nicklist.h>
 #include <irssi/src/irc/core/irc-servers.h>
 #include <irssi/src/irc/core/irc-channels.h>
 #include <irssi/src/irc/core/irc-nicklist.h>
@@ -454,11 +455,42 @@ void fe_web_dump_state(WEB_CLIENT_REC *client)
 		msg->server_tag = g_strdup(server->tag);
 		msg->target = g_strdup(channel->name);
 
-		/* Build nicklist JSON (simplified) */
-		/* TODO: Proper JSON array serialization */
-		/* NOTE: channel->nicks is GHashTable, not GSList - need to iterate properly */
-		nicklist = g_string_new("[]");
-		/* TODO: Implement proper nicklist iteration via g_hash_table_foreach */
+		/* Build nicklist JSON */
+		nicklist = g_string_new("[");
+		{
+			GSList *nicks;
+			GSList *nick_tmp;
+
+			nicks = nicklist_getnicks(CHANNEL(channel));
+			for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+				NICK_REC *nick = nick_tmp->data;
+				char *escaped_nick;
+				char prefix[8];
+
+				if (nicklist->len > 1) {
+					g_string_append_c(nicklist, ',');
+				}
+
+				/* Build prefix string (@, +, etc) */
+				prefix[0] = '\0';
+				if (nick->op) {
+					strcat(prefix, "@");
+				}
+				if (nick->halfop) {
+					strcat(prefix, "%");
+				}
+				if (nick->voice) {
+					strcat(prefix, "+");
+				}
+
+				escaped_nick = fe_web_escape_json(nick->nick);
+				g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
+				                      escaped_nick, prefix);
+				g_free(escaped_nick);
+			}
+			g_slist_free(nicks);
+		}
+		g_string_append_c(nicklist, ']');
 
 		msg->text = g_string_free(nicklist, FALSE);
 		fe_web_send_message(client, msg);
