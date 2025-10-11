@@ -236,14 +236,13 @@ void fe_web_send_to_server_clients(IRC_SERVER_REC *server,
 
 ```bash
 # Build and install
-meson setup Build -Dprefix=/opt/irssi -Dwith-perl=no -Dwith-proxy=yes
+meson setup Build --prefix=/opt/erssi -Dwith-perl=yes -Dwith-otr=yes -Ddisable-utf8proc=no
 ninja -C Build
-sudo ninja -C Build install
 
-# Test
-/opt/irssi/bin/irssi
-/LOAD fe_web
-/SET fe_web_enabled ON
+# Test (note: build only, user will test!)
+# User will run: /opt/erssi/bin/irssi
+# User will run: /LOAD fe_web
+# User will run: /SET fe_web_enabled ON
 
 # In another terminal: connect with websocat
 websocat ws://localhost:9001
@@ -611,8 +610,8 @@ For each phase, test:
 ### Integration Testing
 
 ```bash
-# Terminal 1: irssi
-/opt/irssi/bin/irssi
+# Terminal 1: irssi (user will run this)
+/opt/erssi/bin/irssi
 /LOAD fe_web
 /SET fe_web_enabled ON
 /CONNECT irc.libera.chat

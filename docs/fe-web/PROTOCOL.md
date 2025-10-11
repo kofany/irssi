@@ -175,7 +175,25 @@ Or send a message:
 }
 ```
 
-**Note:** If `channel` is provided and `command` doesn't start with `/`, it's treated as a message to that channel/nick.
+**With request tracking (for commands that return data):**
+
+```json
+{
+    "id": "req-12345",
+    "type": "command",
+    "server": "libera",
+    "command": "/whois alice alice"
+}
+```
+
+**Note:**
+- If `channel` is provided and `command` doesn't start with `/`, it's treated as a message to that channel/nick
+- If `id` is provided, responses to this command will include `response_to: "req-12345"` field
+- This is useful for commands like `/whois`, `/who`, `/list`, `/mode #channel +b` etc.
+
+**Response:**
+- Simple commands: No direct response, IRC signals generate appropriate messages
+- Query commands with `id`: Response messages will include `response_to` field
 
 ---
 
@@ -269,7 +287,7 @@ User joined a channel:
 
 ### 4. Channel Part
 
-User left a channel:
+User left a channel voluntarily (PART):
 
 ```json
 {
@@ -284,7 +302,48 @@ User left a channel:
 
 ---
 
-### 5. Channel Topic
+### 5. Channel Kick
+
+User was kicked from a channel:
+
+```json
+{
+    "type": "channel_kick",
+    "server": "libera",
+    "channel": "#test",
+    "nick": "alice",
+    "kicked_by": "bob",
+    "reason": "Flood",
+    "timestamp": 1737825000
+}
+```
+
+**Fields:**
+- `nick` - User who was kicked
+- `kicked_by` - Operator who performed the kick
+- `reason` - Kick reason (may be empty)
+
+---
+
+### 6. User Quit
+
+User disconnected from server (affects ALL channels):
+
+```json
+{
+    "type": "user_quit",
+    "server": "libera",
+    "nick": "alice",
+    "reason": "Ping timeout",
+    "timestamp": 1737825000
+}
+```
+
+**Note:** Unlike PART/KICK (single channel), QUIT removes user from ALL channels on the server. Frontend should remove this nick from all channel nicklists.
+
+---
+
+### 7. Channel Topic
 
 Channel topic update:
 
@@ -302,9 +361,48 @@ Channel topic update:
 
 ---
 
-### 6. Nick List
+### 8. Channel Mode
 
-Nicklist update (join/part/mode change):
+Channel mode changed:
+
+```json
+{
+    "type": "channel_mode",
+    "server": "libera",
+    "channel": "#test",
+    "mode": "+m",
+    "set_by": "alice",
+    "timestamp": 1737825000
+}
+```
+
+**Common channel modes:**
+- `+m` - Moderated (only ops/voice can talk)
+- `+t` - Only ops can change topic
+- `+n` - No external messages
+- `+i` - Invite-only
+- `+s` - Secret channel
+- `+k password` - Channel key (password required)
+- `+l 50` - User limit
+
+**Example with parameter:**
+```json
+{
+    "type": "channel_mode",
+    "server": "libera",
+    "channel": "#test",
+    "mode": "+k",
+    "mode_param": "secret123",
+    "set_by": "alice",
+    "timestamp": 1737825000
+}
+```
+
+---
+
+### 9. Nick List
+
+Nicklist update (join/part/kick/quit/mode change):
 
 ```json
 {
@@ -324,12 +422,16 @@ Nicklist update (join/part/mode change):
 
 **Actions:**
 - `"join"` - Nick added to channel
-- `"part"` - Nick removed from channel
+- `"part"` - Nick removed from channel (voluntary PART)
+- `"kick"` - Nick removed from channel (kicked by op)
+- `"quit"` - Nick removed from channel (disconnected from server)
 - `"mode"` - Nick mode changed
+
+**Note:** For `user_quit`, you'll receive multiple `nicklist` messages (one per channel the user was on), all with `action: "quit"`.
 
 ---
 
-### 7. Nick Change
+### 10. Nick Change
 
 Nick changed:
 
@@ -345,7 +447,7 @@ Nick changed:
 
 ---
 
-### 8. User Mode
+### 11. User Mode
 
 Your user mode changed:
 
@@ -360,7 +462,7 @@ Your user mode changed:
 
 ---
 
-### 9. Away Status
+### 12. Away Status
 
 Away status changed:
 
@@ -376,7 +478,84 @@ Away status changed:
 
 ---
 
-### 10. State Dump
+### 13. WHOIS Response
+
+WHOIS information about a user:
+
+```json
+{
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "type": "whois",
+    "response_to": "req-12345",
+    "server": "libera",
+    "nick": "alice",
+    "data": {
+        "user": "~alice",
+        "host": "user.example.com",
+        "realname": "Alice Smith",
+        "server_name": "irc.libera.chat",
+        "server_info": "Libera Chat",
+        "channels": ["@#test", "+#dev", "#support"],
+        "idle": 300,
+        "signon": 1737820000,
+        "account": "alice_acc",
+        "secure": true,
+        "bot": false,
+        "oper": false
+    },
+    "timestamp": 1737825000
+}
+```
+
+**Fields:**
+- `response_to` - ID of the original `/whois` command (if tracking enabled)
+- `data.channels` - List of channels with prefixes (@=op, +=voice, %=halfop)
+- `data.idle` - Idle time in seconds
+- `data.signon` - Unix timestamp when user signed on
+- `data.account` - NickServ account name (if authenticated)
+- `data.secure` - Using secure connection (SSL/TLS)
+- `data.bot` - User is a bot
+- `data.oper` - User is IRC operator
+
+---
+
+### 14. Ban/Exception/Invite List
+
+Channel ban/exception/invite list response:
+
+```json
+{
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "type": "channel_list",
+    "response_to": "req-12346",
+    "server": "libera",
+    "channel": "#test",
+    "list_type": "ban",
+    "entries": [
+        {
+            "mask": "*!*@spammer.com",
+            "set_by": "alice",
+            "set_at": 1737820000
+        },
+        {
+            "mask": "badnick!*@*",
+            "set_by": "bob",
+            "set_at": 1737821000
+        }
+    ],
+    "timestamp": 1737825000
+}
+```
+
+**List types:**
+- `"ban"` - Ban list (mode +b)
+- `"exception"` - Ban exception list (mode +e)
+- `"invite"` - Invite exception list (mode +I)
+- `"quiet"` - Quiet list (mode +q, network-specific)
+
+---
+
+### 15. State Dump
 
 Initial state after `sync_server` (multiple messages):
 
@@ -434,7 +613,7 @@ Initial state after `sync_server` (multiple messages):
 
 ---
 
-### 11. Error
+### 16. Error
 
 Error message:
 
@@ -475,12 +654,17 @@ Error message:
 | `message` | Chat message | `server`, `channel`, `nick`, `text`, `is_own` |
 | `server_status` | Server connection status | `server`, `status` |
 | `channel_join` | User joined channel | `server`, `channel`, `nick` |
-| `channel_part` | User left channel | `server`, `channel`, `nick` |
+| `channel_part` | User left channel (voluntary) | `server`, `channel`, `nick`, `reason` |
+| `channel_kick` | User kicked from channel | `server`, `channel`, `nick`, `kicked_by`, `reason` |
+| `user_quit` | User disconnected (all channels) | `server`, `nick`, `reason` |
 | `topic` | Topic changed | `server`, `channel`, `topic` |
+| `channel_mode` | Channel mode changed | `server`, `channel`, `mode`, `set_by` |
 | `nicklist` | Nicklist update | `server`, `channel`, `nick`, `action` |
 | `nick_change` | Nick changed | `server`, `old_nick`, `new_nick` |
 | `user_mode` | User mode changed | `server`, `mode` |
 | `away` | Away status | `server`, `away` |
+| `whois` | WHOIS response | `server`, `nick`, `data`, `response_to` |
+| `channel_list` | Ban/exception/invite list | `server`, `channel`, `list_type`, `entries`, `response_to` |
 | `state_dump` | Initial state dump | `dump_type`, ... |
 | `error` | Error message | `message`, `code` |
 | `pong` | Ping response | - |
@@ -531,6 +715,22 @@ Invalid JSON or unknown message types should be ignored by server (no response).
 5. Someone joins:
    ← {"type":"channel_join", "channel":"#test", "nick":"charlie", ...}
    ← {"type":"nicklist", "channel":"#test", "nick":"charlie", "action":"join", ...}
+
+6. Someone gets kicked:
+   ← {"type":"channel_kick", "channel":"#test", "nick":"spammer", "kicked_by":"alice", "reason":"Flood"}
+   ← {"type":"nicklist", "channel":"#test", "nick":"spammer", "action":"kick"}
+
+7. Someone quits IRC:
+   ← {"type":"user_quit", "nick":"bob", "reason":"Ping timeout"}
+   ← {"type":"nicklist", "channel":"#test", "nick":"bob", "action":"quit"}
+   ← {"type":"nicklist", "channel":"#dev", "nick":"bob", "action":"quit"}
+   (one nicklist update per channel bob was on)
+
+8. Channel mode changed:
+   ← {"type":"channel_mode", "channel":"#test", "mode":"+m", "set_by":"alice"}
+
+9. Channel mode with parameter:
+   ← {"type":"channel_mode", "channel":"#test", "mode":"+k", "mode_param":"secret123", "set_by":"alice"}
 ```
 
 ### Sending Commands
@@ -549,6 +749,131 @@ Invalid JSON or unknown message types should be ignored by server (no response).
 ```json
 → {"type":"command", "server":"libera", "command":"/nick newnick"}
 ```
+
+### Operator Commands
+
+**Give OP:**
+```json
+→ {"type":"command", "server":"libera", "command":"/mode #test +o alice"}
+```
+
+**Take OP:**
+```json
+→ {"type":"command", "server":"libera", "command":"/mode #test -o bob"}
+```
+
+**Give Voice:**
+```json
+→ {"type":"command", "server":"libera", "command":"/mode #test +v charlie"}
+```
+
+**Ban user:**
+```json
+→ {"type":"command", "server":"libera", "command":"/mode #test +b *!*@spammer.com"}
+```
+
+**Kick user:**
+```json
+→ {"type":"command", "server":"libera", "command":"/kick #test spammer Flood"}
+```
+
+### Query Commands with Response Tracking
+
+**WHOIS query:**
+```json
+→ {"id":"req-001", "type":"command", "server":"libera", "command":"/whois alice alice"}
+
+← {"type":"whois", "response_to":"req-001", "server":"libera", "nick":"alice",
+   "data":{"user":"~alice", "host":"user.example.com", "realname":"Alice",
+   "channels":["@#test", "+#dev"], "idle":300, "account":"alice_acc", ...}}
+```
+
+**Get ban list:**
+```json
+→ {"id":"req-002", "type":"command", "server":"libera", "command":"/mode #test +b"}
+
+← {"type":"channel_list", "response_to":"req-002", "server":"libera",
+   "channel":"#test", "list_type":"ban",
+   "entries":[{"mask":"*!*@spammer.com", "set_by":"alice", "set_at":1737820000}, ...]}
+```
+
+**Get exception list:**
+```json
+→ {"id":"req-003", "type":"command", "server":"libera", "command":"/mode #test +e"}
+
+← {"type":"channel_list", "response_to":"req-003", "server":"libera",
+   "channel":"#test", "list_type":"exception", "entries":[...]}
+```
+
+**Get invite exception list:**
+```json
+→ {"id":"req-004", "type":"command", "server":"libera", "command":"/mode #test +I"}
+
+← {"type":"channel_list", "response_to":"req-004", "server":"libera",
+   "channel":"#test", "list_type":"invite", "entries":[...]}
+```
+
+---
+
+## Quick Reference: Full-Featured IRC Commands
+
+### Basic Operations
+
+| Action | Command | Example JSON |
+|--------|---------|--------------|
+| Join channel | `/join #channel` | `{"type":"command","server":"libera","command":"/join #test"}` |
+| Part channel | `/part #channel` | `{"type":"command","server":"libera","command":"/part #test"}` |
+| Send message | `text` | `{"type":"command","server":"libera","channel":"#test","command":"Hello!"}` |
+| Private message | `/msg nick text` | `{"type":"command","server":"libera","command":"/msg alice Hello"}` |
+| Change nick | `/nick newnick` | `{"type":"command","server":"libera","command":"/nick alice2"}` |
+| Set topic | `/topic #ch text` | `{"type":"command","server":"libera","command":"/topic #test New topic"}` |
+
+### Operator Commands
+
+| Action | Command | Example JSON |
+|--------|---------|--------------|
+| Give OP | `/mode #ch +o nick` | `{"type":"command","server":"libera","command":"/mode #test +o alice"}` |
+| Take OP | `/mode #ch -o nick` | `{"type":"command","server":"libera","command":"/mode #test -o bob"}` |
+| Give Voice | `/mode #ch +v nick` | `{"type":"command","server":"libera","command":"/mode #test +v charlie"}` |
+| Take Voice | `/mode #ch -v nick` | `{"type":"command","server":"libera","command":"/mode #test -v charlie"}` |
+| Give Halfop | `/mode #ch +h nick` | `{"type":"command","server":"libera","command":"/mode #test +h dave"}` |
+| Kick | `/kick #ch nick reason` | `{"type":"command","server":"libera","command":"/kick #test spammer Flood"}` |
+
+### Channel Modes
+
+| Action | Command | Example JSON |
+|--------|---------|--------------|
+| Moderated | `/mode #ch +m` | `{"type":"command","server":"libera","command":"/mode #test +m"}` |
+| Remove moderated | `/mode #ch -m` | `{"type":"command","server":"libera","command":"/mode #test -m"}` |
+| Invite only | `/mode #ch +i` | `{"type":"command","server":"libera","command":"/mode #test +i"}` |
+| Set key | `/mode #ch +k pass` | `{"type":"command","server":"libera","command":"/mode #test +k secret"}` |
+| Remove key | `/mode #ch -k pass` | `{"type":"command","server":"libera","command":"/mode #test -k secret"}` |
+| Set limit | `/mode #ch +l N` | `{"type":"command","server":"libera","command":"/mode #test +l 50"}` |
+| Topic protection | `/mode #ch +t` | `{"type":"command","server":"libera","command":"/mode #test +t"}` |
+
+### Ban/Exception/Invite Management
+
+| Action | Command | Example JSON |
+|--------|---------|--------------|
+| Ban user | `/mode #ch +b mask` | `{"type":"command","server":"libera","command":"/mode #test +b *!*@spam.com"}` |
+| Unban user | `/mode #ch -b mask` | `{"type":"command","server":"libera","command":"/mode #test -b *!*@spam.com"}` |
+| Add exception | `/mode #ch +e mask` | `{"type":"command","server":"libera","command":"/mode #test +e *!*@friend.com"}` |
+| Add invite exception | `/mode #ch +I mask` | `{"type":"command","server":"libera","command":"/mode #test +I *!*@trusted.com"}` |
+| Quiet user | `/mode #ch +q mask` | `{"type":"command","server":"libera","command":"/mode #test +q *!*@noisy.com"}` |
+| **Get ban list** | `/mode #ch +b` | `{"id":"req-1","type":"command","server":"libera","command":"/mode #test +b"}` |
+| **Get exception list** | `/mode #ch +e` | `{"id":"req-2","type":"command","server":"libera","command":"/mode #test +e"}` |
+| **Get invite list** | `/mode #ch +I` | `{"id":"req-3","type":"command","server":"libera","command":"/mode #test +I"}` |
+
+### Query Commands (with response tracking)
+
+| Action | Command | Example JSON |
+|--------|---------|--------------|
+| WHOIS | `/whois nick nick` | `{"id":"req-001","type":"command","server":"libera","command":"/whois alice alice"}` |
+| WHO | `/who #channel` | `{"id":"req-002","type":"command","server":"libera","command":"/who #test"}` |
+| NAMES | `/names #channel` | `{"id":"req-003","type":"command","server":"libera","command":"/names #test"}` |
+| LIST | `/list` | `{"id":"req-004","type":"command","server":"libera","command":"/list"}` |
+
+**Note:** Commands marked with `id` will receive structured responses with `response_to` field.
 
 ---
 
@@ -596,14 +921,29 @@ Possible future additions:
 - [ ] File transfer support
 - [ ] DCC support
 - [ ] History retrieval (scrollback)
-- [ ] Channel modes detailed info
-- [ ] WHOIS responses
 - [ ] Server notices formatting
 - [ ] Compression (zlib for WebSocket frames)
+- [ ] WHO command responses (`who` message type)
+- [ ] LIST command responses (`channel_list` message type for `/list`)
+- [ ] NAMES full list on demand
+- [ ] Server statistics (STATS, LUSERS)
 
 ---
 
-**Status**: ✅ Protocol Draft Complete
-**Next**: Implement in fe-web module
+**Status**: ✅ Protocol Specification Complete (Full-Featured)
+**Version**: 2.0
+**Features**:
+- ✅ Basic IRC operations (join/part/msg/topic)
+- ✅ Operator commands (op/deop/voice/kick)
+- ✅ Channel modes (all common modes + parameters)
+- ✅ Ban/Exception/Invite list management
+- ✅ WHOIS queries with full data
+- ✅ Request/Response tracking
+- ✅ Real-time events (join/part/kick/quit/mode)
+- ✅ Own message support
+- ✅ Multi-server support
+- ✅ Initial state dump
+
+**Next**: Implement in fe-web module (Phase 1: Signal Refactoring)
 **Author**: kofany + Claude
-**Date**: 2025-01-11
+**Date**: 2025-01-25

@@ -173,6 +173,7 @@ src/fe-web/
 typedef struct _WEB_CLIENT_REC {
     int fd;
     char *id;                    /* UUID */
+    char *addr;                  /* Client IP address (for logging) */
     time_t connected_at;
     gboolean authenticated;
 
@@ -188,6 +189,10 @@ typedef struct _WEB_CLIENT_REC {
     /* Output buffer */
     NET_SENDBUF_REC *handle;
     GString *output_buffer;
+
+    /* Statistics (for /FE_WEB STATUS command) */
+    unsigned long messages_sent;
+    unsigned long messages_received;
 
 } WEB_CLIENT_REC;
 
