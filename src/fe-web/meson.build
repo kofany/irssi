@@ -8,6 +8,7 @@ shared_module('fe_web',
     'fe-web-signals.c',
     'fe-web-utils.c',
     'fe-web-json.c',
+    'fe-web-websocket.c',
   )
   + [ irssi_version_h ],
   include_directories : rootinc,

@@ -12,6 +12,7 @@
 #include "module.h"
 #include "fe-web.h"
 
+#include <irssi/src/core/net-sendbuffer.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -269,20 +270,27 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 {
 	char *json;
+	guchar *frame;
+	gsize frame_len;
 
 	if (client == NULL || !client->authenticated || !client->handshake_done) {
 		return;
 	}
 
-	json = fe_web_message_to_json(msg);
-
-	/* TODO: Actually send via WebSocket (will be implemented in fe-web-server.c) */
-	/* For now, just append to buffer */
-	if (client->output_buffer != NULL) {
-		g_string_append(client->output_buffer, json);
-		g_string_append_c(client->output_buffer, '\n');
+	if (client->handle == NULL) {
+		return;
 	}
 
+	/* Serialize to JSON */
+	json = fe_web_message_to_json(msg);
+
+	/* Create WebSocket text frame */
+	frame = fe_web_websocket_create_frame(0x1, (const guchar *)json, strlen(json), &frame_len);
+
+	/* Send frame */
+	net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
+
+	g_free(frame);
 	g_free(json);
 	client->messages_sent++;
 }

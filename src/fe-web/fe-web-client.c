@@ -35,6 +35,7 @@ WEB_CLIENT_REC *fe_web_client_create(int fd, const char *addr)
 	client->handle = NULL;
 	client->recv_tag = -1;
 	client->output_buffer = g_string_new("");
+	client->input_buffer = g_byte_array_new();
 	client->messages_sent = 0;
 	client->messages_received = 0;
 	client->pending_requests = g_hash_table_new_full(g_str_hash, g_str_equal,
@@ -67,6 +68,10 @@ void fe_web_client_destroy(WEB_CLIENT_REC *client)
 
 	if (client->output_buffer != NULL) {
 		g_string_free(client->output_buffer, TRUE);
+	}
+
+	if (client->input_buffer != NULL) {
+		g_byte_array_free(client->input_buffer, TRUE);
 	}
 
 	if (client->pending_requests != NULL) {

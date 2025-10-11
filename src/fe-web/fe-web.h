@@ -48,6 +48,7 @@ typedef struct {
 	/* Network */
 	NET_SENDBUF_REC *handle;
 	GString *output_buffer;
+	GByteArray *input_buffer;  /* For incomplete WebSocket frames */
 	int recv_tag;
 
 	/* Statistics */
@@ -120,5 +121,16 @@ int fe_web_json_has_key(const char *json, const char *key);
 
 /* State dump */
 void fe_web_dump_state(WEB_CLIENT_REC *client);
+
+/* WebSocket protocol (RFC 6455) */
+char *fe_web_websocket_compute_accept(const char *client_key);
+int fe_web_websocket_parse_frame(const guchar *data, gsize data_len,
+                                  int *fin, int *opcode, int *masked,
+                                  guint64 *payload_len, guchar mask_key[4],
+                                  const guchar **payload);
+void fe_web_websocket_unmask(guchar *payload, guint64 payload_len,
+                              const guchar mask_key[4]);
+guchar *fe_web_websocket_create_frame(int opcode, const guchar *payload,
+                                       guint64 payload_len, gsize *frame_len);
 
 #endif /* IRSSI_FE_WEB_FE_WEB_H */

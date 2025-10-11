@@ -29,21 +29,6 @@ static int listen_tag = -1;
 static void sig_listen(void);
 static void client_input(WEB_CLIENT_REC *client);
 
-/* Find client by file descriptor */
-static WEB_CLIENT_REC *fe_web_find_client_by_fd(int fd)
-{
-	GSList *tmp;
-
-	for (tmp = web_clients; tmp != NULL; tmp = tmp->next) {
-		WEB_CLIENT_REC *client = tmp->data;
-		if (client->fd == fd) {
-			return client;
-		}
-	}
-
-	return NULL;
-}
-
 /* Close client connection */
 static void fe_web_close_client(WEB_CLIENT_REC *client)
 {
@@ -67,18 +52,24 @@ static void fe_web_close_client(WEB_CLIENT_REC *client)
 	fe_web_client_destroy(client);
 }
 
-/* Handle WebSocket handshake (simplified version) */
+/* Handle WebSocket handshake (RFC 6455) */
 static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 {
 	char *key_line;
 	char *key_start;
 	char *key_end;
+	char *accept_key;
 	GString *response;
 
 	/* Look for Sec-WebSocket-Key header */
 	key_line = strstr(data, "Sec-WebSocket-Key:");
 	if (key_line == NULL) {
 		return 0; /* Not complete handshake yet */
+	}
+
+	/* Check for end of headers */
+	if (strstr(data, "\r\n\r\n") == NULL) {
+		return 0; /* Headers not complete */
 	}
 
 	/* Extract key value */
@@ -102,13 +93,15 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	}
 	client->websocket_key = g_strndup(key_start, key_end - key_start);
 
-	/* Build handshake response (simplified - no SHA1/base64 for now) */
+	/* Compute accept key */
+	accept_key = fe_web_websocket_compute_accept(client->websocket_key);
+
+	/* Build handshake response */
 	response = g_string_new("");
 	g_string_append(response, "HTTP/1.1 101 Switching Protocols\r\n");
 	g_string_append(response, "Upgrade: websocket\r\n");
 	g_string_append(response, "Connection: Upgrade\r\n");
-	g_string_append_printf(response, "Sec-WebSocket-Accept: %s\r\n",
-	                      client->websocket_key);
+	g_string_append_printf(response, "Sec-WebSocket-Accept: %s\r\n", accept_key);
 	g_string_append(response, "\r\n");
 
 	/* Send response */
@@ -116,52 +109,113 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 		net_sendbuffer_send(client->handle, response->str, response->len);
 	}
 
+	g_free(accept_key);
 	g_string_free(response, TRUE);
 
 	client->handshake_done = TRUE;
 	return 1;
 }
 
-/* Handle WebSocket frame (simplified - text frames only) */
-static void fe_web_handle_frame(WEB_CLIENT_REC *client, const char *data, int len)
+/* Handle WebSocket data */
+static void fe_web_handle_websocket_data(WEB_CLIENT_REC *client)
 {
-	/* TODO: Implement proper WebSocket frame parsing */
-	/* For now, assume data is JSON text */
-	/* Frame format: FIN+opcode (1 byte), mask+length (1+ bytes), mask key (4 bytes), payload */
+	int fin;
+	int opcode;
+	int masked;
+	guint64 payload_len;
+	guchar mask_key[4];
+	const guchar *payload;
+	int ret;
+	guchar *unmasked_payload;
+	gsize frame_total_len;
 
-	/* Skip WebSocket framing for now */
-	/* This will be implemented properly in Phase 2 */
+	while (client->input_buffer->len > 0) {
+		/* Try to parse frame */
+		ret = fe_web_websocket_parse_frame(client->input_buffer->data,
+		                                    client->input_buffer->len,
+		                                    &fin, &opcode, &masked,
+		                                    &payload_len, mask_key, &payload);
 
-	fe_web_client_handle_message(client, data);
+		if (ret == 0) {
+			/* Incomplete frame - wait for more data */
+			break;
+		}
+
+		if (ret < 0) {
+			/* Invalid frame - close connection */
+			fe_web_close_client(client);
+			return;
+		}
+
+		/* Calculate total frame length */
+		frame_total_len = (payload - client->input_buffer->data) + payload_len;
+
+		/* Handle different opcodes */
+		if (opcode == 0x1) { /* Text frame */
+			/* Unmask payload if needed */
+			if (masked) {
+				unmasked_payload = g_malloc(payload_len + 1);
+				memcpy(unmasked_payload, payload, payload_len);
+				fe_web_websocket_unmask(unmasked_payload, payload_len, mask_key);
+				unmasked_payload[payload_len] = '\0';
+
+				/* Handle JSON message */
+				fe_web_client_handle_message(client, (const char *)unmasked_payload);
+				g_free(unmasked_payload);
+			}
+		} else if (opcode == 0x8) { /* Close frame */
+			fe_web_close_client(client);
+			return;
+		} else if (opcode == 0x9) { /* Ping frame */
+			/* Send pong */
+			guchar *pong_frame;
+			gsize pong_len;
+			pong_frame = fe_web_websocket_create_frame(0xA, payload, payload_len, &pong_len);
+			net_sendbuffer_send(client->handle, (const char *)pong_frame, pong_len);
+			g_free(pong_frame);
+		}
+		/* Opcode 0xA (pong) - ignore */
+
+		/* Remove processed frame from buffer */
+		g_byte_array_remove_range(client->input_buffer, 0, frame_total_len);
+	}
 }
 
 /* Read data from client */
 static void client_input(WEB_CLIENT_REC *client)
 {
-	char *str;
+	guchar buffer[8192];
 	int ret;
+	GIOChannel *channel;
 
 	if (client == NULL || client->handle == NULL) {
 		return;
 	}
 
-	/* Use net_sendbuffer_receive_line for line-based protocol */
-	ret = net_sendbuffer_receive_line(client->handle, &str, 1);
+	/* Get underlying GIOChannel */
+	channel = net_sendbuffer_handle(client->handle);
+	if (channel == NULL) {
+		return;
+	}
 
-	if (ret == -1) {
+	/* Read raw bytes */
+	ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+
+	if (ret <= 0) {
 		/* Connection closed or error */
 		fe_web_close_client(client);
 		return;
 	}
 
-	if (ret == 0) {
-		/* No complete line yet */
-		return;
-	}
+	/* Append to input buffer */
+	g_byte_array_append(client->input_buffer, buffer, ret);
 
 	/* Handle handshake first */
 	if (!client->handshake_done) {
-		if (fe_web_handle_handshake(client, str)) {
+		/* Null-terminate for string operations */
+		g_byte_array_append(client->input_buffer, (guchar *)"\0", 1);
+
+		if (fe_web_handle_handshake(client, (const char *)client->input_buffer->data)) {
 			/* Handshake complete - send auth_ok */
 			WEB_MESSAGE_REC *msg;
 			msg = fe_web_message_new(WEB_MSG_AUTH_OK);
@@ -170,13 +224,18 @@ static void client_input(WEB_CLIENT_REC *client)
 			fe_web_message_free(msg);
 
 			client->authenticated = TRUE;
+
+			/* Clear input buffer */
+			g_byte_array_set_size(client->input_buffer, 0);
+		} else {
+			/* Remove null terminator */
+			g_byte_array_set_size(client->input_buffer, client->input_buffer->len - 1);
 		}
 		return;
 	}
 
 	/* Handle WebSocket frames */
-	/* TODO: For now we assume line-based JSON, will implement proper WS framing later */
-	fe_web_client_handle_message(client, str);
+	fe_web_handle_websocket_data(client);
 }
 
 /* Accept new connection */
