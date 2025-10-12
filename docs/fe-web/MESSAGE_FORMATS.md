@@ -4,6 +4,39 @@ Kompletna lista wszystkich komunikatów obsługiwanych przez fe-web w wersji akt
 
 Format: dla każdego typu komunikatu pokazane są formaty JSON dla kierunku klient→serwer i serwer→klient.
 
+**UWAGA:** Przed wysłaniem jakichkolwiek komunikatów, klient musi przejść autentykację. Zobacz [AUTHENTICATION.md](AUTHENTICATION.md).
+
+---
+
+## 0. Autentykacja (przed handshake)
+
+### Klient → Serwer
+WebSocket URL z hasłem w query string:
+```
+ws://localhost:9001/?password=tajnehaslo123
+```
+
+### Serwer → Klient
+
+Sukces (po handshake):
+```json
+{
+  "id": "1706198400-0001",
+  "type": "auth_ok",
+  "timestamp": 1706198400
+}
+```
+
+Błąd (zamiast handshake):
+```
+HTTP/1.1 401 Unauthorized
+Content-Type: text/plain
+
+Unauthorized
+```
+
+Połączenie zostaje zamknięte.
+
 ---
 
 ## 1. Synchronizacja serwera

@@ -52,6 +52,58 @@ static void fe_web_close_client(WEB_CLIENT_REC *client)
 	fe_web_client_destroy(client);
 }
 
+/* Verify password from handshake request
+ * Password can be provided in query parameter: GET /?password=secret HTTP/1.1
+ */
+static int fe_web_verify_password(const char *data)
+{
+	const char *configured_password;
+	char *password_param;
+	char *password_start;
+	char *password_end;
+	char *password = NULL;
+	int result = 0;
+
+	configured_password = settings_get_str("fe_web_password");
+
+	/* If no password is configured, allow access (with warning) */
+	if (configured_password == NULL || *configured_password == '\0') {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: WARNING: No password configured! Use /SET fe_web_password <password>");
+		return 1;
+	}
+
+	/* Check query parameter (?password=...) */
+	password_param = strstr(data, "?password=");
+	if (password_param != NULL) {
+		password_start = password_param + strlen("?password=");
+		password_end = strpbrk(password_start, " &\r\n");
+		if (password_end != NULL) {
+			password = g_strndup(password_start, password_end - password_start);
+		} else {
+			password = g_strdup(password_start);
+		}
+	}
+
+	/* Verify password */
+	if (password != NULL) {
+		if (g_strcmp0(configured_password, password) == 0) {
+			result = 1;
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: Password verified successfully");
+		} else {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: Invalid password!");
+		}
+		g_free(password);
+	} else {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: No password provided in request");
+	}
+
+	return result;
+}
+
 /* Handle WebSocket handshake (RFC 6455) */
 static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 {
@@ -80,6 +132,28 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 		          "fe-web: [%s] Headers not complete yet",
 		          client->id);
 		return 0; /* Headers not complete */
+	}
+
+	/* Verify password */
+	if (!fe_web_verify_password(data)) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: [%s] Authentication failed - closing connection",
+		          client->id);
+
+		/* Send 401 Unauthorized response */
+		response = g_string_new("");
+		g_string_append(response, "HTTP/1.1 401 Unauthorized\r\n");
+		g_string_append(response, "Content-Type: text/plain\r\n");
+		g_string_append(response, "Content-Length: 13\r\n");
+		g_string_append(response, "\r\n");
+		g_string_append(response, "Unauthorized\n");
+
+		if (client->handle != NULL) {
+			net_sendbuffer_send(client->handle, response->str, response->len);
+		}
+
+		g_string_free(response, TRUE);
+		return -1; /* Authentication failed */
 	}
 
 	/* Extract key value */
