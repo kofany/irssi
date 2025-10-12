@@ -348,7 +348,7 @@ static void sig_nick_mode_changed(IRC_CHANNEL_REC *channel, NICK_REC *nick)
 {
 	WEB_MESSAGE_REC *web_msg;
 	IRC_SERVER_REC *server;
-	char mode_str[32];
+	GString *nicklist;
 
 	if (channel == NULL || nick == NULL) {
 		return;
@@ -359,25 +359,50 @@ static void sig_nick_mode_changed(IRC_CHANNEL_REC *channel, NICK_REC *nick)
 		return;
 	}
 
-	/* Build mode string */
-	mode_str[0] = '\0';
-	if (nick->op) {
-		strcat(mode_str, "@");
-	}
-	if (nick->halfop) {
-		strcat(mode_str, "%");
-	}
-	if (nick->voice) {
-		strcat(mode_str, "+");
-	}
-
-	web_msg = fe_web_message_new(WEB_MSG_CHANNEL_MODE);
+	/* Send updated nicklist for the channel */
+	web_msg = fe_web_message_new(WEB_MSG_NICKLIST);
 	web_msg->id = fe_web_generate_message_id();
 	web_msg->server_tag = g_strdup(server->tag);
 	web_msg->target = g_strdup(channel->name);
-	web_msg->nick = g_strdup(nick->nick);
-	web_msg->text = g_strdup(mode_str);
 
+	/* Build nicklist JSON */
+	nicklist = g_string_new("[");
+	{
+		GSList *nicks;
+		GSList *nick_tmp;
+
+		nicks = nicklist_getnicks(CHANNEL(channel));
+		for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+			NICK_REC *n = nick_tmp->data;
+			char *escaped_nick;
+			char prefix[8];
+
+			if (nicklist->len > 1) {
+				g_string_append_c(nicklist, ',');
+			}
+
+			/* Build prefix string (@, +, etc) */
+			prefix[0] = '\0';
+			if (n->op) {
+				strcat(prefix, "@");
+			}
+			if (n->halfop) {
+				strcat(prefix, "%");
+			}
+			if (n->voice) {
+				strcat(prefix, "+");
+			}
+
+			escaped_nick = fe_web_escape_json(n->nick);
+			g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
+			                      escaped_nick, prefix);
+			g_free(escaped_nick);
+		}
+		g_slist_free(nicks);
+	}
+	g_string_append_c(nicklist, ']');
+
+	web_msg->text = g_string_free(nicklist, FALSE);
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
 }
