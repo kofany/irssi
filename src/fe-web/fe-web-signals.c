@@ -29,6 +29,9 @@ static void event_whois_idle(IRC_SERVER_REC *server, const char *data);
 static void event_whois_channels(IRC_SERVER_REC *server, const char *data);
 static void event_whois_account(IRC_SERVER_REC *server, const char *data);
 static void event_whois_secure(IRC_SERVER_REC *server, const char *data);
+static void event_whois_oper(IRC_SERVER_REC *server, const char *data);
+static void event_whois_away(IRC_SERVER_REC *server, const char *data);
+
 
 /* fe-web WHOIS event dispatch table (file-scope) */
 typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
@@ -716,8 +719,57 @@ static void event_whois_secure(IRC_SERVER_REC *server, const char *data)
 		          "fe-web: WHOIS secure for %s: true", nick);
 	}
 
+/* Signal: "whois oper" or "event 313" - WHOIS oper */
+static void event_whois_oper(IRC_SERVER_REC *server, const char *data)
+{
+	char *params, *nick, *type;
+	WHOIS_REC *rec;
+
+	if (server == NULL || data == NULL)
+		return;
+
+	params = event_get_params(data, 3, NULL, &nick, &type);
+	if (type == NULL || *type == '\0')
+		type = "IRC Operator";
+
+	rec = whois_get_or_create(server, nick);
+	if (rec != NULL) {
+		/* mark oper flag and add to special list for client visibility */
+		rec->oper = TRUE;
+		rec->special = g_slist_append(rec->special, g_strdup(type));
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: WHOIS oper for %s: %s", nick, type);
+	}
+
 	g_free(params);
 }
+
+/* Signal: "whois away" - WHOIS away message */
+static void event_whois_away(IRC_SERVER_REC *server, const char *data)
+{
+	char *params, *nick, *awaymsg;
+	WHOIS_REC *rec;
+
+	if (server == NULL || data == NULL)
+		return;
+
+	params = event_get_params(data, 3, NULL, &nick, &awaymsg);
+
+	rec = whois_get_or_create(server, nick);
+	if (rec != NULL && awaymsg != NULL && *awaymsg != '\0') {
+		GString *line = g_string_new(NULL);
+		g_string_printf(line, "is away: %s", awaymsg);
+		rec->special = g_slist_append(rec->special, g_strdup(line->str));
+		g_string_free(line, TRUE);
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: WHOIS away for %s: %s", nick, awaymsg);
+	}
+
+	g_free(params);
+}
+
 
 /* Signal: "user mode changed" - User mode change */
 static void sig_user_mode_changed(IRC_SERVER_REC *server, const char *oldmode)
@@ -932,6 +984,11 @@ void fe_web_signals_init(void)
 	signal_add_last("event 330", (SIGNAL_FUNC) event_whois_account);
 	signal_add_last("whois account", (SIGNAL_FUNC) event_whois_account);
 	signal_add_last("event 671", (SIGNAL_FUNC) event_whois_secure);
+	/* Extra WHOIS info */
+	signal_add_last("event 313", (SIGNAL_FUNC) event_whois_oper);
+	signal_add_last("whois oper", (SIGNAL_FUNC) event_whois_oper);
+	signal_add_last("whois away", (SIGNAL_FUNC) event_whois_away);
+	/* Catch-all and end */
 	signal_add_last("whois default event", (SIGNAL_FUNC) event_whois_default);
 	signal_add_last("whois end", (SIGNAL_FUNC) event_end_of_whois);
 	signal_add_last("event 318", (SIGNAL_FUNC) event_end_of_whois);
@@ -988,6 +1045,11 @@ void fe_web_signals_deinit(void)
 	signal_remove("event 330", (SIGNAL_FUNC) event_whois_account);
 	signal_remove("whois account", (SIGNAL_FUNC) event_whois_account);
 	signal_remove("event 671", (SIGNAL_FUNC) event_whois_secure);
+	/* Extra WHOIS info */
+	signal_remove("event 313", (SIGNAL_FUNC) event_whois_oper);
+	signal_remove("whois oper", (SIGNAL_FUNC) event_whois_oper);
+	signal_remove("whois away", (SIGNAL_FUNC) event_whois_away);
+	/* Catch-all and end */
 	signal_remove("whois default event", (SIGNAL_FUNC) event_whois_default);
 	signal_remove("whois end", (SIGNAL_FUNC) event_end_of_whois);
 	signal_remove("event 318", (SIGNAL_FUNC) event_end_of_whois);
