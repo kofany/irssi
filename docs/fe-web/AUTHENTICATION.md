@@ -1,5 +1,9 @@
 # fe-web WebSocket Authentication
 
+## ⚠️ WAŻNE: Hasło jest WYMAGANE
+
+fe-web **wymaga** hasła dla wszystkich połączeń WebSocket. Bez ustawionego hasła żadne połączenie nie zostanie zaakceptowane.
+
 ## Konfiguracja hasła w irssi
 
 W irssi ustaw hasło dla fe-web:
@@ -9,7 +13,7 @@ W irssi ustaw hasło dla fe-web:
 /SAVE
 ```
 
-Jeśli hasło nie jest ustawione, fe-web wyświetli ostrzeżenie ale pozwoli na połączenie (tylko do testów!).
+**Bez ustawionego hasła fe-web odrzuci wszystkie połączenia z błędem 401 Unauthorized.**
 
 ## Autentykacja z poziomu klienta (The Lounge)
 

@@ -53,7 +53,7 @@ static void fe_web_close_client(WEB_CLIENT_REC *client)
 }
 
 /* Verify password from handshake request
- * Password can be provided in query parameter: GET /?password=secret HTTP/1.1
+ * Password MUST be provided in query parameter: GET /?password=secret HTTP/1.1
  */
 static int fe_web_verify_password(const char *data)
 {
@@ -66,11 +66,11 @@ static int fe_web_verify_password(const char *data)
 
 	configured_password = settings_get_str("fe_web_password");
 
-	/* If no password is configured, allow access (with warning) */
+	/* Password is REQUIRED - reject if not configured */
 	if (configured_password == NULL || *configured_password == '\0') {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WARNING: No password configured! Use /SET fe_web_password <password>");
-		return 1;
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: REJECTED - No password configured! Use /SET fe_web_password <password>");
+		return 0;
 	}
 
 	/* Check query parameter (?password=...) */
