@@ -1,8 +1,10 @@
 # fe-web WebSocket Client Specification
 
-## Version 1.0 (2025-01-25)
+## Version 1.1 (2025-10-12)
 
 This document provides a complete specification for implementing a WebSocket client that connects to the irssi fe-web module.
+
+**⚠️ IMPORTANT**: Password authentication is **REQUIRED** as of version 1.1.
 
 ---
 
@@ -32,10 +34,10 @@ Port: 9001 (default, configurable via fe_web_port)
 
 ### 2. WebSocket Handshake
 
-Send HTTP upgrade request:
+Send HTTP upgrade request **with password in query parameter**:
 
 ```http
-GET / HTTP/1.1
+GET /?password=yourpassword HTTP/1.1
 Host: 127.0.0.1:9001
 Upgrade: websocket
 Connection: Upgrade
@@ -46,6 +48,8 @@ Sec-WebSocket-Version: 13
 **Important**:
 - `Sec-WebSocket-Key` must be a random 16-byte value, base64-encoded
 - Generate new key for each connection
+- **Password is REQUIRED** - must be provided in query parameter `?password=yourpassword`
+- URL-encode the password if it contains special characters
 
 ### 3. Server Response
 
@@ -66,10 +70,15 @@ BASE64(SHA1(Sec-WebSocket-Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
 
 ### 4. Post-Handshake
 
-After successful handshake:
+After successful handshake with valid password:
 1. Server immediately sends `auth_ok` message (see below)
-2. Client is now authenticated (no password required in current implementation)
+2. Client is now authenticated
 3. Connection is ready for bidirectional communication
+
+**If password is missing or invalid**:
+- Server responds with `HTTP/1.1 401 Unauthorized`
+- Connection is closed immediately
+- No `auth_ok` message is sent
 
 ---
 
@@ -855,30 +864,76 @@ Sent when a query (private message) window is closed.
 
 ## Authentication
 
-**Current Implementation**: No password required.
+**Current Implementation**: Password is **REQUIRED** via query parameter.
 
-`auth_ok` is sent immediately after handshake.
+### How Authentication Works
 
-**Future Implementation** (from settings):
-```json
-// Client sends after handshake:
-{
-  "type": "auth",
-  "password": "mypassword"
-}
+1. **Configure password in irssi**:
+   ```
+   /SET fe_web_password yourpassword
+   /SAVE
+   ```
 
-// Server responds:
-{
-  "type": "auth_ok"
-}
-// or
-{
-  "type": "error",
-  "text": "Authentication failed"
-}
+2. **Include password in WebSocket URL**:
+   ```
+   ws://127.0.0.1:9001/?password=yourpassword
+   ```
+
+3. **Server validates password during handshake**:
+   - If password matches: Server sends `101 Switching Protocols` + `auth_ok` message
+   - If password is missing or invalid: Server sends `401 Unauthorized` and closes connection
+
+### Authentication Flow
+
+**Success**:
+```
+Client → Server: GET /?password=correctpassword HTTP/1.1
+                  Upgrade: websocket
+                  ...
+
+Server → Client: HTTP/1.1 101 Switching Protocols
+                  Upgrade: websocket
+                  ...
+
+Server → Client: {"type": "auth_ok", "timestamp": 1706198400}
 ```
 
-Currently, `fe_web_password` setting is registered but not enforced.
+**Failure (wrong password)**:
+```
+Client → Server: GET /?password=wrongpassword HTTP/1.1
+                  Upgrade: websocket
+                  ...
+
+Server → Client: HTTP/1.1 401 Unauthorized
+                  Content-Type: text/plain
+                  Content-Length: 13
+
+                  Unauthorized
+
+[Connection closed]
+```
+
+**Failure (no password)**:
+```
+Client → Server: GET / HTTP/1.1
+                  Upgrade: websocket
+                  ...
+
+Server → Client: HTTP/1.1 401 Unauthorized
+                  Content-Type: text/plain
+                  Content-Length: 13
+
+                  Unauthorized
+
+[Connection closed]
+```
+
+### Security Notes
+
+- Password is sent in **plain text** in the URL query parameter
+- **Use SSL/TLS (wss://)** in production or use a reverse proxy (nginx/caddy) with HTTPS
+- For localhost/LAN testing, plain `ws://` is acceptable
+- URL-encode the password if it contains special characters: `encodeURIComponent(password)`
 
 ---
 
@@ -888,9 +943,10 @@ Currently, `fe_web_password` setting is registered but not enforced.
 
 ```javascript
 class IrssiWebClient {
-  constructor(host = '127.0.0.1', port = 9001) {
+  constructor(host = '127.0.0.1', port = 9001, password = '') {
     this.host = host;
     this.port = port;
+    this.password = password;
     this.ws = null;
     this.connected = false;
     this.authenticated = false;
@@ -898,7 +954,9 @@ class IrssiWebClient {
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(`ws://${this.host}:${this.port}`);
+      // Include password in URL query parameter
+      const url = `ws://${this.host}:${this.port}/?password=${encodeURIComponent(this.password)}`;
+      this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
@@ -920,8 +978,14 @@ class IrssiWebClient {
         reject(error);
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
         console.log('WebSocket closed');
+
+        // Check if closed due to authentication failure
+        if (event.code === 1002) {
+          console.error('Authentication failed - invalid password');
+        }
+
         this.connected = false;
         this.authenticated = false;
       };
@@ -999,7 +1063,8 @@ class IrssiWebClient {
 
 // Usage example:
 async function main() {
-  const client = new IrssiWebClient();
+  // Create client with password
+  const client = new IrssiWebClient('127.0.0.1', 9001, 'yourpassword');
 
   try {
     await client.connect();
@@ -1034,17 +1099,22 @@ import json
 import websocket
 import threading
 import time
+from urllib.parse import urlencode
 
 class IrssiWebClient:
-    def __init__(self, host='127.0.0.1', port=9001):
+    def __init__(self, host='127.0.0.1', port=9001, password=''):
         self.host = host
         self.port = port
+        self.password = password
         self.ws = None
         self.connected = False
         self.authenticated = False
 
     def connect(self):
-        url = f"ws://{self.host}:{self.port}"
+        # Include password in URL query parameter
+        params = urlencode({'password': self.password})
+        url = f"ws://{self.host}:{self.port}/?{params}"
+
         self.ws = websocket.WebSocketApp(
             url,
             on_open=self.on_open,
@@ -1117,7 +1187,7 @@ class IrssiWebClient:
         })
 
 # Usage:
-client = IrssiWebClient()
+client = IrssiWebClient(password='yourpassword')
 if client.connect():
     client.sync_server('libera')
     time.sleep(1)
@@ -1141,8 +1211,8 @@ brew install websocat  # macOS
 # or
 cargo install websocat
 
-# Connect
-websocat ws://127.0.0.1:9001
+# Connect with password
+websocat "ws://127.0.0.1:9001/?password=yourpassword"
 
 # You'll see:
 # {"id":"1706198400-0001","type":"auth_ok","timestamp":1706198400}
@@ -1157,6 +1227,12 @@ websocat ws://127.0.0.1:9001
 {"type":"ping","id":"test-1"}
 ```
 
+**Note**: If you connect without password or with wrong password:
+```bash
+websocat ws://127.0.0.1:9001/
+# Error: Unexpected server response: 401
+```
+
 ---
 
 ## Configuration
@@ -1167,8 +1243,11 @@ irssi settings (via `/set` command):
 /set fe_web_enabled ON
 /set fe_web_port 9001
 /set fe_web_bind 127.0.0.1
-/set fe_web_password ""
+/set fe_web_password "yourpassword"
+/save
 ```
+
+**Important**: Password is **REQUIRED**. Without setting `fe_web_password`, all connection attempts will be rejected with `401 Unauthorized`.
 
 Check status:
 ```
@@ -1222,6 +1301,13 @@ When implementing a client, ensure:
 ---
 
 ## Version History
+
+- **1.1** (2025-10-12): Password authentication required
+  - **BREAKING CHANGE**: Password is now **REQUIRED** via query parameter
+  - Password must be provided in WebSocket URL: `ws://host:port/?password=yourpassword`
+  - Connections without password or with invalid password receive `401 Unauthorized`
+  - Updated all code examples to include password parameter
+  - Added detailed authentication flow documentation
 
 - **1.0** (2025-01-25): Initial specification
   - Complete WebSocket RFC 6455 implementation
