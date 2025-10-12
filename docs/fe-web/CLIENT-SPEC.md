@@ -125,10 +125,19 @@ All messages are JSON objects with a `type` field.
 
 ## Client → Server Messages
 
-### 1. sync_server - Connect to IRC Server
+### 1. sync_server - Synchronize with IRC Network(s)
 
-Synchronize with a specific IRC server.
+Synchronize client with one or all IRC networks.
 
+**Sync with all networks** (recommended for multi-network UI):
+```json
+{
+  "type": "sync_server",
+  "server": "*"
+}
+```
+
+**Sync with specific network**:
 ```json
 {
   "type": "sync_server",
@@ -136,38 +145,52 @@ Synchronize with a specific IRC server.
 }
 ```
 
-**Special value**: Use `"*"` to sync with all servers.
-
 **Response**: Server sends complete state dump (see State Dump section).
 
 **Fields**:
-- `server` (string, required): IRC server tag or "*"
+- `server` (string, required): IRC network tag or `"*"` for all networks
+
+**Best Practices**:
+- Use `"*"` at startup to receive all networks/channels
+- Include `server` field in subsequent `command` messages
+- Re-sync only if connection was lost or state is stale
+- Avoid repeated `sync_server` for switching contexts
 
 ---
 
 ### 2. command - Execute IRC Command
 
-Execute an IRC command on the connected server.
+Execute an IRC command on a specific server/network.
 
 ```json
 {
   "type": "command",
-  "command": "/join #irssi"
+  "command": "/join #irssi",
+  "server": "libera"
 }
 ```
 
 **Examples**:
 ```json
-{"type": "command", "command": "/join #channel"}
-{"type": "command", "command": "/msg nick Hello!"}
-{"type": "command", "command": "/whois alice alice"}
-{"type": "command", "command": "/mode #channel +b *!*@spam.com"}
-{"type": "command", "command": "/op nick"}
-{"type": "command", "command": "/kick #channel spammer Get out"}
+{"type": "command", "command": "/join #channel", "server": "libera"}
+{"type": "command", "command": "/msg nick Hello!", "server": "ircnet"}
+{"type": "command", "command": "/whois alice alice", "server": "libera"}
+{"type": "command", "command": "/mode #channel +b *!*@spam.com", "server": "efnet"}
+{"type": "command", "command": "/op nick", "server": "libera"}
+{"type": "command", "command": "/kick #channel spammer Get out", "server": "libera"}
 ```
 
 **Fields**:
 - `command` (string, required): IRC command starting with `/`
+- `server` (string, optional): IRC network/server tag for this command
+  - If provided, command executes on specified server
+  - If omitted, uses last server from `sync_server`
+  - **Recommended**: Always include for multi-network setups
+
+**Why include server field?**
+- Allows commands on different networks without re-syncing
+- Better for UI with multiple networks visible simultaneously
+- Avoids excessive `sync_server` messages
 
 **Response**: Depends on command:
 - Messages result in `message` events
