@@ -93,25 +93,33 @@ After successful handshake with valid password:
 
 ### Frame Format
 
-All messages are sent as **WebSocket TEXT frames** (opcode 0x1) containing JSON.
+Messages are sent as **WebSocket frames** containing JSON:
+
+**With encryption enabled (default):**
+- **BINARY frames** (opcode 0x2) containing encrypted JSON
+- Payload format: `[IV (12 bytes)] [Ciphertext] [Auth Tag (16 bytes)]`
+
+**With encryption disabled:**
+- **TEXT frames** (opcode 0x1) containing plain JSON
 
 #### Client → Server Frames
 - **MUST** be masked (RFC 6455 requirement)
 - Use random 4-byte masking key per frame
-- Payload is JSON text
+- Payload is encrypted JSON (binary) or plain JSON (text)
 
 #### Server → Client Frames
 - **MUST NOT** be masked (RFC 6455 requirement)
-- Payload is JSON text
+- Payload is encrypted JSON (binary) or plain JSON (text)
 
 ### Supported Opcodes
 
-| Opcode | Name  | Direction | Description |
-|--------|-------|-----------|-------------|
-| 0x1    | TEXT  | Both      | JSON message |
-| 0x8    | CLOSE | Both      | Connection close |
-| 0x9    | PING  | Both      | Keepalive ping |
-| 0xA    | PONG  | Both      | Keepalive pong |
+| Opcode | Name   | Direction | Description |
+|--------|--------|-----------|-------------|
+| 0x1    | TEXT   | Both      | Plain JSON message (encryption disabled) |
+| 0x2    | BINARY | Both      | Encrypted JSON message (encryption enabled) |
+| 0x8    | CLOSE  | Both      | Connection close |
+| 0x9    | PING   | Both      | Keepalive ping |
+| 0xA    | PONG   | Both      | Keepalive pong |
 
 ### Keepalive
 
@@ -124,6 +132,8 @@ All messages are sent as **WebSocket TEXT frames** (opcode 0x1) containing JSON.
 ## Message Format (JSON)
 
 All messages are JSON objects with a `type` field.
+
+**Note**: When encryption is enabled, the JSON is encrypted before being sent in a binary WebSocket frame. The JSON structure remains the same - only the transport encoding changes.
 
 ### Common Fields
 
@@ -937,9 +947,11 @@ Server → Client: HTTP/1.1 401 Unauthorized
 
 ### Security Notes
 
-- Password is sent in **plain text** in the URL query parameter
-- **Use SSL/TLS (wss://)** in production or use a reverse proxy (nginx/caddy) with HTTPS
-- For localhost/LAN testing, plain `ws://` is acceptable
+- Password is sent in **plain text** in the WebSocket handshake (query parameter)
+- **Enable encryption** (default) to protect all messages after handshake
+- Password is used for both **authentication** and **encryption key derivation**
+- For production, consider additional transport security (reverse proxy with TLS, VPN, SSH tunnel)
+- For localhost/LAN testing, encryption alone is sufficient
 - URL-encode the password if it contains special characters: `encodeURIComponent(password)`
 
 ---
@@ -1335,8 +1347,8 @@ async function connectPlain() {
   }
 }
 
-// Example 2: SSL/TLS WebSocket (wss://)
-async function connectSSL() {
+// Example 2: With encryption enabled (recommended)
+async function connectEncrypted() {
   const client = new IrssiWebClient('127.0.0.1', 9001, 'yourpassword', true);
 
   try {
@@ -1533,10 +1545,13 @@ irssi settings (via `/set` command):
 /set fe_web_port 9001
 /set fe_web_bind 127.0.0.1
 /set fe_web_password "yourpassword"
+/set fe_web_encryption ON
 /save
 ```
 
-**Important**: Password is **REQUIRED**. Without setting `fe_web_password`, all connection attempts will be rejected with `401 Unauthorized`.
+**Important**:
+- Password is **REQUIRED**. Without setting `fe_web_password`, all connection attempts will be rejected with `401 Unauthorized`.
+- Encryption is **enabled by default** (`fe_web_encryption ON`). Password is used for both authentication and encryption key derivation.
 
 Check status:
 ```
@@ -1550,8 +1565,12 @@ Check status:
 When implementing a client, ensure:
 
 - ✅ WebSocket handshake with random Sec-WebSocket-Key
+- ✅ Password in query parameter (`?password=yourpassword`)
 - ✅ Client frames are masked (RFC 6455 requirement)
-- ✅ Handle TEXT frames (opcode 0x1)
+- ✅ Implement encryption (AES-256-GCM with PBKDF2 key derivation)
+- ✅ Handle BINARY frames (opcode 0x2) for encrypted messages
+- ✅ Handle TEXT frames (opcode 0x1) for plain messages (if encryption disabled)
+- ✅ Set `ws.binaryType = 'arraybuffer'` for encrypted connections
 - ✅ JSON parsing for all message types
 - ✅ Send sync_server before issuing commands
 - ✅ Handle state dump sequence (channel_join + topic + nicklist)
