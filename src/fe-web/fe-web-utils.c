@@ -37,11 +37,16 @@ char *fe_web_generate_message_id(void)
 	return id;
 }
 
-/* Escape JSON string (simple version for common cases) */
+/* Escape JSON string - handles UTF-8 correctly
+ * JSON supports UTF-8 natively, so we only escape:
+ * - Special JSON characters: " \
+ * - Control characters (< 32): \b \f \n \r \t and others as \uXXXX
+ * - UTF-8 multi-byte sequences (> 127) are passed through unchanged
+ */
 char *fe_web_escape_json(const char *str)
 {
 	GString *result;
-	const char *p;
+	const unsigned char *p;
 
 	if (str == NULL) {
 		return g_strdup("");
@@ -49,7 +54,7 @@ char *fe_web_escape_json(const char *str)
 
 	result = g_string_new("");
 
-	for (p = str; *p != '\0'; p++) {
+	for (p = (const unsigned char *)str; *p != '\0'; p++) {
 		switch (*p) {
 		case '"':
 			g_string_append(result, "\\\"");
@@ -73,9 +78,13 @@ char *fe_web_escape_json(const char *str)
 			g_string_append(result, "\\t");
 			break;
 		default:
+			/* Only escape control characters (< 32)
+			 * UTF-8 bytes (>= 128) and regular ASCII (>= 32 && < 128)
+			 * are passed through unchanged */
 			if (*p < 32) {
-				g_string_append_printf(result, "\\u%04x", (unsigned char)*p);
+				g_string_append_printf(result, "\\u%04x", *p);
 			} else {
+				/* Pass through: regular ASCII and UTF-8 bytes */
 				g_string_append_c(result, *p);
 			}
 			break;
