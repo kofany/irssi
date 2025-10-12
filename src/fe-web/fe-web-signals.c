@@ -321,26 +321,120 @@ static void sig_message_topic(IRC_SERVER_REC *server, const char *channel,
 	fe_web_message_free(web_msg);
 }
 
+/* Parse IRC MODE string into mode and params
+ * Example: "+o kfn" -> mode="+o", params=["kfn"]
+ *          "+l 100" -> mode="+l", params=["100"]
+ *          "+nt" -> mode="+nt", params=[]
+ */
+static void parse_mode_string(const char *mode_str, char **mode_out, char ***params_out, int *params_count)
+{
+	char **parts;
+	int i;
+	GSList *params_list = NULL;
+	int count = 0;
+
+	*mode_out = NULL;
+	*params_out = NULL;
+	*params_count = 0;
+
+	if (mode_str == NULL || *mode_str == '\0') {
+		return;
+	}
+
+	/* Split by whitespace */
+	parts = g_strsplit(mode_str, " ", -1);
+	if (parts == NULL || parts[0] == NULL) {
+		g_strfreev(parts);
+		return;
+	}
+
+	/* First part is the mode string (e.g., "+o", "-b", "+nt") */
+	*mode_out = g_strdup(parts[0]);
+
+	/* Rest are parameters */
+	for (i = 1; parts[i] != NULL; i++) {
+		if (*parts[i] != '\0') {  /* Skip empty strings */
+			params_list = g_slist_append(params_list, g_strdup(parts[i]));
+			count++;
+		}
+	}
+
+	/* Convert GSList to array */
+	if (count > 0) {
+		GSList *tmp;
+
+		*params_out = g_new0(char *, count + 1);  /* NULL-terminated */
+		i = 0;
+		for (tmp = params_list; tmp != NULL; tmp = tmp->next) {
+			(*params_out)[i++] = tmp->data;  /* Transfer ownership */
+		}
+		g_slist_free(params_list);  /* Free list but not data */
+		*params_count = count;
+	}
+
+	g_strfreev(parts);
+}
+
 /* Signal: "message irc mode" */
 static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
                                   const char *nick, const char *address,
                                   const char *mode)
 {
 	WEB_MESSAGE_REC *web_msg;
+	char *mode_str = NULL;
+	char **params = NULL;
+	int params_count = 0;
+	GString *params_json;
+	int i;
 
 	if (server == NULL) {
 		return;
 	}
+
+	/* Parse mode string into mode and params */
+	parse_mode_string(mode, &mode_str, &params, &params_count);
 
 	web_msg = fe_web_message_new(WEB_MSG_CHANNEL_MODE);
 	web_msg->id = fe_web_generate_message_id();
 	web_msg->server_tag = g_strdup(server->tag);
 	web_msg->target = g_strdup(channel);
 	web_msg->nick = g_strdup(nick);
-	web_msg->text = g_strdup(mode);
+
+	/* Add mode as extra_data field */
+	if (mode_str != NULL) {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("mode"), g_strdup(mode_str));
+	}
+
+	/* Add params as JSON array in extra_data */
+	if (params_count > 0) {
+		params_json = g_string_new("[");
+		for (i = 0; i < params_count; i++) {
+			char *escaped = fe_web_escape_json(params[i]);
+			if (i > 0) {
+				g_string_append_c(params_json, ',');
+			}
+			g_string_append_printf(params_json, "\"%s\"", escaped);
+			g_free(escaped);
+		}
+		g_string_append_c(params_json, ']');
+		g_hash_table_insert(web_msg->extra_data, g_strdup("params"),
+		                   g_string_free(params_json, FALSE));
+	} else {
+		/* Empty array for no params */
+		g_hash_table_insert(web_msg->extra_data, g_strdup("params"), g_strdup("[]"));
+	}
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Cleanup */
+	g_free(mode_str);
+	if (params != NULL) {
+		for (i = 0; i < params_count; i++) {
+			g_free(params[i]);
+		}
+		g_free(params);
+	}
 }
 
 /* Signal: "nick mode changed" */

@@ -250,18 +250,28 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 		g_hash_table_iter_init(&iter, msg->extra_data);
 		while (g_hash_table_iter_next(&iter, &key, &value)) {
 			char *escaped_key;
-			char *escaped_value;
+			const char *key_str = (const char *)key;
+			const char *value_str = (const char *)value;
 
 			if (!first) {
 				g_string_append_c(json, ',');
 			}
 			first = 0;
 
-			escaped_key = fe_web_escape_json((const char *)key);
-			escaped_value = fe_web_escape_json((const char *)value);
-			g_string_append_printf(json, "\"%s\":\"%s\"", escaped_key, escaped_value);
+			escaped_key = fe_web_escape_json(key_str);
+
+			/* Special handling for "params" field - it's already JSON array */
+			if (g_strcmp0(key_str, "params") == 0 && value_str != NULL && value_str[0] == '[') {
+				/* Raw JSON array - don't escape */
+				g_string_append_printf(json, "\"%s\":%s", escaped_key, value_str);
+			} else {
+				/* Regular string value - escape it */
+				char *escaped_value = fe_web_escape_json(value_str);
+				g_string_append_printf(json, "\"%s\":\"%s\"", escaped_key, escaped_value);
+				g_free(escaped_value);
+			}
+
 			g_free(escaped_key);
-			g_free(escaped_value);
 		}
 
 		g_string_append_c(json, '}');
