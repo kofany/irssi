@@ -380,13 +380,19 @@ Server connected or disconnected.
   "nick": "bob",
   "timestamp": 1706198400,
   "extra": {
-    "hostname": "user@host.example.com"
+    "hostname": "user@host.example.com",
+    "account": "bob_account",
+    "realname": "Bob Smith"
   }
 }
 ```
 
 **Fields**:
 - `extra.hostname` (string): User's hostname (user@host)
+- `extra.account` (string, optional): Account name from IRCv3 extended-join (only if user is identified with services)
+- `extra.realname` (string, optional): Real name (GECOS) from IRCv3 extended-join
+
+**Note**: The `account` and `realname` fields are only present when the IRC server supports IRCv3 `extended-join` capability and the user has these attributes set.
 
 ---
 
@@ -1195,7 +1201,7 @@ When implementing a client, ensure:
 | `auth_ok` | - | Authentication success |
 | `message` | server, channel, nick, text, level, is_own | IRC message |
 | `server_status` | server, text | Connection status |
-| `channel_join` | server, channel, nick, extra.hostname | User joined |
+| `channel_join` | server, channel, nick, extra.hostname, extra.account?, extra.realname? | User joined |
 | `channel_part` | server, channel, nick, text?, extra.hostname | User left |
 | `channel_kick` | server, channel, nick, text?, extra.kicker, extra.hostname | User kicked |
 | `user_quit` | server, nick, text?, extra.hostname | User quit |

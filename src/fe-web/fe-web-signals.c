@@ -207,7 +207,8 @@ static void sig_message_own_private(IRC_SERVER_REC *server, const char *msg,
 
 /* Signal: "message join" */
 static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
-                              const char *nick, const char *address)
+                              const char *nick, const char *address,
+                              const char *account, const char *realname)
 {
 	WEB_MESSAGE_REC *web_msg;
 
@@ -225,6 +226,18 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
 	if (address != NULL && *address != '\0') {
 		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
 		                   g_strdup(address));
+	}
+
+	/* Add account name from extended-join (IRCv3) */
+	if (account != NULL && *account != '\0' && g_strcmp0(account, "*") != 0) {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("account"),
+		                   g_strdup(account));
+	}
+
+	/* Add realname (GECOS) from extended-join (IRCv3) */
+	if (realname != NULL && *realname != '\0') {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("realname"),
+		                   g_strdup(realname));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
