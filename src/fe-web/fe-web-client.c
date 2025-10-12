@@ -223,5 +223,13 @@ void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command)
 
 	/* Send command to server */
 	/* Signal: "send command", SERVER_REC, cmd, active_win */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Executing command on server %s: %s",
+	          client->id, client->server->tag, command);
+
 	signal_emit("send command", 3, client->server, command, NULL);
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Command signal emitted",
+	          client->id);
 }
