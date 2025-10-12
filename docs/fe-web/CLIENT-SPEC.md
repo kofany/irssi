@@ -378,9 +378,15 @@ Server connected or disconnected.
   "server": "libera",
   "channel": "#irssi",
   "nick": "bob",
-  "timestamp": 1706198400
+  "timestamp": 1706198400,
+  "extra": {
+    "hostname": "user@host.example.com"
+  }
 }
 ```
+
+**Fields**:
+- `extra.hostname` (string): User's hostname (user@host)
 
 ---
 
@@ -394,12 +400,16 @@ Server connected or disconnected.
   "channel": "#irssi",
   "nick": "bob",
   "text": "Goodbye!",
-  "timestamp": 1706198400
+  "timestamp": 1706198400,
+  "extra": {
+    "hostname": "user@host.example.com"
+  }
 }
 ```
 
 **Fields**:
 - `text` (string, optional): Part message/reason
+- `extra.hostname` (string): User's hostname (user@host)
 
 ---
 
@@ -415,7 +425,8 @@ Server connected or disconnected.
   "text": "Spam",
   "timestamp": 1706198400,
   "extra": {
-    "kicker": "alice"
+    "kicker": "alice",
+    "hostname": "spammer@spam.example.com"
   }
 }
 ```
@@ -423,6 +434,7 @@ Server connected or disconnected.
 **Fields**:
 - `text` (string, optional): Kick reason
 - `extra.kicker` (string): Who performed the kick
+- `extra.hostname` (string): Kicked user's hostname (user@host)
 
 ---
 
@@ -437,12 +449,16 @@ Server connected or disconnected.
   "server": "libera",
   "nick": "bob",
   "text": "Connection reset",
-  "timestamp": 1706198400
+  "timestamp": 1706198400,
+  "extra": {
+    "hostname": "user@host.example.com"
+  }
 }
 ```
 
 **Fields**:
 - `text` (string, optional): Quit message
+- `extra.hostname` (string): User's hostname (user@host)
 
 ---
 
@@ -1179,10 +1195,10 @@ When implementing a client, ensure:
 | `auth_ok` | - | Authentication success |
 | `message` | server, channel, nick, text, level, is_own | IRC message |
 | `server_status` | server, text | Connection status |
-| `channel_join` | server, channel, nick | User joined |
-| `channel_part` | server, channel, nick, text? | User left |
-| `channel_kick` | server, channel, nick, text?, extra.kicker | User kicked |
-| `user_quit` | server, nick, text? | User quit |
+| `channel_join` | server, channel, nick, extra.hostname | User joined |
+| `channel_part` | server, channel, nick, text?, extra.hostname | User left |
+| `channel_kick` | server, channel, nick, text?, extra.kicker, extra.hostname | User kicked |
+| `user_quit` | server, nick, text?, extra.hostname | User quit |
 | `topic` | server, channel, nick?, text | Topic change |
 | `channel_mode` | server, channel, nick, extra.mode, extra.params | Mode change |
 | `nicklist` | server, channel, text (JSON array) | Nicklist |

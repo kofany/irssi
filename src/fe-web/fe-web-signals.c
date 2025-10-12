@@ -221,6 +221,12 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
 	web_msg->target = g_strdup(channel);
 	web_msg->nick = g_strdup(nick);
 
+	/* Add hostname (user@host) to extra_data */
+	if (address != NULL && *address != '\0') {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
+		                   g_strdup(address));
+	}
+
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
 }
@@ -243,6 +249,12 @@ static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
 	web_msg->nick = g_strdup(nick);
 	if (reason != NULL && *reason != '\0') {
 		web_msg->text = g_strdup(reason);
+	}
+
+	/* Add hostname (user@host) to extra_data */
+	if (address != NULL && *address != '\0') {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
+		                   g_strdup(address));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
@@ -273,6 +285,12 @@ static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
 	g_hash_table_insert(web_msg->extra_data, g_strdup("kicker"),
 	                   g_strdup(kicker));
 
+	/* Add hostname (user@host) of kicked user to extra_data */
+	if (address != NULL && *address != '\0') {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
+		                   g_strdup(address));
+	}
+
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
 }
@@ -293,6 +311,12 @@ static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
 	web_msg->nick = g_strdup(nick);
 	if (reason != NULL && *reason != '\0') {
 		web_msg->text = g_strdup(reason);
+	}
+
+	/* Add hostname (user@host) to extra_data */
+	if (address != NULL && *address != '\0') {
+		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
+		                   g_strdup(address));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
