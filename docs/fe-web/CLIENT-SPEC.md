@@ -1,25 +1,26 @@
 # fe-web WebSocket Client Specification
 
-## Version 1.2 (2025-10-12)
+## Version 1.3 (2025-10-12)
 
 This document provides a complete specification for implementing a WebSocket client that connects to the irssi fe-web module.
 
 **⚠️ IMPORTANT**:
 - Password authentication is **REQUIRED** as of version 1.1
-- **SSL/TLS support (wss://)** is available as of version 1.2 (optional)
+- **Application-level encryption (AES-256-GCM)** is available as of version 1.3 (enabled by default)
 
 ---
 
 ## Table of Contents
 
 1. [Connection and Handshake](#connection-and-handshake)
-2. [WebSocket Protocol](#websocket-protocol)
-3. [Message Format (JSON)](#message-format-json)
-4. [Client → Server Messages](#client--server-messages)
-5. [Server → Client Messages](#server--client-messages)
-6. [Connection Lifecycle](#connection-lifecycle)
-7. [Authentication](#authentication)
-8. [Complete Implementation Example](#complete-implementation-example)
+2. [Encryption](#encryption)
+3. [WebSocket Protocol](#websocket-protocol)
+4. [Message Format (JSON)](#message-format-json)
+5. [Client → Server Messages](#client--server-messages)
+6. [Server → Client Messages](#server--client-messages)
+7. [Connection Lifecycle](#connection-lifecycle)
+8. [Authentication](#authentication)
+9. [Complete Implementation Example](#complete-implementation-example)
 
 ---
 
@@ -29,27 +30,18 @@ This document provides a complete specification for implementing a WebSocket cli
 
 Connect to the irssi server:
 
-**Plain WebSocket (ws://):**
 ```
 Host: 127.0.0.1 (default, configurable via fe_web_bind)
 Port: 9001 (default, configurable via fe_web_port)
-Protocol: TCP
+Protocol: WebSocket (ws://)
 ```
 
-**SSL/TLS WebSocket (wss://):**
-```
-Host: 127.0.0.1 (default, configurable via fe_web_bind)
-Port: 9001 (default, configurable via fe_web_port)
-Protocol: TLS (SSL/TLS encrypted TCP)
-```
-
-**Note**: SSL/TLS is enabled in irssi with `/SET fe_web_ssl ON`. When enabled, the server uses an auto-generated self-signed certificate.
+**Note**: fe-web uses plain WebSocket (ws://) with application-level encryption. See [Encryption](#encryption) section for details.
 
 ### 2. WebSocket Handshake
 
 Send HTTP upgrade request **with password in query parameter**:
 
-**For plain connection (ws://):**
 ```http
 GET /?password=yourpassword HTTP/1.1
 Host: 127.0.0.1:9001
@@ -58,24 +50,13 @@ Connection: Upgrade
 Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
 Sec-WebSocket-Version: 13
 ```
-
-**For SSL/TLS connection (wss://):**
-```http
-GET /?password=yourpassword HTTP/1.1
-Host: 127.0.0.1:9001
-Upgrade: websocket
-Connection: Upgrade
-Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
-Sec-WebSocket-Version: 13
-```
-(Same handshake, but over TLS-encrypted connection)
 
 **Important**:
 - `Sec-WebSocket-Key` must be a random 16-byte value, base64-encoded
 - Generate new key for each connection
 - **Password is REQUIRED** - must be provided in query parameter `?password=yourpassword`
 - URL-encode the password if it contains special characters
-- **For wss://**: Client must accept self-signed certificates (see SSL/TLS section below)
+- Password is used for both **authentication** and **encryption key derivation**
 
 ### 3. Server Response
 
@@ -963,210 +944,240 @@ Server → Client: HTTP/1.1 401 Unauthorized
 
 ---
 
-## SSL/TLS Support (wss://)
+## Encryption
 
-**As of version 1.2**, fe-web supports optional SSL/TLS encryption for WebSocket connections.
+**As of version 1.3**, fe-web uses **application-level encryption** with AES-256-GCM instead of SSL/TLS.
+
+### Why Application-Level Encryption?
+
+**Problems with SSL/TLS (wss://):**
+- ❌ Self-signed certificates cause browser warnings
+- ❌ Users must manually accept certificates
+- ❌ Complicated setup for localhost/LAN
+- ❌ Let's Encrypt requires public domain
+
+**Benefits of Application-Level Encryption:**
+- ✅ **No certificate warnings** - works immediately in browser
+- ✅ **Zero configuration** - no certificate management
+- ✅ **Password = encryption key** - single secret to remember
+- ✅ **Authenticated encryption** - detects tampering
+- ✅ **Works everywhere** - localhost, LAN, remote
+
+### How It Works
+
+```
+┌─────────────┐                    ┌─────────────┐
+│   Client    │                    │   fe-web    │
+│             │                    │   (irssi)   │
+└─────────────┘                    └─────────────┘
+       │                                  │
+       │  1. Derive key from password     │
+       │     PBKDF2(password, 10000 iter) │
+       │                                  │
+       │  2. Connect ws:// (plain)        │
+       ├─────────────────────────────────>│
+       │                                  │
+       │  3. Send encrypted message       │
+       │     Binary frame: IV+AES(JSON)+Tag│
+       ├─────────────────────────────────>│
+       │                                  │
+       │  4. Server decrypts & verifies   │
+       │     Verify tag, decrypt JSON     │
+       │                                  │
+       │  5. All messages encrypted       │
+       │     Binary frames (opcode 0x2)   │
+       ├<────────────────────────────────>│
+       │                                  │
+```
+
+### Encryption Details
+
+**Algorithm**: AES-256-GCM (Galois/Counter Mode)
+- **Key size**: 256 bits (32 bytes)
+- **IV size**: 96 bits (12 bytes) - random per message
+- **Tag size**: 128 bits (16 bytes) - authentication tag
+
+**Key Derivation**: PBKDF2-HMAC-SHA256
+- **Input**: Password from `/SET fe_web_password`
+- **Salt**: Fixed string "irssi-fe-web-v1" (15 bytes)
+- **Iterations**: 10,000
+- **Output**: 256-bit key
+
+**Message Format**:
+```
+[IV (12 bytes)] [Ciphertext (variable)] [Auth Tag (16 bytes)]
+```
+
+**WebSocket Frames**:
+- **Binary frame (0x2)**: Encrypted JSON messages
+- **Text frame (0x1)**: Plain JSON (when encryption disabled)
 
 ### Server Configuration
 
-Enable SSL/TLS in irssi:
+Enable encryption in irssi (enabled by default):
 
 ```
-/SET fe_web_ssl ON
+/SET fe_web_encryption ON
 /SET fe_web_password yourpassword
 /SET fe_web_enabled ON
 /SAVE
 ```
 
-When SSL is enabled:
-- Server auto-generates a **2048-bit RSA key** at startup
-- Server auto-generates a **self-signed X.509 certificate** (valid for 10 years)
-- Certificate details: `CN=irssi-fe-web, O=irssi`
-- **No certificate files needed** - everything is generated in memory
+**Settings**:
+- `fe_web_encryption` - Enable/disable encryption (default: ON)
+- `fe_web_password` - Password for authentication + encryption key
+- Password is used for **both** authentication and encryption
 
 ### Client Implementation
 
 #### JavaScript (Browser)
 
-**Option 1: Ignore certificate errors (for self-signed certs)**
-
 ```javascript
-// Browser WebSocket API doesn't allow certificate control
-// User must manually accept the certificate in browser
+class EncryptedWebSocket {
+    constructor(url, password) {
+        this.ws = new WebSocket(url);  // Plain ws://
+        this.password = password;
+        this.key = null;
+    }
 
-const ws = new WebSocket('wss://localhost:9001/?password=yourpassword');
-```
+    async connect() {
+        // Derive encryption key from password
+        const encoder = new TextEncoder();
+        const passwordData = encoder.encode(this.password);
 
-**Note**: Browser will show security warning for self-signed certificate. User must click "Advanced" → "Proceed anyway".
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw', passwordData, 'PBKDF2', false, ['deriveKey']
+        );
 
-#### JavaScript (Node.js)
+        this.key = await crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode('irssi-fe-web-v1'),
+                iterations: 10000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
 
-**Option 1: Disable certificate verification (for self-signed certs)**
+        // Setup message handler
+        this.ws.onmessage = (event) => this.onMessage(event);
+    }
 
-```javascript
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    async send(obj) {
+        const plaintext = JSON.stringify(obj);
+        const iv = crypto.getRandomValues(new Uint8Array(12));
 
-const WebSocket = require('ws');
-const ws = new WebSocket('wss://localhost:9001/?password=yourpassword');
-```
+        const ciphertext = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            this.key,
+            new TextEncoder().encode(plaintext)
+        );
 
-**Option 2: Use `rejectUnauthorized` option**
+        // Build message: IV + ciphertext (includes tag)
+        const message = new Uint8Array(12 + ciphertext.byteLength);
+        message.set(iv, 0);
+        message.set(new Uint8Array(ciphertext), 12);
 
-```javascript
-const WebSocket = require('ws');
-const ws = new WebSocket('wss://localhost:9001/?password=yourpassword', {
-    rejectUnauthorized: false
-});
-```
+        // Send as binary frame
+        this.ws.send(message);
+    }
 
-#### Python
+    async onMessage(event) {
+        const data = new Uint8Array(await event.data.arrayBuffer());
+        const iv = data.slice(0, 12);
+        const ciphertext = data.slice(12);
 
-```python
-import ssl
-import websocket
+        const plaintext = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: iv },
+            this.key,
+            ciphertext
+        );
 
-# Create SSL context that doesn't verify certificates
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
+        const json = new TextDecoder().decode(plaintext);
+        const msg = JSON.parse(json);
 
-# Connect with SSL
-ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
-ws.connect("wss://localhost:9001/?password=yourpassword")
-```
+        this.handleMessage(msg);
+    }
 
-#### Go
-
-```go
-import (
-    "crypto/tls"
-    "github.com/gorilla/websocket"
-)
-
-dialer := websocket.Dialer{
-    TLSClientConfig: &tls.Config{
-        InsecureSkipVerify: true,
-    },
+    handleMessage(msg) {
+        console.log('Received:', msg);
+    }
 }
 
-ws, _, err := dialer.Dial("wss://localhost:9001/?password=yourpassword", nil)
+// Usage
+const ws = new EncryptedWebSocket('ws://localhost:9001/?password=yourpassword', 'yourpassword');
+await ws.connect();
 ```
-
-### Testing with wscat
-
-```bash
-# Install wscat
-npm install -g wscat
-
-# Connect with SSL (ignore certificate errors)
-wscat -c "wss://localhost:9001/?password=yourpassword" --no-check
-
-# Or with explicit certificate ignore
-wscat -c "wss://localhost:9001/?password=yourpassword" -n
-```
-
-### Self-Signed Certificate Considerations
-
-**What is encrypted:**
-- ✅ Password in query parameter
-- ✅ All WebSocket frames
-- ✅ All JSON messages
-- ✅ Complete HTTP/WebSocket traffic
-
-**Security implications:**
-- ✅ **Protects against eavesdropping** (passive sniffing)
-- ✅ **Encrypts all data** with TLS 1.2/1.3
-- ⚠️ **Does NOT protect against MITM** if attacker has network access (because certificate is not verified)
-- ⚠️ **Browser warnings** - users must manually accept certificate
-
-**For production use:**
-
-1. **Option 1: Reverse Proxy (RECOMMENDED)**
-   - Use nginx/caddy with Let's Encrypt
-   - fe-web runs on `ws://localhost:9001`
-   - nginx provides `wss://` with valid certificate
-
-   ```nginx
-   server {
-       listen 443 ssl;
-       ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
-       ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-
-       location / {
-           proxy_pass http://localhost:9001;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection "upgrade";
-       }
-   }
-   ```
-
-2. **Option 2: VPN/SSH Tunnel**
-   - Run fe-web on `ws://localhost:9001`
-   - Use WireGuard/OpenVPN or SSH tunnel for encryption
-   - No SSL needed in fe-web
-
-3. **Option 3: Accept self-signed certificate**
-   - Use fe-web's built-in SSL (`/SET fe_web_ssl ON`)
-   - Configure client to accept self-signed certificates
-   - Suitable for localhost/LAN/trusted networks
-
-### SSL/TLS Protocol Details
-
-**Supported TLS versions:**
-- TLS 1.2
-- TLS 1.3
-(Depends on OpenSSL version on server)
-
-**Cipher suites:**
-- Determined by OpenSSL's `TLS_server_method()`
-- Modern ciphers preferred (AES-256-GCM, ChaCha20-Poly1305, etc.)
-
-**Certificate details:**
-- **Algorithm**: RSA 2048-bit
-- **Signature**: SHA-256
-- **Validity**: 10 years from generation
-- **Subject**: CN=irssi-fe-web, O=irssi
-- **Issuer**: Self-signed (same as subject)
 
 ---
 
 ## Complete Implementation Example
 
-### JavaScript (Browser/Node.js)
+### JavaScript (Browser/Node.js) with Encryption
 
 ```javascript
 class IrssiWebClient {
-  constructor(host = '127.0.0.1', port = 9001, password = '', useSSL = false) {
+  constructor(host = '127.0.0.1', port = 9001, password = '', useEncryption = true) {
     this.host = host;
     this.port = port;
     this.password = password;
-    this.useSSL = useSSL;
+    this.useEncryption = useEncryption;
     this.ws = null;
+    this.key = null;
     this.connected = false;
     this.authenticated = false;
   }
 
-  connect() {
+  async connect() {
+    // Derive encryption key from password
+    if (this.useEncryption) {
+      const encoder = new TextEncoder();
+      const passwordData = encoder.encode(this.password);
+
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', passwordData, 'PBKDF2', false, ['deriveKey']
+      );
+
+      this.key = await crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: encoder.encode('irssi-fe-web-v1'),
+          iterations: 10000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
     return new Promise((resolve, reject) => {
-      // Build WebSocket URL with SSL support
-      const protocol = this.useSSL ? 'wss' : 'ws';
-      const url = `${protocol}://${this.host}:${this.port}/?password=${encodeURIComponent(this.password)}`;
+      // Build WebSocket URL (always ws://)
+      const url = `ws://${this.host}:${this.port}/?password=${encodeURIComponent(this.password)}`;
 
-      // For Node.js with self-signed certificates
-      const options = this.useSSL && typeof process !== 'undefined' ? {
-        rejectUnauthorized: false
-      } : undefined;
-
-      this.ws = new WebSocket(url, options);
+      this.ws = new WebSocket(url);
+      this.ws.binaryType = 'arraybuffer';  // For encrypted messages
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
         this.connected = true;
       };
 
-      this.ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
+      this.ws.onmessage = async (event) => {
+        let msg;
+
+        if (this.useEncryption && event.data instanceof ArrayBuffer) {
+          // Decrypt binary message
+          msg = await this.decrypt(event.data);
+        } else {
+          // Plain text message
+          msg = JSON.parse(event.data);
+        }
+
         this.handleMessage(msg);
 
         if (msg.type === 'auth_ok') {
@@ -1192,6 +1203,51 @@ class IrssiWebClient {
         this.authenticated = false;
       };
     });
+  }
+
+  async encrypt(plaintext) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoder = new TextEncoder();
+
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      this.key,
+      encoder.encode(plaintext)
+    );
+
+    // Build message: IV + ciphertext (includes tag)
+    const message = new Uint8Array(12 + ciphertext.byteLength);
+    message.set(iv, 0);
+    message.set(new Uint8Array(ciphertext), 12);
+
+    return message;
+  }
+
+  async decrypt(data) {
+    const dataArray = new Uint8Array(data);
+    const iv = dataArray.slice(0, 12);
+    const ciphertext = dataArray.slice(12);
+
+    const plaintext = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      this.key,
+      ciphertext
+    );
+
+    const decoder = new TextDecoder();
+    const json = decoder.decode(plaintext);
+    return JSON.parse(json);
+  }
+
+  async send(obj) {
+    const json = JSON.stringify(obj);
+
+    if (this.useEncryption) {
+      const encrypted = await this.encrypt(json);
+      this.ws.send(encrypted);
+    } else {
+      this.ws.send(json);
+    }
   }
 
   handleMessage(msg) {
@@ -1285,7 +1341,7 @@ async function connectSSL() {
 
   try {
     await client.connect();
-    console.log('Connected via wss:// and authenticated!');
+    console.log('Connected with encryption and authenticated!');
 
     client.syncServer('libera');
   } catch (error) {
@@ -1295,9 +1351,9 @@ async function connectSSL() {
 
 // Example 3: Full usage
 async function main() {
-  // Create client with password and SSL
-  const useSSL = true; // Set to false for plain ws://
-  const client = new IrssiWebClient('127.0.0.1', 9001, 'yourpassword', useSSL);
+  // Create client with password and encryption
+  const useEncryption = true; // Set to false for plain JSON
+  const client = new IrssiWebClient('127.0.0.1', 9001, 'yourpassword', useEncryption);
 
   try {
     await client.connect();

@@ -18,7 +18,7 @@ This document provides instructions for integrating The Lounge IRC client with i
 /SET fe_web_port 9001
 /SET fe_web_bind 127.0.0.1
 /SET fe_web_password yourpassword
-/SET fe_web_ssl ON
+/SET fe_web_encryption ON
 /SAVE
 ```
 
@@ -26,29 +26,103 @@ This document provides instructions for integrating The Lounge IRC client with i
 
 **WebSocket URL format:**
 ```
-wss://127.0.0.1:9001/?password=yourpassword
-```
-
-**For plain connection (no SSL):**
-```
 ws://127.0.0.1:9001/?password=yourpassword
 ```
 
+**Note**: Always use `ws://` (plain WebSocket). Encryption is handled at application level, not transport level.
+
 ---
 
-## SSL/TLS Implementation
+## Application-Level Encryption
 
-### What Changed in Version 1.2
+### What Changed in Version 1.3
 
-fe-web now supports **optional SSL/TLS encryption** (wss://) with auto-generated self-signed certificates.
+fe-web now uses **application-level encryption** (AES-256-GCM) instead of SSL/TLS.
+
+**Why the change?**
+- ❌ SSL/TLS with self-signed certificates caused browser warnings
+- ❌ Users had to manually accept certificates
+- ✅ Application-level encryption works immediately without warnings
+- ✅ Zero configuration - no certificate management
 
 **Key points:**
-- SSL is **optional** - controlled by `/SET fe_web_ssl ON/OFF` in irssi
-- Certificates are **auto-generated** at startup (no manual certificate management)
-- Certificate is **self-signed** - clients must accept/ignore certificate errors
-- **Same WebSocket protocol** - only transport layer changes (TLS vs plain TCP)
+- Encryption is **enabled by default** - controlled by `/SET fe_web_encryption ON/OFF` in irssi
+- Password is used for **both authentication and encryption key derivation**
+- All messages encrypted with **AES-256-GCM** (authenticated encryption)
+- **Binary WebSocket frames** (opcode 0x2) for encrypted data
+- **Same WebSocket protocol** - only message payload is encrypted
 
 ### Implementation in The Lounge
+
+#### Encryption Helper Class
+
+Create a reusable encryption helper:
+
+```javascript
+const crypto = require('crypto').webcrypto || require('crypto');
+
+class IrssiEncryption {
+    constructor(password) {
+        this.password = password;
+        this.key = null;
+    }
+
+    async deriveKey() {
+        const encoder = new TextEncoder();
+        const passwordData = encoder.encode(this.password);
+
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw', passwordData, 'PBKDF2', false, ['deriveKey']
+        );
+
+        this.key = await crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode('irssi-fe-web-v1'),
+                iterations: 10000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+    }
+
+    async encrypt(plaintext) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const encoder = new TextEncoder();
+
+        const ciphertext = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            this.key,
+            encoder.encode(plaintext)
+        );
+
+        // Build message: IV + ciphertext (includes tag)
+        const message = new Uint8Array(12 + ciphertext.byteLength);
+        message.set(iv, 0);
+        message.set(new Uint8Array(ciphertext), 12);
+
+        return message;
+    }
+
+    async decrypt(data) {
+        const dataArray = new Uint8Array(data);
+        const iv = dataArray.slice(0, 12);
+        const ciphertext = dataArray.slice(12);
+
+        const plaintext = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: iv },
+            this.key,
+            ciphertext
+        );
+
+        const decoder = new TextDecoder();
+        return decoder.decode(plaintext);
+    }
+}
+```
 
 #### Option 1: Node.js WebSocket Client (Recommended)
 
@@ -62,27 +136,39 @@ const config = {
     host: '127.0.0.1',
     port: 9001,
     password: 'yourpassword',
-    ssl: true  // User preference
+    encryption: true  // User preference
 };
 
-// Build URL
-const protocol = config.ssl ? 'wss' : 'ws';
-const url = `${protocol}://${config.host}:${config.port}/?password=${encodeURIComponent(config.password)}`;
+// Build URL (always ws://)
+const url = `ws://${config.host}:${config.port}/?password=${encodeURIComponent(config.password)}`;
 
-// WebSocket options for SSL
-const wsOptions = config.ssl ? {
-    rejectUnauthorized: false  // Accept self-signed certificates
-} : {};
+// Initialize encryption
+let encryption = null;
+if (config.encryption) {
+    encryption = new IrssiEncryption(config.password);
+    await encryption.deriveKey();
+}
 
 // Connect
-const ws = new WebSocket(url, wsOptions);
+const ws = new WebSocket(url);
+ws.binaryType = 'arraybuffer';  // For encrypted messages
 
 ws.on('open', () => {
     console.log('Connected to irssi fe-web');
 });
 
-ws.on('message', (data) => {
-    const msg = JSON.parse(data);
+ws.on('message', async (data) => {
+    let msg;
+
+    if (config.encryption && data instanceof ArrayBuffer) {
+        // Decrypt binary message
+        const json = await encryption.decrypt(data);
+        msg = JSON.parse(json);
+    } else {
+        // Plain text message
+        msg = JSON.parse(data);
+    }
+
     handleMessage(msg);
 });
 
@@ -93,6 +179,18 @@ ws.on('error', (error) => {
 ws.on('close', (code, reason) => {
     console.log(`Connection closed: ${code} - ${reason}`);
 });
+
+// Send encrypted message
+async function sendMessage(obj) {
+    const json = JSON.stringify(obj);
+
+    if (config.encryption) {
+        const encrypted = await encryption.encrypt(json);
+        ws.send(encrypted);
+    } else {
+        ws.send(json);
+    }
+}
 ```
 
 #### Option 2: Browser WebSocket API
@@ -105,20 +203,37 @@ const config = {
     host: '127.0.0.1',
     port: 9001,
     password: 'yourpassword',
-    ssl: true
+    encryption: true
 };
 
-const protocol = config.ssl ? 'wss' : 'ws';
-const url = `${protocol}://${config.host}:${config.port}/?password=${encodeURIComponent(config.password)}`;
+const url = `ws://${config.host}:${config.port}/?password=${encodeURIComponent(config.password)}`;
+
+// Initialize encryption
+let encryption = null;
+if (config.encryption) {
+    encryption = new IrssiEncryption(config.password);
+    await encryption.deriveKey();
+}
 
 const ws = new WebSocket(url);
+ws.binaryType = 'arraybuffer';  // For encrypted messages
 
 ws.onopen = () => {
     console.log('Connected to irssi fe-web');
 };
 
-ws.onmessage = (event) => {
-    const msg = JSON.parse(event.data);
+ws.onmessage = async (event) => {
+    let msg;
+
+    if (config.encryption && event.data instanceof ArrayBuffer) {
+        // Decrypt binary message
+        const json = await encryption.decrypt(event.data);
+        msg = JSON.parse(json);
+    } else {
+        // Plain text message
+        msg = JSON.parse(event.data);
+    }
+
     handleMessage(msg);
 };
 
@@ -129,13 +244,23 @@ ws.onerror = (error) => {
 ws.onclose = (event) => {
     console.log(`Connection closed: ${event.code}`);
 };
-```
 
-**Note**: Browser will show security warning for self-signed certificates. User must manually accept the certificate.
+// Send encrypted message
+async function sendMessage(obj) {
+    const json = JSON.stringify(obj);
+
+    if (config.encryption) {
+        const encrypted = await encryption.encrypt(json);
+        ws.send(encrypted);
+    } else {
+        ws.send(json);
+    }
+}
+```
 
 ### User Configuration
 
-Add SSL toggle to The Lounge settings:
+Add encryption toggle to The Lounge settings:
 
 ```javascript
 // Example configuration schema
@@ -145,8 +270,7 @@ Add SSL toggle to The Lounge settings:
         "host": "127.0.0.1",
         "port": 9001,
         "password": "yourpassword",
-        "ssl": true,  // NEW: SSL/TLS toggle
-        "ssl_verify": false  // NEW: Certificate verification (false for self-signed)
+        "encryption": true  // NEW: Application-level encryption (default: true)
     }
 }
 ```
@@ -162,116 +286,170 @@ Add SSL toggle to The Lounge settings:
 │ Port:     [9001                 ]   │
 │ Password: [••••••••••••         ]   │
 │                                     │
-│ ☑ Use SSL/TLS (wss://)              │
-│ ☑ Accept self-signed certificates  │
+│ ☑ Use encryption (AES-256-GCM)      │
+│   (Recommended - enabled by default)│
 │                                     │
 │ [Connect]  [Cancel]                 │
 └─────────────────────────────────────┘
 ```
 
-**Warning message for self-signed certificates:**
+**Connection status indicator:**
 ```
-⚠️ Warning: Self-signed certificate detected
-
-The server is using a self-signed SSL certificate.
-This provides encryption but does not verify server identity.
-
-For production use, consider:
-- Using a reverse proxy (nginx) with Let's Encrypt
-- Using a VPN/SSH tunnel
-- Generating a CA-signed certificate
-
-[ ] Don't show this warning again
-[Continue]  [Cancel]
+🔒 Connected (encrypted)  - Encryption enabled
+🔓 Connected (plain)      - Encryption disabled (not recommended)
 ```
 
 ---
 
 ## Protocol Details
 
-### No Changes to WebSocket Protocol
+### WebSocket Protocol with Encryption
 
-The WebSocket protocol remains **identical** whether using `ws://` or `wss://`:
+The WebSocket protocol uses **plain ws://** with **application-level encryption**:
 
-- Same JSON message format
-- Same authentication flow (password in query parameter)
-- Same message types (auth_ok, server_add, channel_add, etc.)
-- Same client commands (sync_server, send_message, etc.)
+- **Transport**: Plain WebSocket (ws://)
+- **Handshake**: Standard WebSocket handshake (unencrypted)
+- **Authentication**: Password in query parameter (unencrypted handshake)
+- **Messages**: Encrypted JSON payloads (binary frames)
 
-**Only difference**: Transport layer encryption (TLS vs plain TCP)
+**Key changes from plain JSON:**
+- **Binary frames (opcode 0x2)** instead of text frames (opcode 0x1)
+- **Message format**: `[IV (12 bytes)] [Ciphertext] [Auth Tag (16 bytes)]`
+- **Encryption**: AES-256-GCM with PBKDF2-derived key
 
 ### Authentication Flow
 
-**With SSL (wss://):**
+**With encryption enabled:**
 ```
-1. Client → Server: TLS handshake
-2. Client → Server: GET /?password=yourpassword HTTP/1.1 (over TLS)
+1. Client: Derive key from password (PBKDF2)
+2. Client → Server: GET /?password=yourpassword HTTP/1.1
                      Upgrade: websocket
                      ...
-3. Server → Client: HTTP/1.1 101 Switching Protocols (over TLS)
-4. Server → Client: {"type": "auth_ok", ...} (over TLS)
+3. Server → Client: HTTP/1.1 101 Switching Protocols
+4. Server → Client: Binary frame with encrypted {"type": "auth_ok", ...}
+5. Client: Decrypt and verify message
 ```
 
-**Without SSL (ws://):**
+**Without encryption (not recommended):**
 ```
 1. Client → Server: GET /?password=yourpassword HTTP/1.1
                      Upgrade: websocket
                      ...
 2. Server → Client: HTTP/1.1 101 Switching Protocols
-3. Server → Client: {"type": "auth_ok", ...}
+3. Server → Client: Text frame with plain {"type": "auth_ok", ...}
 ```
 
 ---
 
 ## Testing
 
-### Test with wscat
+### Test with wscat (Plain JSON only)
+
+**Note**: wscat doesn't support custom encryption, so test with encryption disabled:
 
 ```bash
+# In irssi
+/SET fe_web_encryption OFF
+
 # Install wscat
 npm install -g wscat
 
 # Test plain connection
 wscat -c "ws://127.0.0.1:9001/?password=yourpassword"
-
-# Test SSL connection (ignore certificate)
-wscat -c "wss://127.0.0.1:9001/?password=yourpassword" --no-check
 ```
 
-### Test with Node.js
+### Test with Node.js (With Encryption)
 
 ```javascript
-// test-ssl.js
+// test-encryption.js
 const WebSocket = require('ws');
+const crypto = require('crypto').webcrypto || require('crypto');
 
-async function testConnection(useSSL) {
-    const protocol = useSSL ? 'wss' : 'ws';
-    const url = `${protocol}://127.0.0.1:9001/?password=yourpassword`;
-    
-    const options = useSSL ? { rejectUnauthorized: false } : {};
-    
-    console.log(`Testing ${protocol}:// connection...`);
-    
-    const ws = new WebSocket(url, options);
-    
+class IrssiEncryption {
+    constructor(password) {
+        this.password = password;
+        this.key = null;
+    }
+
+    async deriveKey() {
+        const encoder = new TextEncoder();
+        const passwordData = encoder.encode(this.password);
+
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw', passwordData, 'PBKDF2', false, ['deriveKey']
+        );
+
+        this.key = await crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode('irssi-fe-web-v1'),
+                iterations: 10000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+    }
+
+    async decrypt(data) {
+        const dataArray = new Uint8Array(data);
+        const iv = dataArray.slice(0, 12);
+        const ciphertext = dataArray.slice(12);
+
+        const plaintext = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: iv },
+            this.key,
+            ciphertext
+        );
+
+        const decoder = new TextDecoder();
+        return decoder.decode(plaintext);
+    }
+}
+
+async function testConnection(useEncryption) {
+    const url = 'ws://127.0.0.1:9001/?password=yourpassword';
+
+    let encryption = null;
+    if (useEncryption) {
+        encryption = new IrssiEncryption('yourpassword');
+        await encryption.deriveKey();
+        console.log('🔒 Encryption enabled');
+    } else {
+        console.log('🔓 Plain connection');
+    }
+
+    const ws = new WebSocket(url);
+    ws.binaryType = 'arraybuffer';
+
     ws.on('open', () => {
         console.log('✅ Connected successfully');
     });
-    
-    ws.on('message', (data) => {
-        const msg = JSON.parse(data);
-        console.log('📨 Received:', msg.type);
-        
+
+    ws.on('message', async (data) => {
+        let msg;
+
+        if (useEncryption && data instanceof ArrayBuffer) {
+            const json = await encryption.decrypt(data);
+            msg = JSON.parse(json);
+            console.log('🔓 Decrypted:', msg.type);
+        } else {
+            msg = JSON.parse(data);
+            console.log('📨 Received:', msg.type);
+        }
+
         if (msg.type === 'auth_ok') {
             console.log('✅ Authentication successful');
             ws.close();
         }
     });
-    
+
     ws.on('error', (error) => {
         console.error('❌ Error:', error.message);
     });
-    
+
     ws.on('close', () => {
         console.log('Connection closed');
     });
@@ -299,36 +477,42 @@ node test-ssl.js
 // Before (hardcoded ws://)
 const ws = new WebSocket('ws://127.0.0.1:9001/?password=secret');
 
-// After (configurable protocol)
-const protocol = config.ssl ? 'wss' : 'ws';
-const url = `${protocol}://${config.host}:${config.port}/?password=${config.password}`;
-const options = config.ssl ? { rejectUnauthorized: false } : {};
-const ws = new WebSocket(url, options);
+// After (configurable encryption)
+const url = `ws://${config.host}:${config.port}/?password=${config.password}`;
+const ws = new WebSocket(url);
+ws.binaryType = 'arraybuffer';  // For encrypted messages
+
+// Initialize encryption if enabled
+if (config.encryption) {
+    const encryption = new IrssiEncryption(config.password);
+    await encryption.deriveKey();
+}
 ```
 
 ### Backward Compatibility
 
-The Lounge should support **both** `ws://` and `wss://`:
+The Lounge should support **both** encrypted and plain connections:
 
-- Default to `ws://` for backward compatibility
-- Allow user to enable `wss://` in settings
-- Auto-detect SSL support (try `wss://`, fallback to `ws://`)
+- Default to **encryption enabled** (recommended)
+- Allow user to disable encryption in settings (for debugging)
+- Gracefully handle both binary (encrypted) and text (plain) frames
 
-**Auto-detection example:**
+**Frame type detection:**
 ```javascript
-async function connectWithFallback(config) {
-    // Try SSL first
-    if (config.ssl) {
-        try {
-            return await connectSSL(config);
-        } catch (error) {
-            console.warn('SSL connection failed, falling back to plain ws://');
-        }
+ws.on('message', async (data) => {
+    let msg;
+
+    if (data instanceof ArrayBuffer) {
+        // Binary frame = encrypted
+        const json = await encryption.decrypt(data);
+        msg = JSON.parse(json);
+    } else {
+        // Text frame = plain JSON
+        msg = JSON.parse(data);
     }
-    
-    // Fallback to plain
-    return await connectPlain(config);
-}
+
+    handleMessage(msg);
+});
 ```
 
 ---
@@ -338,27 +522,27 @@ async function connectWithFallback(config) {
 ### For Users
 
 **Development/Testing (localhost):**
-- ✅ `ws://` is acceptable
-- ✅ `wss://` with self-signed cert is acceptable
+- ✅ Encryption enabled (default) - recommended
+- ✅ Encryption disabled - acceptable for debugging
 
 **Production (remote server):**
-- ❌ **Never use `ws://`** over internet
-- ✅ Use reverse proxy (nginx/caddy) with Let's Encrypt
-- ✅ Or use VPN/SSH tunnel
+- ✅ **Always use encryption** (default)
+- ✅ Consider additional transport security (VPN/SSH tunnel)
+- ✅ Or use reverse proxy for additional TLS layer
 
 ### For The Lounge Developers
 
 **Display warnings:**
-- Warn when using `ws://` with non-localhost host
-- Warn when using self-signed certificates over internet
-- Suggest reverse proxy for production
+- Warn when encryption is disabled with non-localhost host
+- Show encryption status in connection indicator
+- Recommend keeping encryption enabled
 
 **Example warning:**
 ```javascript
-if (!config.ssl && config.host !== 'localhost' && config.host !== '127.0.0.1') {
-    console.warn('⚠️ WARNING: Using unencrypted connection (ws://) to remote host!');
+if (!config.encryption && config.host !== 'localhost' && config.host !== '127.0.0.1') {
+    console.warn('⚠️ WARNING: Encryption disabled for remote connection!');
     console.warn('   Password and all data will be sent in plain text.');
-    console.warn('   Enable SSL or use a reverse proxy.');
+    console.warn('   Enable encryption in settings.');
 }
 ```
 
