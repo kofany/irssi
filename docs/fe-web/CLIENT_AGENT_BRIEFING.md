@@ -76,6 +76,79 @@ Gdy użytkownik dostaje/traci op/voice na kanale, serwer wysyła **DWA** eventy:
 }
 ```
 
+### 3. NOWE: hostname w eventach join/part/kick/quit
+
+#### Co się zmieniło?
+
+Wszystkie eventy związane z użytkownikami (join, part, kick, quit) **teraz zawierają** pole `extra.hostname` z informacją user@host.
+
+**Przykłady:**
+
+```json
+// channel_join
+{
+  "type": "channel_join",
+  "nick": "gibi~",
+  "extra": {
+    "hostname": "thelounge@nx.ignorelist.com"
+  }
+}
+
+// channel_part
+{
+  "type": "channel_part",
+  "nick": "gibi~",
+  "text": "gibi",
+  "extra": {
+    "hostname": "thelounge@nx.ignorelist.com"
+  }
+}
+
+// user_quit
+{
+  "type": "user_quit",
+  "nick": "gibi~",
+  "text": "Connection reset",
+  "extra": {
+    "hostname": "thelounge@nx.ignorelist.com"
+  }
+}
+
+// channel_kick
+{
+  "type": "channel_kick",
+  "nick": "spammer",
+  "text": "Spam",
+  "extra": {
+    "kicker": "alice",
+    "hostname": "spammer@spam.example.com"
+  }
+}
+```
+
+**Wyświetlanie w UI:**
+
+```javascript
+socket.on('channel_join', (data) => {
+  const hostname = data.extra?.hostname || '';
+  displayMessage(`${data.nick} [${hostname}] has joined ${data.channel}`);
+});
+
+socket.on('channel_part', (data) => {
+  const hostname = data.extra?.hostname || '';
+  const reason = data.text ? ` [${data.text}]` : '';
+  displayMessage(`${data.nick} [${hostname}] has left ${data.channel}${reason}`);
+});
+
+socket.on('user_quit', (data) => {
+  const hostname = data.extra?.hostname || '';
+  const reason = data.text ? ` [${data.text}]` : '';
+  displayMessage(`${data.nick} [${hostname}] has quit${reason}`);
+});
+```
+
+---
+
 ## Co musisz zmienić w kliencie?
 
 ### Krok 1: Usuń parsowanie `data.text` dla channel_mode
@@ -197,6 +270,7 @@ Jeśli coś jest niejasne lub napotkasz problemy:
 
 ## Changelog
 
+- **2025-10-12 15:40** - Dodanie hostname (user@host) do eventów join/part/kick/quit
 - **2025-10-12 15:25** - Implementacja structured data dla channel_mode (mode + params)
 - **2025-10-12 15:05** - Zmiana nick mode changed z channel_mode na nicklist
 - **2025-10-12 14:44** - Fix WHOIS secure missing closing brace
@@ -207,6 +281,7 @@ Jeśli coś jest niejasne lub napotkasz problemy:
 ## Commity
 
 ```
+1aab646d9 - fe-web: add hostname (user@host) to join/part/kick/quit events [2025-10-12 15:40]
 253212cb0 - docs: update CLIENT-SPEC and add CHANNEL_MODE_UPDATE guide for structured mode data [2025-10-12 15:30]
 8622a3341 - fe-web: channel_mode: parse mode string into structured data (mode + params array) [2025-10-12 15:25]
 d4f8e5a2b - fe-web: nick mode changed: send nicklist update instead of channel_mode; fixes duplicate mode events [2025-10-12 15:05]
