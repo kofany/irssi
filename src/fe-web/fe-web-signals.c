@@ -930,6 +930,7 @@ void fe_web_signals_init(void)
 	signal_add_last("event 317", (SIGNAL_FUNC) event_whois_idle);
 	signal_add_last("event 319", (SIGNAL_FUNC) event_whois_channels);
 	signal_add_last("event 330", (SIGNAL_FUNC) event_whois_account);
+	signal_add_last("whois account", (SIGNAL_FUNC) event_whois_account);
 	signal_add_last("event 671", (SIGNAL_FUNC) event_whois_secure);
 	signal_add_last("whois default event", (SIGNAL_FUNC) event_whois_default);
 	signal_add_last("whois end", (SIGNAL_FUNC) event_end_of_whois);
@@ -985,6 +986,7 @@ void fe_web_signals_deinit(void)
 	signal_remove("event 317", (SIGNAL_FUNC) event_whois_idle);
 	signal_remove("event 319", (SIGNAL_FUNC) event_whois_channels);
 	signal_remove("event 330", (SIGNAL_FUNC) event_whois_account);
+	signal_remove("whois account", (SIGNAL_FUNC) event_whois_account);
 	signal_remove("event 671", (SIGNAL_FUNC) event_whois_secure);
 	signal_remove("whois default event", (SIGNAL_FUNC) event_whois_default);
 	signal_remove("whois end", (SIGNAL_FUNC) event_end_of_whois);
