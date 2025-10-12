@@ -93,6 +93,30 @@ Wszystkie eventy związane z użytkownikami (join, part, kick, quit) **teraz zaw
     "hostname": "thelounge@nx.ignorelist.com"
   }
 }
+```
+
+### 4. NOWE: IRCv3 extended-join support (account + realname)
+
+#### Co się zmieniło?
+
+Event `channel_join` **teraz zawiera** dodatkowe pola z IRCv3 extended-join capability:
+- `extra.account` - nazwa konta użytkownika (jeśli zalogowany do services)
+- `extra.realname` - real name (GECOS) użytkownika
+
+**Przykład z extended-join:**
+
+```json
+{
+  "type": "channel_join",
+  "server": "libera",
+  "channel": "#irssi",
+  "nick": "bob",
+  "extra": {
+    "hostname": "user@host.example.com",
+    "account": "bob_account",
+    "realname": "Bob Smith"
+  }
+}
 
 // channel_part
 {
@@ -126,12 +150,37 @@ Wszystkie eventy związane z użytkownikami (join, part, kick, quit) **teraz zaw
 }
 ```
 
+**Ważne:**
+- Pola `account` i `realname` są **opcjonalne** - pojawiają się tylko gdy:
+  1. Serwer IRC obsługuje IRCv3 `extended-join` capability
+  2. Użytkownik ma ustawione te atrybuty
+- Jeśli użytkownik nie jest zalogowany do services, pole `account` **nie będzie obecne** (irssi filtruje "*")
+
 **Wyświetlanie w UI:**
 
 ```javascript
 socket.on('channel_join', (data) => {
   const hostname = data.extra?.hostname || '';
-  displayMessage(`${data.nick} [${hostname}] has joined ${data.channel}`);
+  const account = data.extra?.account;
+  const realname = data.extra?.realname;
+
+  let message = `${data.nick} [${hostname}]`;
+
+  if (account) {
+    message += ` (${account})`;
+  }
+
+  if (realname) {
+    message += ` - ${realname}`;
+  }
+
+  message += ` has joined ${data.channel}`;
+  displayMessage(message);
+
+  // Przykład output:
+  // "bob [user@host.example.com] (bob_account) - Bob Smith has joined #irssi"
+  // lub bez account/realname:
+  // "alice [user@host.example.com] has joined #irssi"
 });
 
 socket.on('channel_part', (data) => {
@@ -270,6 +319,7 @@ Jeśli coś jest niejasne lub napotkasz problemy:
 
 ## Changelog
 
+- **2025-10-12 15:50** - Dodanie IRCv3 extended-join support (account + realname) do channel_join
 - **2025-10-12 15:40** - Dodanie hostname (user@host) do eventów join/part/kick/quit
 - **2025-10-12 15:25** - Implementacja structured data dla channel_mode (mode + params)
 - **2025-10-12 15:05** - Zmiana nick mode changed z channel_mode na nicklist
@@ -281,6 +331,7 @@ Jeśli coś jest niejasne lub napotkasz problemy:
 ## Commity
 
 ```
+3cb64d2c8 - fe-web: add IRCv3 extended-join support (account + realname) to channel_join [2025-10-12 15:50]
 1aab646d9 - fe-web: add hostname (user@host) to join/part/kick/quit events [2025-10-12 15:40]
 253212cb0 - docs: update CLIENT-SPEC and add CHANNEL_MODE_UPDATE guide for structured mode data [2025-10-12 15:30]
 8622a3341 - fe-web: channel_mode: parse mode string into structured data (mode + params array) [2025-10-12 15:25]
