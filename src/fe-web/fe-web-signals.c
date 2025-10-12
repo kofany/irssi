@@ -724,7 +724,7 @@ static void event_away_status(IRC_SERVER_REC *server, const char *data)
 	WEB_MESSAGE_REC *msg;
 
 	if (server == NULL || data == NULL)
-		return;
+	return;
 
 	params = event_get_params(data, 3, NULL, &nick, &awaymsg);
 
@@ -751,12 +751,27 @@ static void event_whois_default(IRC_SERVER_REC *server, const char *data)
 		return;
 
 	/* Get event number from current_server_event */
+/* fe-web WHOIS event dispatch table (used by whois default event) */
+typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
+static struct { int num; FEWEB_WHOIS_HANDLER func; } feweb_whois_events[] = {
+	{ 311, event_whois },
+	{ 312, event_whois_server },
+	{ 317, event_whois_idle },
+	{ 319, event_whois_channels },
+	{ 330, event_whois_account },
+	{ 671, event_whois_secure },
+	{ 0, NULL }
+};
+
 	num = atoi(current_server_event);
 
-	/* Ignore standard WHOIS events that have dedicated handlers */
-	/* 311=user/host, 312=server, 317=idle, 319=channels, 330=account, 671=secure */
-	if (num == 311 || num == 312 || num == 317 || num == 319 || num == 330 || num == 671)
-		return;
+	/* Dispatch standard WHOIS numerics via our handlers (redirect sends them here) */
+	for (int i = 0; feweb_whois_events[i].num != 0; i++) {
+		if (feweb_whois_events[i].num == num) {
+			feweb_whois_events[i].func(server, data);
+			return;
+		}
+	}
 
 	params = event_get_params(data, 3 | PARAM_FLAG_GETREST, NULL, &nick, &text);
 
@@ -901,6 +916,7 @@ void fe_web_signals_init(void)
 	signal_add("query destroyed", (SIGNAL_FUNC) sig_query_destroyed);
 
 	/* WHOIS events - use signal_add_last to run after fe-common/irc handlers */
+	signal_add_last("whois event", (SIGNAL_FUNC) event_whois);
 	signal_add_last("event 311", (SIGNAL_FUNC) event_whois);
 	signal_add_last("event 312", (SIGNAL_FUNC) event_whois_server);
 	signal_add_last("event 317", (SIGNAL_FUNC) event_whois_idle);
@@ -908,6 +924,7 @@ void fe_web_signals_init(void)
 	signal_add_last("event 330", (SIGNAL_FUNC) event_whois_account);
 	signal_add_last("event 671", (SIGNAL_FUNC) event_whois_secure);
 	signal_add_last("whois default event", (SIGNAL_FUNC) event_whois_default);
+	signal_add_last("whois end", (SIGNAL_FUNC) event_end_of_whois);
 	signal_add_last("event 318", (SIGNAL_FUNC) event_end_of_whois);
 
 	/* User mode and away */
@@ -954,6 +971,7 @@ void fe_web_signals_deinit(void)
 	signal_remove("query destroyed", (SIGNAL_FUNC) sig_query_destroyed);
 
 	/* WHOIS events */
+	signal_remove("whois event", (SIGNAL_FUNC) event_whois);
 	signal_remove("event 311", (SIGNAL_FUNC) event_whois);
 	signal_remove("event 312", (SIGNAL_FUNC) event_whois_server);
 	signal_remove("event 317", (SIGNAL_FUNC) event_whois_idle);
@@ -961,6 +979,7 @@ void fe_web_signals_deinit(void)
 	signal_remove("event 330", (SIGNAL_FUNC) event_whois_account);
 	signal_remove("event 671", (SIGNAL_FUNC) event_whois_secure);
 	signal_remove("whois default event", (SIGNAL_FUNC) event_whois_default);
+	signal_remove("whois end", (SIGNAL_FUNC) event_end_of_whois);
 	signal_remove("event 318", (SIGNAL_FUNC) event_end_of_whois);
 
 	/* User mode and away */
