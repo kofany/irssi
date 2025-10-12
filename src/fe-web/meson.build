@@ -1,5 +1,8 @@
 # this file is part of irssi
 
+# OpenSSL dependency for SSL/TLS support
+openssl_dep = dependency('openssl', required: true)
+
 shared_module('fe_web',
   files(
     'fe-web.c',
@@ -9,6 +12,7 @@ shared_module('fe_web',
     'fe-web-utils.c',
     'fe-web-json.c',
     'fe-web-websocket.c',
+    'fe-web-ssl.c',
   )
   + [ irssi_version_h ],
   include_directories : rootinc,
@@ -16,7 +20,7 @@ shared_module('fe_web',
   name_suffix : module_suffix,
   install : true,
   install_dir : moduledir,
-  dependencies : dep,
+  dependencies : [dep, openssl_dep],
 )
 
 # noinst_headers = files(

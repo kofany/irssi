@@ -20,6 +20,7 @@
 
 #include "module.h"
 #include "fe-web.h"
+#include "fe-web-ssl.h"
 
 #include <irssi/src/core/modules.h>
 #include <irssi/src/core/signals.h>
@@ -106,6 +107,7 @@ void fe_web_init(void)
 	settings_add_int("lookandfeel", "fe_web_port", 9001);
 	settings_add_str("lookandfeel", "fe_web_bind", "127.0.0.1");
 	settings_add_str("lookandfeel", "fe_web_password", "");
+	settings_add_bool("lookandfeel", "fe_web_ssl", FALSE);
 
 	/* Register commands */
 	command_bind("fe_web", NULL, (SIGNAL_FUNC) cmd_fe_web);
@@ -113,6 +115,11 @@ void fe_web_init(void)
 
 	/* Initialize subsystems */
 	fe_web_signals_init();
+
+	/* Initialize SSL if enabled */
+	if (settings_get_bool("fe_web_ssl")) {
+		fe_web_ssl_init();
+	}
 
 	/* Watch for settings changes */
 	signal_add_first("setup changed", (SIGNAL_FUNC) fe_web_setup_changed);
@@ -135,6 +142,7 @@ void fe_web_deinit(void)
 
 	fe_web_server_deinit();
 	fe_web_signals_deinit();
+	fe_web_ssl_deinit();
 }
 
 void fe_web_abicheck(int *version)

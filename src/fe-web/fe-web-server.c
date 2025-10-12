@@ -11,6 +11,7 @@
 
 #include "module.h"
 #include "fe-web.h"
+#include "fe-web-ssl.h"
 
 #include <irssi/src/core/network.h>
 #include <irssi/src/core/net-sendbuffer.h>
@@ -40,6 +41,12 @@ static void fe_web_close_client(WEB_CLIENT_REC *client)
 	if (client->recv_tag != -1) {
 		g_source_remove(client->recv_tag);
 		client->recv_tag = -1;
+	}
+
+	/* Close SSL channel if present */
+	if (client->ssl_channel != NULL) {
+		fe_web_ssl_channel_free(client->ssl_channel);
+		client->ssl_channel = NULL;
 	}
 
 	/* Close socket */
@@ -297,14 +304,41 @@ static void client_input(WEB_CLIENT_REC *client)
 		return;
 	}
 
-	/* Get underlying GIOChannel */
-	channel = net_sendbuffer_handle(client->handle);
-	if (channel == NULL) {
-		return;
-	}
+	/* SSL: Check if we need to complete SSL handshake first */
+	if (client->use_ssl && client->ssl_channel != NULL) {
+		if (!client->ssl_channel->handshake_done) {
+			ret = fe_web_ssl_accept(client->ssl_channel);
+			if (ret == 0) {
+				/* Need more data */
+				return;
+			}
+			if (ret < 0) {
+				/* SSL handshake failed */
+				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+				          "fe-web: [%s] SSL handshake failed", client->id);
+				fe_web_close_client(client);
+				return;
+			}
+			/* Handshake complete - continue to read data */
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] SSL handshake completed", client->id);
+		}
 
-	/* Read raw bytes */
-	ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+		/* Read from SSL channel */
+		ret = fe_web_ssl_read(client->ssl_channel, (char *)buffer, sizeof(buffer));
+		if (ret == -2) {
+			/* SSL_ERROR_WANT_READ - need more data */
+			return;
+		}
+	} else {
+		/* Plain connection - read normally */
+		channel = net_sendbuffer_handle(client->handle);
+		if (channel == NULL) {
+			return;
+		}
+
+		ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: [%s] Received %d bytes", client->id, ret);
@@ -389,12 +423,32 @@ static void sig_listen(void)
 	sendbuf = net_sendbuffer_create(handle, 0);
 	client->handle = sendbuf;
 
+	/* Setup SSL if enabled */
+	if (fe_web_ssl_is_enabled()) {
+		client->ssl_channel = fe_web_ssl_channel_create(handle);
+		if (client->ssl_channel == NULL) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: Failed to create SSL channel for %s", addr);
+			net_sendbuffer_destroy(sendbuf, TRUE);
+			fe_web_client_destroy(client);
+			g_free(addr);
+			return;
+		}
+		client->use_ssl = TRUE;
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: SSL enabled for connection from %s", addr);
+	} else {
+		client->ssl_channel = NULL;
+		client->use_ssl = FALSE;
+	}
+
 	/* Add input handler */
 	client->recv_tag = i_input_add(handle, I_INPUT_READ,
 	                               (GInputFunction) client_input, client);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: New connection from %s (id: %s)", addr, client->id);
+	          "fe-web: New connection from %s (id: %s)%s",
+	          addr, client->id, client->use_ssl ? " [SSL]" : "");
 
 	g_free(addr);
 }
