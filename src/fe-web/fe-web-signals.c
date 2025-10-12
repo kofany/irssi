@@ -22,6 +22,26 @@
 #include <irssi/src/irc/core/irc-servers.h>
 #include <irssi/src/irc/core/irc-channels.h>
 #include <irssi/src/irc/core/irc-nicklist.h>
+/* Forward declarations for WHOIS handlers used in dispatch table */
+static void event_whois(IRC_SERVER_REC *server, const char *data);
+static void event_whois_server(IRC_SERVER_REC *server, const char *data);
+static void event_whois_idle(IRC_SERVER_REC *server, const char *data);
+static void event_whois_channels(IRC_SERVER_REC *server, const char *data);
+static void event_whois_account(IRC_SERVER_REC *server, const char *data);
+static void event_whois_secure(IRC_SERVER_REC *server, const char *data);
+
+/* fe-web WHOIS event dispatch table (file-scope) */
+typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
+static struct { int num; FEWEB_WHOIS_HANDLER func; } feweb_whois_events[] = {
+	{ 311, event_whois },
+	{ 312, event_whois_server },
+	{ 317, event_whois_idle },
+	{ 319, event_whois_channels },
+	{ 330, event_whois_account },
+	{ 671, event_whois_secure },
+	{ 0, NULL }
+};
+
 
 /* Global hash table for tracking active WHOIS requests */
 /* Key: "server_tag:nick", Value: WHOIS_REC* */
@@ -751,19 +771,7 @@ static void event_whois_default(IRC_SERVER_REC *server, const char *data)
 		return;
 
 	/* Get event number from current_server_event */
-/* fe-web WHOIS event dispatch table (used by whois default event) */
-typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
-static struct { int num; FEWEB_WHOIS_HANDLER func; } feweb_whois_events[] = {
-	{ 311, event_whois },
-	{ 312, event_whois_server },
-	{ 317, event_whois_idle },
-	{ 319, event_whois_channels },
-	{ 330, event_whois_account },
-	{ 671, event_whois_secure },
-	{ 0, NULL }
-};
-
-	num = atoi(current_server_event);
+num = atoi(current_server_event);
 
 	/* Dispatch standard WHOIS numerics via our handlers (redirect sends them here) */
 	for (int i = 0; feweb_whois_events[i].num != 0; i++) {
