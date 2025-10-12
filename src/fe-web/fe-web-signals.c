@@ -719,6 +719,9 @@ static void event_whois_secure(IRC_SERVER_REC *server, const char *data)
 		          "fe-web: WHOIS secure for %s: true", nick);
 	}
 
+	g_free(params);
+}
+
 /* Signal: "whois oper" or "event 313" - WHOIS oper */
 static void event_whois_oper(IRC_SERVER_REC *server, const char *data)
 {
