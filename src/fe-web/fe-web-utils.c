@@ -13,6 +13,8 @@
 #include "fe-web.h"
 
 #include <irssi/src/core/net-sendbuffer.h>
+#include <irssi/src/core/levels.h>
+#include <irssi/src/fe-common/core/printtext.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -272,23 +274,57 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 	char *json;
 	guchar *frame;
 	gsize frame_len;
+	const char *type_str;
 
-	if (client == NULL || !client->authenticated || !client->handshake_done) {
+	type_str = fe_web_type_to_string(msg->type);
+
+	if (client == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: ERROR: Cannot send %s - client is NULL", type_str);
 		return;
 	}
 
+	/* auth_ok is special - can be sent before authenticated flag is set */
+	if (msg->type != WEB_MSG_AUTH_OK) {
+		if (!client->authenticated || !client->handshake_done) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Skipping %s - not ready (auth:%d handshake:%d)",
+			          client->id, type_str, client->authenticated, client->handshake_done);
+			return;
+		}
+	} else {
+		/* For auth_ok, only check handshake */
+		if (!client->handshake_done) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] ERROR: Cannot send %s - handshake not done",
+			          client->id, type_str);
+			return;
+		}
+	}
+
 	if (client->handle == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: [%s] ERROR: Cannot send %s - handle is NULL",
+		          client->id, type_str);
 		return;
 	}
 
 	/* Serialize to JSON */
 	json = fe_web_message_to_json(msg);
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Sending %s: %s",
+	          client->id, type_str, json);
+
 	/* Create WebSocket text frame */
 	frame = fe_web_websocket_create_frame(0x1, (const guchar *)json, strlen(json), &frame_len);
 
 	/* Send frame */
 	net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Sent %s (%d bytes frame)",
+	          client->id, type_str, (int)frame_len);
 
 	g_free(frame);
 	g_free(json);

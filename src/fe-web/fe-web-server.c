@@ -61,14 +61,24 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	char *accept_key;
 	GString *response;
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Processing handshake, buffer len: %d",
+	          client->id, (int)strlen(data));
+
 	/* Look for Sec-WebSocket-Key header */
 	key_line = strstr(data, "Sec-WebSocket-Key:");
 	if (key_line == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] No Sec-WebSocket-Key found yet",
+		          client->id);
 		return 0; /* Not complete handshake yet */
 	}
 
 	/* Check for end of headers */
 	if (strstr(data, "\r\n\r\n") == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Headers not complete yet",
+		          client->id);
 		return 0; /* Headers not complete */
 	}
 
@@ -84,6 +94,9 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	}
 
 	if (key_end == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: [%s] Invalid WebSocket key format",
+		          client->id);
 		return 0;
 	}
 
@@ -93,8 +106,16 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	}
 	client->websocket_key = g_strndup(key_start, key_end - key_start);
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] WebSocket key: %s",
+	          client->id, client->websocket_key);
+
 	/* Compute accept key */
 	accept_key = fe_web_websocket_compute_accept(client->websocket_key);
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Computed accept key: %s",
+	          client->id, accept_key);
 
 	/* Build handshake response */
 	response = g_string_new("");
@@ -107,12 +128,22 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	/* Send response */
 	if (client->handle != NULL) {
 		net_sendbuffer_send(client->handle, response->str, response->len);
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Handshake response sent (%d bytes)",
+		          client->id, (int)response->len);
+	} else {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: [%s] ERROR: client->handle is NULL!",
+		          client->id);
 	}
 
 	g_free(accept_key);
 	g_string_free(response, TRUE);
 
 	client->handshake_done = TRUE;
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Handshake completed successfully",
+	          client->id);
 	return 1;
 }
 
@@ -201,8 +232,13 @@ static void client_input(WEB_CLIENT_REC *client)
 	/* Read raw bytes */
 	ret = net_receive(channel, (char *)buffer, sizeof(buffer));
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Received %d bytes", client->id, ret);
+
 	if (ret <= 0) {
 		/* Connection closed or error */
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Connection closed (ret=%d)", client->id, ret);
 		fe_web_close_client(client);
 		return;
 	}
@@ -212,18 +248,29 @@ static void client_input(WEB_CLIENT_REC *client)
 
 	/* Handle handshake first */
 	if (!client->handshake_done) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Handshake not done yet, buffer len: %u",
+		          client->id, client->input_buffer->len);
+
 		/* Null-terminate for string operations */
 		g_byte_array_append(client->input_buffer, (guchar *)"\0", 1);
 
 		if (fe_web_handle_handshake(client, (const char *)client->input_buffer->data)) {
 			/* Handshake complete - send auth_ok */
 			WEB_MESSAGE_REC *msg;
+
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Sending auth_ok message...", client->id);
+
 			msg = fe_web_message_new(WEB_MSG_AUTH_OK);
 			msg->id = fe_web_generate_message_id();
 			fe_web_send_message(client, msg);
 			fe_web_message_free(msg);
 
 			client->authenticated = TRUE;
+
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Client authenticated", client->id);
 
 			/* Clear input buffer */
 			g_byte_array_set_size(client->input_buffer, 0);
@@ -235,6 +282,8 @@ static void client_input(WEB_CLIENT_REC *client)
 	}
 
 	/* Handle WebSocket frames */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Processing WebSocket frames...", client->id);
 	fe_web_handle_websocket_data(client);
 }
 

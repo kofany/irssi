@@ -15,6 +15,7 @@
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/levels.h>
 #include <irssi/src/core/nicklist.h>
+#include <irssi/src/fe-common/core/printtext.h>
 #include <irssi/src/irc/core/irc-servers.h>
 #include <irssi/src/irc/core/irc-channels.h>
 #include <irssi/src/irc/core/irc-nicklist.h>
@@ -401,27 +402,22 @@ void fe_web_signals_deinit(void)
 	signal_remove("server disconnected", (SIGNAL_FUNC) sig_server_disconnected);
 }
 
-/* Dump current state to client */
-void fe_web_dump_state(WEB_CLIENT_REC *client)
+/* Helper function to dump single server state */
+static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *server)
 {
-	IRC_SERVER_REC *server;
 	GSList *tmp;
+	WEB_MESSAGE_REC *state_msg;
 
-	if (client == NULL) {
-		return;
-	}
-
-	/* If wants all servers, dump all */
-	if (client->wants_all_servers) {
-		/* TODO: Iterate all servers and dump each */
-		return;
-	}
-
-	/* Dump specific server */
-	server = client->server;
 	if (server == NULL) {
 		return;
 	}
+
+	/* Send state_dump marker message first */
+	state_msg = fe_web_message_new(WEB_MSG_STATE_DUMP);
+	state_msg->id = fe_web_generate_message_id();
+	state_msg->server_tag = g_strdup(server->tag);
+	fe_web_send_message(client, state_msg);
+	fe_web_message_free(state_msg);
 
 	/* Dump channels */
 	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
@@ -496,4 +492,54 @@ void fe_web_dump_state(WEB_CLIENT_REC *client)
 		fe_web_send_message(client, msg);
 		fe_web_message_free(msg);
 	}
+}
+
+/* Dump current state to client */
+void fe_web_dump_state(WEB_CLIENT_REC *client)
+{
+	IRC_SERVER_REC *server;
+	GSList *tmp;
+	extern GSList *servers;
+
+	if (client == NULL) {
+		return;
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Dumping state (all_servers: %d)",
+	          client->id, client->wants_all_servers);
+
+	/* If wants all servers, dump all */
+	if (client->wants_all_servers) {
+		int count = 0;
+		for (tmp = servers; tmp != NULL; tmp = tmp->next) {
+			server = IRC_SERVER(tmp->data);
+			if (server != NULL && server->connected) {
+				printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+				          "fe-web: [%s] Dumping server: %s",
+				          client->id, server->tag);
+				fe_web_dump_server_state(client, server);
+				count++;
+			}
+		}
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Dumped %d servers", client->id, count);
+		return;
+	}
+
+	/* Dump specific server */
+	server = client->server;
+	if (server == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: [%s] ERROR: No server assigned for state dump",
+		          client->id);
+		return;
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] Dumping server: %s",
+	          client->id, server->tag);
+	fe_web_dump_server_state(client, server);
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] State dump completed", client->id);
 }

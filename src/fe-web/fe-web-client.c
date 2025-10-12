@@ -13,6 +13,8 @@
 #include "fe-web.h"
 
 #include <irssi/src/core/signals.h>
+#include <irssi/src/core/levels.h>
+#include <irssi/src/fe-common/core/printtext.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -114,10 +116,40 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		}
 	} else if (g_strcmp0(type, "command") == 0) {
 		char *command;
+		char *server_tag;
+
 		command = fe_web_json_get_string(json, "command");
+		server_tag = fe_web_json_get_string(json, "server");
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Received command: %s (server: %s)",
+		          client->id, command ? command : "(null)",
+		          server_tag ? server_tag : "(null)");
+
 		if (command != NULL) {
+			/* If server is specified, use it for this command */
+			if (server_tag != NULL) {
+				IRC_SERVER_REC *server;
+				server = IRC_SERVER(server_find_tag(server_tag));
+				if (server != NULL) {
+					/* Temporarily assign server for this command */
+					client->server = server;
+					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+					          "fe-web: [%s] Assigned server %s for command",
+					          client->id, server_tag);
+				} else {
+					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+					          "fe-web: [%s] ERROR: Server %s not found",
+					          client->id, server_tag);
+				}
+			}
+
 			fe_web_client_execute_command(client, command);
 			g_free(command);
+
+			if (server_tag != NULL) {
+				g_free(server_tag);
+			}
 		}
 	} else if (g_strcmp0(type, "ping") == 0) {
 		WEB_MESSAGE_REC *msg;
@@ -147,7 +179,7 @@ void fe_web_client_sync_server(WEB_CLIENT_REC *client, const char *server_tag)
 	if (g_strcmp0(server_tag, "*") == 0) {
 		client->wants_all_servers = TRUE;
 		client->server = NULL;
-		/* TODO: Dump state for all servers */
+		fe_web_dump_state(client);
 		return;
 	}
 
