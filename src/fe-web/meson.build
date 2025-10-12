@@ -1,6 +1,6 @@
 # this file is part of irssi
 
-# OpenSSL dependency for SSL/TLS support
+# OpenSSL dependency for encryption (AES-256-GCM)
 openssl_dep = dependency('openssl', required: true)
 
 shared_module('fe_web',
@@ -12,7 +12,7 @@ shared_module('fe_web',
     'fe-web-utils.c',
     'fe-web-json.c',
     'fe-web-websocket.c',
-    'fe-web-ssl.c',
+    'fe-web-crypto.c',
   )
   + [ irssi_version_h ],
   include_directories : rootinc,

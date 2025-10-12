@@ -11,7 +11,7 @@
 
 #include "module.h"
 #include "fe-web.h"
-#include "fe-web-ssl.h"
+#include "fe-web-crypto.h"
 
 #include <irssi/src/core/net-sendbuffer.h>
 #include <irssi/src/core/levels.h>
@@ -340,30 +340,53 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 	          "fe-web: [%s] Sending %s: %s",
 	          client->id, type_str, json);
 
-	/* Create WebSocket text frame */
-	frame = fe_web_websocket_create_frame(0x1, (const guchar *)json, strlen(json), &frame_len);
+	/* Encrypt if encryption is enabled */
+	if (client->encryption_enabled) {
+		unsigned char *encrypted;
+		int encrypted_len;
+		const unsigned char *key;
 
-	/* Send frame - use SSL if enabled */
-	if (client->use_ssl && client->ssl_channel != NULL) {
-		int ssl_ret;
-		ssl_ret = fe_web_ssl_write(client->ssl_channel, (const char *)frame, frame_len);
-		if (ssl_ret < 0) {
+		key = fe_web_crypto_get_key();
+		if (key == NULL) {
 			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-			          "fe-web: [%s] SSL write failed for %s",
+			          "fe-web: [%s] Encryption key not available for %s",
 			          client->id, type_str);
-			g_free(frame);
 			g_free(json);
 			return;
 		}
+
+		/* Allocate buffer for encrypted data (plaintext + IV + tag) */
+		encrypted = g_malloc(strlen(json) + FE_WEB_CRYPTO_IV_SIZE + FE_WEB_CRYPTO_TAG_SIZE);
+
+		/* Encrypt JSON */
+		if (!fe_web_crypto_encrypt((const unsigned char *)json, strlen(json), key, encrypted, &encrypted_len)) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] Encryption failed for %s",
+			          client->id, type_str);
+			g_free(encrypted);
+			g_free(json);
+			return;
+		}
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Encrypted %s (%d -> %d bytes)",
+		          client->id, type_str, (int)strlen(json), encrypted_len);
+
+		/* Create WebSocket binary frame with encrypted data */
+		frame = fe_web_websocket_create_frame(0x2, encrypted, encrypted_len, &frame_len);
+		g_free(encrypted);
 	} else {
-		/* Plain connection */
-		net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
+		/* Create WebSocket text frame with plain JSON */
+		frame = fe_web_websocket_create_frame(0x1, (const guchar *)json, strlen(json), &frame_len);
 	}
+
+	/* Send frame */
+	net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: [%s] Sent %s (%d bytes frame)%s",
 	          client->id, type_str, (int)frame_len,
-	          client->use_ssl ? " [SSL]" : "");
+	          client->encryption_enabled ? " [ENCRYPTED]" : "");
 
 	g_free(frame);
 	g_free(json);
