@@ -14,6 +14,7 @@
 
 #include <irssi/src/core/signals.h>
 #include <irssi/src/core/levels.h>
+#include <irssi/src/core/queries.h>
 #include <irssi/src/fe-common/core/printtext.h>
 #include <stdio.h>
 #include <string.h>
@@ -160,6 +161,43 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		}
 		fe_web_send_message(client, msg);
 		fe_web_message_free(msg);
+	} else if (g_strcmp0(type, "close_query") == 0) {
+		char *nick;
+		char *server_tag;
+		QUERY_REC *query;
+
+		nick = fe_web_json_get_string(json, "nick");
+		server_tag = fe_web_json_get_string(json, "server");
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Received close_query: nick=%s server=%s",
+		          client->id, nick ? nick : "(null)",
+		          server_tag ? server_tag : "(null)");
+
+		if (nick != NULL && server_tag != NULL) {
+			IRC_SERVER_REC *server;
+			server = IRC_SERVER(server_find_tag(server_tag));
+			if (server != NULL) {
+				query = query_find(SERVER(server), nick);
+				if (query != NULL) {
+					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+					          "fe-web: [%s] Closing query with %s",
+					          client->id, nick);
+					query_destroy(query);
+				} else {
+					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+					          "fe-web: [%s] ERROR: Query with %s not found",
+					          client->id, nick);
+				}
+			} else {
+				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+				          "fe-web: [%s] ERROR: Server %s not found",
+				          client->id, server_tag);
+			}
+		}
+
+		g_free(nick);
+		g_free(server_tag);
 	}
 
 	g_free(type);

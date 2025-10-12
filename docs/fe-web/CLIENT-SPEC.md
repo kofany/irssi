@@ -226,6 +226,28 @@ Application-level ping (separate from WebSocket PING).
 
 ---
 
+### 4. close_query - Close Query Window
+
+Close a query (private message) window with a specific user.
+
+```json
+{
+  "type": "close_query",
+  "server": "libera",
+  "nick": "alice"
+}
+```
+
+**Fields**:
+- `server` (string, required): IRC network/server tag
+- `nick` (string, required): Nickname of the user to close query with
+
+**Response**: Server emits `query_closed` event to all connected clients.
+
+**Use Case**: When user closes a private message window in the UI, send this command to synchronize the close action with irssi and other connected clients.
+
+---
+
 ## Server → Client Messages
 
 ### Message Types Overview
@@ -248,6 +270,8 @@ Application-level ping (separate from WebSocket PING).
 | `whois` | WHOIS response |
 | `channel_list` | Channel list (ban/except/invite) |
 | `state_dump` | Initial state dump |
+| `query_opened` | Query (PM) window opened |
+| `query_closed` | Query (PM) window closed |
 | `error` | Error message |
 | `pong` | Pong response |
 
@@ -564,10 +588,18 @@ Sent during state dump or on manual request.
   "extra": {
     "user": "~alice",
     "host": "user.example.com",
+    "realname": "Alice Smith",
+    "server": "irc.libera.chat",
+    "server_info": "Libera Chat Server",
     "channels": "@#irssi +#help",
     "idle": "300",
+    "signon": "1706198100",
     "account": "alice_acc",
-    "secure": "true"
+    "secure": "true",
+    "special": [
+      "is a Cloaked Connection (Spoof)",
+      "is using modes +ix"
+    ]
   }
 }
 ```
@@ -575,10 +607,15 @@ Sent during state dump or on manual request.
 **Fields in `extra`**:
 - `user` (string): Username/ident
 - `host` (string): Hostname
+- `realname` (string): Real name/GECOS field
+- `server` (string): IRC server name
+- `server_info` (string): IRC server description
 - `channels` (string): Space-separated channel list with prefixes
 - `idle` (string): Idle time in seconds
+- `signon` (string): Signon time (Unix timestamp as string)
 - `account` (string): Account name (if identified)
 - `secure` (string): "true" if using SSL/TLS
+- `special` (array of strings): Non-standard WHOIS lines (e.g., "is a Cloaked Connection")
 
 ---
 
@@ -666,6 +703,66 @@ Response to client `ping` message.
   "timestamp": 1706198400
 }
 ```
+
+---
+
+### 19. query_opened - Query Window Opened
+
+Sent when a query (private message) window is opened, either by `/query` command or when receiving a PM from someone.
+
+```json
+{
+  "id": "1706198400-0021",
+  "type": "query_opened",
+  "server": "libera",
+  "nick": "alice",
+  "timestamp": 1706198400
+}
+```
+
+**Fields**:
+- `server` (string): IRC server tag
+- `nick` (string): Nickname of the user the query is with
+
+**When sent**:
+- User executes `/query nick` command
+- Incoming private message from user without existing query window
+
+**Client behavior**:
+- Create query window in UI if not exists
+- Switch focus to query window (optional, based on UI preferences)
+- No action needed if query already exists (idempotent)
+
+---
+
+### 20. query_closed - Query Window Closed
+
+Sent when a query (private message) window is closed.
+
+```json
+{
+  "id": "1706198400-0022",
+  "type": "query_closed",
+  "server": "libera",
+  "nick": "alice",
+  "timestamp": 1706198400
+}
+```
+
+**Fields**:
+- `server` (string): IRC server tag
+- `nick` (string): Nickname of the user the query was with
+
+**When sent**:
+- User closes query window in irssi (`/wc`, `/window close`)
+- Client sends `close_query` command (see Client → Server Messages)
+
+**Client behavior**:
+- Remove query window from UI
+- Clean up any associated state/history
+- No error if query doesn't exist (idempotent)
+
+**Synchronization**: Query open/close state is synchronized across all connected clients. When one client closes a query, all clients receive `query_closed` and should update their UI accordingly.
 
 ---
 
@@ -1068,9 +1165,11 @@ When implementing a client, ensure:
 | `nick_change` | server, nick, text | Nick change |
 | `user_mode` | server, nick, text | User mode |
 | `away` | server, nick, text | Away status |
-| `whois` | server, nick, response_to?, extra | WHOIS data |
+| `whois` | server, nick, response_to?, extra (user, host, realname, server, server_info, channels, idle, signon, account, secure, special) | WHOIS data |
 | `channel_list` | server, channel, response_to?, extra | Ban/except/invite list |
 | `state_dump` | server | State dump marker |
+| `query_opened` | server, nick | Query window opened |
+| `query_closed` | server, nick | Query window closed |
 | `error` | text | Error message |
 | `pong` | response_to? | Pong response |
 

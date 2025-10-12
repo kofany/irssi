@@ -25,7 +25,9 @@ typedef enum {
 	WEB_MSG_CHANNEL_LIST,
 	WEB_MSG_STATE_DUMP,
 	WEB_MSG_ERROR,
-	WEB_MSG_PONG
+	WEB_MSG_PONG,
+	WEB_MSG_QUERY_OPENED,
+	WEB_MSG_QUERY_CLOSED
 } WEB_MESSAGE_TYPE;
 
 /* WebSocket client connection record */
@@ -58,6 +60,24 @@ typedef struct {
 	/* Request tracking (for WHOIS, ban list, etc.) */
 	GHashTable *pending_requests; /* request_id -> response_type mapping */
 } WEB_CLIENT_REC;
+
+/* WHOIS data collection structure */
+typedef struct {
+	char *nick;
+	char *user;
+	char *host;
+	char *realname;
+	char *server;
+	char *server_info;
+	char *idle;
+	char *signon;
+	char *channels;
+	char *account;
+	unsigned int secure:1;
+	unsigned int oper:1;
+	time_t timestamp;
+	GSList *special;  /* List of special/non-standard WHOIS lines */
+} WHOIS_REC;
 
 /* Message structure for internal use */
 typedef struct {

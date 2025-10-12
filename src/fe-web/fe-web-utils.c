@@ -125,6 +125,10 @@ static const char *fe_web_type_to_string(WEB_MESSAGE_TYPE type)
 		return "error";
 	case WEB_MSG_PONG:
 		return "pong";
+	case WEB_MSG_QUERY_OPENED:
+		return "query_opened";
+	case WEB_MSG_QUERY_CLOSED:
+		return "query_closed";
 	default:
 		return "unknown";
 	}
