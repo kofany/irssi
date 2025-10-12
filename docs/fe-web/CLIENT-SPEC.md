@@ -475,22 +475,46 @@ Server connected or disconnected.
   "server": "libera",
   "channel": "#irssi",
   "nick": "alice",
-  "text": "+o bob",
-  "timestamp": 1706198400
+  "timestamp": 1706198400,
+  "extra": {
+    "mode": "+o",
+    "params": ["bob"]
+  }
 }
 ```
 
 **Examples**:
-- `"+o bob"` - Give op to bob
-- `"-o bob"` - Remove op from bob
-- `"+v alice"` - Give voice to alice
-- `"+h charlie"` - Give halfop to charlie
-- `"+b *!*@spam.com"` - Set ban
-- `"+m"` - Set moderated mode
+
+User modes:
+```json
+{"extra": {"mode": "+o", "params": ["bob"]}}      // Give op to bob
+{"extra": {"mode": "-o", "params": ["bob"]}}      // Remove op from bob
+{"extra": {"mode": "+v", "params": ["alice"]}}    // Give voice to alice
+{"extra": {"mode": "+oo", "params": ["alice", "bob"]}}  // Give op to multiple users
+```
+
+Channel modes with parameters:
+```json
+{"extra": {"mode": "+l", "params": ["100"]}}      // Set user limit to 100
+{"extra": {"mode": "+k", "params": ["password"]}} // Set channel key
+{"extra": {"mode": "+b", "params": ["*!*@spam.com"]}}  // Set ban
+```
+
+Channel modes without parameters:
+```json
+{"extra": {"mode": "+nt", "params": []}}          // Set no external messages + topic protection
+{"extra": {"mode": "+m", "params": []}}           // Set moderated mode
+{"extra": {"mode": "-l", "params": []}}           // Remove user limit
+```
 
 **Fields**:
 - `nick` (string): Who performed mode change
-- `text` (string): Mode change string
+- `extra.mode` (string): Mode string (e.g., "+o", "-v", "+nt")
+- `extra.params` (array of strings): Mode parameters (nicks, ban masks, limits, etc.)
+
+**Note**: When a user's channel status changes (e.g., gets op), the server sends:
+1. A `channel_mode` event (who did it and what changed)
+2. A `nicklist` event (updated user list with new prefixes)
 
 ---
 
@@ -1160,7 +1184,7 @@ When implementing a client, ensure:
 | `channel_kick` | server, channel, nick, text?, extra.kicker | User kicked |
 | `user_quit` | server, nick, text? | User quit |
 | `topic` | server, channel, nick?, text | Topic change |
-| `channel_mode` | server, channel, nick, text | Mode change |
+| `channel_mode` | server, channel, nick, extra.mode, extra.params | Mode change |
 | `nicklist` | server, channel, text (JSON array) | Nicklist |
 | `nick_change` | server, nick, text | Nick change |
 | `user_mode` | server, nick, text | User mode |
