@@ -66,6 +66,8 @@ static void cmd_fe_web_status(const char *data, IRC_SERVER_REC *server)
 	count = g_slist_length(web_clients);
 	printtext(server, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: Currently connected clients: %d", count);
+	printtext(server, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Security: SSL/TLS (wss://) + AES-256-GCM encryption (always enabled)");
 
 	for (tmp = web_clients; tmp != NULL; tmp = tmp->next) {
 		WEB_CLIENT_REC *client = tmp->data;
@@ -108,8 +110,6 @@ void fe_web_init(void)
 	settings_add_int("lookandfeel", "fe_web_port", 9001);
 	settings_add_str("lookandfeel", "fe_web_bind", "127.0.0.1");
 	settings_add_str("lookandfeel", "fe_web_password", "");
-	settings_add_bool("lookandfeel", "fe_web_ssl", FALSE);
-	settings_add_bool("lookandfeel", "fe_web_encryption", TRUE);
 
 	/* Register commands */
 	command_bind("fe_web", NULL, (SIGNAL_FUNC) cmd_fe_web);
@@ -118,12 +118,8 @@ void fe_web_init(void)
 	/* Initialize subsystems */
 	fe_web_signals_init();
 
-	/* Initialize SSL if enabled */
-	if (settings_get_bool("fe_web_ssl")) {
-		fe_web_ssl_init();
-	}
-
-	/* Initialize encryption */
+	/* SSL and encryption are ALWAYS enabled - no option to disable */
+	fe_web_ssl_init();
 	fe_web_crypto_init();
 
 	/* Watch for settings changes */

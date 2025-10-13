@@ -471,26 +471,20 @@ static void sig_listen(void)
 	sendbuf = net_sendbuffer_create(handle, 0);
 	client->handle = sendbuf;
 
-	/* Setup SSL if enabled */
-	if (fe_web_ssl_is_enabled()) {
-		client->ssl_channel = fe_web_ssl_channel_create(handle);
-		client->use_ssl = TRUE;
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: SSL enabled for connection from %s", addr);
-	}
+	/* SSL is ALWAYS enabled - no option to disable */
+	client->ssl_channel = fe_web_ssl_channel_create(handle);
+	client->use_ssl = TRUE;
 
-	/* Enable encryption if configured */
-	client->encryption_enabled = settings_get_bool("fe_web_encryption") && fe_web_crypto_is_enabled();
+	/* Encryption is ALWAYS enabled - no option to disable */
+	client->encryption_enabled = TRUE;
 
 	/* Add input handler */
 	client->recv_tag = i_input_add(handle, I_INPUT_READ,
 	                               (GInputFunction) client_input, client);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: New connection from %s (id: %s)%s%s",
-	          addr, client->id,
-	          client->use_ssl ? " [SSL]" : "",
-	          client->encryption_enabled ? " [ENCRYPTED]" : "");
+	          "fe-web: New connection from %s (id: %s) [SSL+ENCRYPTED]",
+	          addr, client->id);
 
 	g_free(addr);
 }
@@ -500,10 +494,41 @@ void fe_web_server_init(void)
 {
 	IPADDR *bind_ip;
 	const char *bind_addr;
+	const char *password;
 	int port;
 
 	/* Check if already running */
 	if (listen_channel != NULL) {
+		return;
+	}
+
+	/* SECURITY: Verify password is set */
+	password = settings_get_str("fe_web_password");
+	if (password == NULL || *password == '\0') {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: FATAL: Cannot start server without password!");
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: Please set password: /SET fe_web_password <strong-password>");
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: Example: /SET fe_web_password $(openssl rand -base64 32)");
+		return;
+	}
+
+	/* SECURITY: Verify SSL is initialized */
+	if (!fe_web_ssl_is_enabled()) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: FATAL: SSL/TLS not initialized!");
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: SSL certificate generation failed. Check OpenSSL installation.");
+		return;
+	}
+
+	/* SECURITY: Verify encryption is initialized */
+	if (!fe_web_crypto_is_enabled()) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: FATAL: Encryption not initialized!");
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web: Encryption key derivation failed. Check password setting.");
 		return;
 	}
 
@@ -538,8 +563,10 @@ void fe_web_server_init(void)
 	                         (GInputFunction) sig_listen, NULL);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: WebSocket server listening on %s:%d",
+	          "fe-web: WebSocket server listening on wss://%s:%d (SSL + AES-256-GCM)",
 	          bind_addr, port);
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Security: SSL/TLS enabled, Application-level encryption enabled");
 }
 
 /* Deinitialize server */
