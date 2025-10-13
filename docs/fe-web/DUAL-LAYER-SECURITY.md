@@ -2,7 +2,9 @@
 
 ## Overview
 
-fe-web now supports **dual-layer security** combining both SSL/TLS and application-level encryption for defense-in-depth.
+fe-web **enforces mandatory dual-layer security** combining both SSL/TLS and application-level encryption for defense-in-depth.
+
+**⚠️ IMPORTANT**: As of version 1.5, both security layers are **MANDATORY** and cannot be disabled.
 
 ## Architecture
 
@@ -25,40 +27,33 @@ fe-web now supports **dual-layer security** combining both SSL/TLS and applicati
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Configuration Matrix
+## Security Configuration
 
-| SSL | Encryption | Protocol | Security Level | Use Case |
-|-----|------------|----------|----------------|----------|
-| ON  | ON         | wss://   | **MAXIMUM** ⭐⭐⭐ | Production (backend/apps) |
-| ON  | OFF        | wss://   | Medium ⭐⭐ | Legacy compatibility |
-| OFF | ON         | ws://    | Good ⭐⭐ | Browser via backend |
-| OFF | OFF        | ws://    | **NONE** ❌ | Localhost debug only |
+**⚠️ MANDATORY**: Both SSL/TLS and encryption are **ALWAYS enabled** - no configuration options to disable.
 
-## irssi Configuration
-
-### Recommended: Dual-Layer (SSL + Encryption)
+### irssi Configuration (Required)
 
 ```
+/SET fe_web_password "your-strong-password"  # REQUIRED
 /SET fe_web_enabled ON
 /SET fe_web_port 9001
 /SET fe_web_bind 127.0.0.1
-/SET fe_web_password "your-strong-password"
-/SET fe_web_ssl ON
-/SET fe_web_encryption ON
 /SAVE
 ```
 
-### Alternative: Encryption Only
+**Generate strong password:**
+```bash
+openssl rand -base64 32
+```
 
-```
-/SET fe_web_enabled ON
-/SET fe_web_port 9001
-/SET fe_web_bind 127.0.0.1
-/SET fe_web_password "your-strong-password"
-/SET fe_web_ssl OFF
-/SET fe_web_encryption ON
-/SAVE
-```
+**Server will REFUSE to start if:**
+- ❌ Password is not set
+- ❌ SSL initialization fails
+- ❌ Encryption initialization fails
+
+**No longer available:**
+- ❌ `/SET fe_web_ssl ON/OFF` - removed, always ON
+- ❌ `/SET fe_web_encryption ON/OFF` - removed, always ON
 
 ## Connection Flow (Dual-Layer)
 

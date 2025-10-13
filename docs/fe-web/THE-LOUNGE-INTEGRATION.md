@@ -6,85 +6,76 @@ This document provides instructions for integrating The Lounge IRC client with i
 
 **Target audience**: Developers working on The Lounge integration with fe-web.
 
+**⚠️ SECURITY NOTICE**: As of version 1.5, SSL/TLS and encryption are **MANDATORY** and cannot be disabled.
+
 ---
 
 ## Quick Start
 
 ### 1. Server Setup (irssi)
 
-**Option A: Encryption Only (Recommended for browser-based clients)**
+**Required configuration:**
 ```
 /LOAD fe-web
+/SET fe_web_password <strong-password>
 /SET fe_web_enabled ON
 /SET fe_web_port 9001
 /SET fe_web_bind 127.0.0.1
-/SET fe_web_password yourpassword
-/SET fe_web_ssl OFF
-/SET fe_web_encryption ON
 /SAVE
 ```
 
-**Option B: Dual-Layer Security (Recommended for backend/dedicated apps)**
+**Generate strong password:**
+```bash
+openssl rand -base64 32
 ```
-/LOAD fe-web
-/SET fe_web_enabled ON
-/SET fe_web_port 9001
-/SET fe_web_bind 127.0.0.1
-/SET fe_web_password yourpassword
-/SET fe_web_ssl ON
-/SET fe_web_encryption ON
-/SAVE
-```
+
+**⚠️ IMPORTANT:**
+- Password is **REQUIRED** - server will not start without it
+- SSL/TLS is **ALWAYS enabled** (wss://) - cannot be disabled
+- Encryption is **ALWAYS enabled** (AES-256-GCM) - cannot be disabled
+- All connections use dual-layer security
 
 ### 2. Client Connection (The Lounge)
 
-**For encryption only (Option A):**
-```
-ws://127.0.0.1:9001/?password=yourpassword
-```
-
-**For dual-layer security (Option B):**
+**Connection URL:**
 ```
 wss://127.0.0.1:9001/?password=yourpassword
 ```
 
-**Note**: When using wss://, backend must accept self-signed certificates.
+**⚠️ IMPORTANT:**
+- **ONLY wss:// is supported** - plain ws:// is NOT available
+- Backend MUST accept self-signed certificates
+- Backend MUST implement AES-256-GCM encryption layer
 
 ---
 
-## Security Options
+## Security Architecture
 
-### Version 1.4 Changes
+### Version 1.5 Changes
 
-fe-web now supports **dual-layer security**:
-- **Layer 1**: SSL/TLS (wss://) - optional, self-signed certificate
-- **Layer 2**: Application-level encryption (AES-256-GCM) - optional, enabled by default
+fe-web now **enforces mandatory dual-layer security**:
+- **Layer 1**: SSL/TLS (wss://) - **MANDATORY**, self-signed certificate
+- **Layer 2**: Application-level encryption (AES-256-GCM) - **MANDATORY**
 
-### Configuration Matrix
+**No longer available:**
+- ❌ `/SET fe_web_ssl ON/OFF` - removed, always ON
+- ❌ `/SET fe_web_encryption ON/OFF` - removed, always ON
+- ❌ Plain ws:// connections - not supported
+- ❌ Unencrypted messages - not supported
 
-| SSL | Encryption | Protocol | Use Case |
-|-----|------------|----------|----------|
-| OFF | ON         | ws://    | **Browser-based clients** (The Lounge web UI) |
-| ON  | ON         | wss://   | **Backend/dedicated apps** (The Lounge server) |
-| ON  | OFF        | wss://   | Legacy compatibility |
-| OFF | OFF        | ws://    | Debug only (NOT SECURE) |
+### Why Mandatory Security?
 
-### Why Dual-Layer?
-
-**For browser-based clients:**
-- Use encryption only (ws://)
-- No certificate warnings
-- Zero configuration
-
-**For backend/dedicated apps:**
-- Use dual-layer (wss:// + encryption)
-- Defense in depth
-- Backend can easily accept self-signed certs
+**Rationale:**
+- Security should be default, not optional
+- Prevents accidental insecure deployments
+- Forces best practices
+- Users cannot disable security by mistake
 
 **Key points:**
-- Encryption is **enabled by default** - controlled by `/SET fe_web_encryption ON/OFF` in irssi
-- SSL/TLS is **disabled by default** - controlled by `/SET fe_web_ssl ON/OFF` in irssi
+- SSL/TLS is **ALWAYS enabled** - no option to disable
+- Encryption is **ALWAYS enabled** - no option to disable
 - Password is used for **both authentication and encryption key derivation**
+- Server **REFUSES to start** without password or if security initialization fails
 - All messages encrypted with **AES-256-GCM** (authenticated encryption)
 - **Binary WebSocket frames** (opcode 0x2) for encrypted data
 - **Same WebSocket protocol** - only message payload is encrypted

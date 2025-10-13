@@ -1,20 +1,21 @@
 # fe-web WebSocket Client Specification
 
-## Version 1.4 (2025-10-12)
+## Version 1.5 (2025-10-12)
 
 This document provides a complete specification for implementing a WebSocket client that connects to the irssi fe-web module.
 
-**⚠️ IMPORTANT**:
-- Password authentication is **REQUIRED** as of version 1.1
-- **Application-level encryption (AES-256-GCM)** is available as of version 1.3 (enabled by default)
-- **SSL/TLS support (wss://)** is available as of version 1.4 (optional, can be combined with encryption)
+**⚠️ SECURITY REQUIREMENTS**:
+- Password authentication is **REQUIRED** (server will not start without password)
+- **SSL/TLS (wss://)** is **MANDATORY** - cannot be disabled
+- **Application-level encryption (AES-256-GCM)** is **MANDATORY** - cannot be disabled
+- All connections use **dual-layer security** (SSL/TLS + AES-256-GCM)
 
 ---
 
 ## Table of Contents
 
 1. [Connection and Handshake](#connection-and-handshake)
-2. [Security Options](#security-options)
+2. [Security Architecture](#security-architecture)
 3. [Encryption](#encryption)
 4. [WebSocket Protocol](#websocket-protocol)
 5. [Message Format (JSON)](#message-format-json)
@@ -35,14 +36,14 @@ Connect to the irssi server:
 ```
 Host: 127.0.0.1 (default, configurable via fe_web_bind)
 Port: 9001 (default, configurable via fe_web_port)
-Protocol: ws:// or wss:// (depending on server configuration)
+Protocol: wss:// (WebSocket Secure - MANDATORY)
 ```
 
-**Protocol Selection:**
-- `ws://` - Plain WebSocket (default)
-- `wss://` - WebSocket Secure (if `fe_web_ssl` is enabled on server)
-
-**Note**: See [Security Options](#security-options) section for details on SSL/TLS and encryption.
+**⚠️ IMPORTANT:**
+- **ONLY wss:// is supported** - SSL/TLS is mandatory
+- Server uses self-signed certificate (auto-generated)
+- Client MUST accept self-signed certificates
+- Plain ws:// connections are NOT supported
 
 ### 2. WebSocket Handshake
 
@@ -95,71 +96,85 @@ After successful handshake with valid password:
 
 ---
 
-## Security Options
+## Security Architecture
 
-fe-web supports multiple security configurations:
+fe-web uses **mandatory dual-layer security** - both layers are always enabled and cannot be disabled.
 
-### Configuration Matrix
-
-| SSL/TLS | Encryption | Protocol | Security Level | Use Case |
-|---------|------------|----------|----------------|----------|
-| ON      | ON         | wss://   | **MAXIMUM** ⭐⭐⭐ | Production (backend/apps) |
-| ON      | OFF        | wss://   | Medium ⭐⭐ | Legacy compatibility |
-| OFF     | ON         | ws://    | Good ⭐⭐ | Browser via backend |
-| OFF     | OFF        | ws://    | **NONE** ❌ | Localhost debug only |
-
-### Server Configuration
-
-Check server settings to determine which security features are enabled:
-
-```
-/SET fe_web_ssl          # ON or OFF (default: OFF)
-/SET fe_web_encryption   # ON or OFF (default: ON)
-```
-
-### Client Implementation
-
-**For wss:// (SSL/TLS enabled):**
-```javascript
-// Backend/dedicated app - accept self-signed certificate
-const ws = new WebSocket('wss://irssi:9001/?password=secret', {
-    rejectUnauthorized: false  // Accept self-signed cert
-});
-```
-
-**For ws:// (SSL/TLS disabled):**
-```javascript
-// Standard WebSocket connection
-const ws = new WebSocket('ws://irssi:9001/?password=secret');
-```
-
-**Encryption layer (if enabled):**
-- Implement AES-256-GCM encryption (see [Encryption](#encryption) section)
-- Use BINARY frames (opcode 0x2) for encrypted messages
-- Use TEXT frames (opcode 0x1) for plain messages
-
-### Dual-Layer Security (Recommended)
-
-When both SSL and encryption are enabled:
+### Security Layers (Both Mandatory)
 
 ```
 ┌─────────────────────────────────────┐
 │  Layer 1: SSL/TLS (wss://)          │
+│  - Self-signed certificate          │
+│  - Auto-generated on startup        │
+│  - MANDATORY - cannot disable       │
 │  └─> Protects transport             │
 └─────────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────┐
 │  Layer 2: AES-256-GCM               │
+│  - Application-level encryption     │
+│  - PBKDF2 key derivation            │
+│  - MANDATORY - cannot disable       │
 │  └─> End-to-end encryption          │
 └─────────────────────────────────────┘
 ```
 
-**Benefits:**
-- Defense in depth (two independent security layers)
-- SSL protects against network sniffing
-- Encryption provides end-to-end security
-- Even if SSL is compromised, data remains encrypted
+### Server Requirements
+
+Server will **REFUSE to start** if:
+- ❌ Password is not set (`/SET fe_web_password`)
+- ❌ SSL initialization fails (OpenSSL not available)
+- ❌ Encryption initialization fails
+
+**Required configuration:**
+```
+/SET fe_web_password <strong-password>  # REQUIRED
+/SET fe_web_enabled ON                  # To start server
+```
+
+**Example:**
+```
+/SET fe_web_password $(openssl rand -base64 32)
+/SET fe_web_enabled ON
+/SAVE
+```
+
+### Client Implementation
+
+**All clients MUST:**
+1. Connect via **wss://** (not ws://)
+2. Accept self-signed certificates
+3. Implement AES-256-GCM encryption layer
+4. Use BINARY frames (opcode 0x2) for all messages
+
+**Example (Node.js):**
+```javascript
+const ws = new WebSocket('wss://irssi:9001/?password=secret', {
+    rejectUnauthorized: false  // Accept self-signed cert
+});
+ws.binaryType = 'arraybuffer';
+
+// Implement encryption layer (see Encryption section)
+const encryption = new IrssiEncryption(password);
+await encryption.deriveKey();
+```
+
+### Security Benefits
+
+**Defense in Depth:**
+- ✅ SSL/TLS protects against network sniffing
+- ✅ AES-256-GCM provides end-to-end encryption
+- ✅ Even if SSL is compromised, data remains encrypted
+- ✅ GCM authentication tag prevents tampering
+- ✅ PBKDF2 makes password brute-force harder
+
+**No Insecure Modes:**
+- ❌ Cannot disable SSL/TLS
+- ❌ Cannot disable encryption
+- ❌ Cannot use plain ws://
+- ❌ Cannot send unencrypted messages
 
 **See:** [DUAL-LAYER-SECURITY.md](DUAL-LAYER-SECURITY.md) for complete details.
 
