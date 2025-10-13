@@ -125,20 +125,42 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	          "fe-web: [%s] Processing handshake, buffer len: %d",
 	          client->id, (int)strlen(data));
 
+	/* DEBUG: Print received handshake data */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] ========== HANDSHAKE DATA START ==========", client->id);
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "%s", data);
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] ========== HANDSHAKE DATA END ==========", client->id);
+
 	/* Look for Sec-WebSocket-Key header */
 	key_line = strstr(data, "Sec-WebSocket-Key:");
 	if (key_line == NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] No Sec-WebSocket-Key found yet",
-		          client->id);
-		return 0; /* Not complete handshake yet */
+		/* DEBUG: Try case-insensitive search */
+		key_line = strcasestr(data, "Sec-WebSocket-Key:");
+		if (key_line != NULL) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Found Sec-WebSocket-Key with different case!",
+			          client->id);
+		} else {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] No Sec-WebSocket-Key found yet (case-insensitive search also failed)",
+			          client->id);
+			return 0; /* Not complete handshake yet */
+		}
 	}
 
 	/* Check for end of headers */
 	if (strstr(data, "\r\n\r\n") == NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Headers not complete yet",
-		          client->id);
+		/* DEBUG: Check for alternative line endings */
+		if (strstr(data, "\n\n") != NULL) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Found \\n\\n but not \\r\\n\\r\\n (Unix line endings?)",
+			          client->id);
+		} else {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Headers not complete yet (no \\r\\n\\r\\n or \\n\\n found)",
+			          client->id);
+		}
 		return 0; /* Headers not complete */
 	}
 
