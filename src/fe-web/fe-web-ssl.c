@@ -388,6 +388,7 @@ int fe_web_ssl_write(FE_WEB_SSL_CHANNEL *ssl_chan, const char *data, int len)
 /* Check if SSL is enabled globally */
 int fe_web_ssl_is_enabled(void)
 {
-	return settings_get_bool("fe_web_ssl") && fe_web_ssl_ctx != NULL;
+	/* SSL is always enabled - just check if context is initialized */
+	return fe_web_ssl_ctx != NULL;
 }
 
