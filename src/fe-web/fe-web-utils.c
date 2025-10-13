@@ -120,6 +120,8 @@ static const char *fe_web_type_to_string(WEB_MESSAGE_TYPE type)
 		return "channel_mode";
 	case WEB_MSG_NICKLIST:
 		return "nicklist";
+	case WEB_MSG_NICKLIST_UPDATE:
+		return "nicklist_update";
 	case WEB_MSG_NICK_CHANGE:
 		return "nick_change";
 	case WEB_MSG_USER_MODE:
@@ -227,10 +229,15 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 		g_free(escaped);
 	}
 
-	/* text */
+	/* text (or "task" for nicklist_update) */
 	if (msg->text != NULL) {
 		escaped = fe_web_escape_json(msg->text);
-		g_string_append_printf(json, ",\"text\":\"%s\"", escaped);
+		if (msg->type == WEB_MSG_NICKLIST_UPDATE) {
+			/* For nicklist_update, serialize text field as "task" */
+			g_string_append_printf(json, ",\"task\":\"%s\"", escaped);
+		} else {
+			g_string_append_printf(json, ",\"text\":\"%s\"", escaped);
+		}
 		g_free(escaped);
 	}
 

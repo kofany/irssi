@@ -198,6 +198,56 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 
 		g_free(nick);
 		g_free(server_tag);
+	} else if (g_strcmp0(type, "names") == 0) {
+		char *channel;
+		char *server_tag;
+		IRC_SERVER_REC *server;
+		IRC_CHANNEL_REC *chanrec;
+
+		channel = fe_web_json_get_string(json, "channel");
+		server_tag = fe_web_json_get_string(json, "server");
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Received NAMES request: channel=%s server=%s",
+		          client->id, channel ? channel : "(null)",
+		          server_tag ? server_tag : "(null)");
+
+		if (channel != NULL && server_tag != NULL) {
+			server = IRC_SERVER(server_find_tag(server_tag));
+			if (server != NULL) {
+				/* Execute physical NAMES command in IRC */
+				char *cmd = g_strdup_printf("NAMES %s", channel);
+				printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+				          "fe-web: [%s] Executing: /NAMES %s",
+				          client->id, channel);
+				irc_send_cmd(server, cmd);
+				g_free(cmd);
+
+				/* Send nicklist from irssi's current state
+				 * (irssi tracks nicklist automatically and updates it when
+				 * NAMES response arrives, so we trust irssi's internal state) */
+				chanrec = irc_channel_find(server, channel);
+				if (chanrec != NULL) {
+					/* Use the helper function to send full nicklist */
+					extern void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel);
+					fe_web_send_nicklist_for_channel(server, chanrec);
+					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+					          "fe-web: [%s] Sent nicklist for %s",
+					          client->id, channel);
+				} else {
+					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+					          "fe-web: [%s] ERROR: Channel %s not found",
+					          client->id, channel);
+				}
+			} else {
+				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+				          "fe-web: [%s] ERROR: Server %s not found",
+				          client->id, server_tag);
+			}
+		}
+
+		g_free(channel);
+		g_free(server_tag);
 	}
 
 	g_free(type);

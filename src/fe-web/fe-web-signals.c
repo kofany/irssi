@@ -112,6 +112,82 @@ static WHOIS_REC *whois_get_or_create(IRC_SERVER_REC *server, const char *nick)
 	return rec;
 }
 
+/* Helper: Send nicklist for a channel (full list) */
+static void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel)
+{
+	WEB_MESSAGE_REC *msg;
+	GString *nicklist;
+	GSList *nicks, *nick_tmp;
+
+	if (server == NULL || channel == NULL) {
+		return;
+	}
+
+	msg = fe_web_message_new(WEB_MSG_NICKLIST);
+	msg->id = fe_web_generate_message_id();
+	msg->server_tag = g_strdup(server->tag);
+	msg->target = g_strdup(channel->name);
+
+	/* Build nicklist JSON */
+	nicklist = g_string_new("[");
+	nicks = nicklist_getnicks(CHANNEL(channel));
+	for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+		NICK_REC *nick = nick_tmp->data;
+		char *escaped_nick;
+		char prefix[8];
+
+		if (nicklist->len > 1) {
+			g_string_append_c(nicklist, ',');
+		}
+
+		/* Build prefix string (@, +, etc) */
+		prefix[0] = '\0';
+		if (nick->op) {
+			strcat(prefix, "@");
+		}
+		if (nick->halfop) {
+			strcat(prefix, "%");
+		}
+		if (nick->voice) {
+			strcat(prefix, "+");
+		}
+
+		escaped_nick = fe_web_escape_json(nick->nick);
+		g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
+		                      escaped_nick, prefix);
+		g_free(escaped_nick);
+	}
+	g_slist_free(nicks);
+	g_string_append_c(nicklist, ']');
+
+	msg->text = g_string_free(nicklist, FALSE);
+	fe_web_send_to_server_clients(server, msg);
+	fe_web_message_free(msg);
+}
+
+/* Helper: Send nicklist update (delta: add/remove/mode) */
+static void fe_web_send_nicklist_update(IRC_SERVER_REC *server,
+                                         IRC_CHANNEL_REC *channel,
+                                         const char *nick,
+                                         const char *task)
+{
+	WEB_MESSAGE_REC *msg;
+
+	if (server == NULL || channel == NULL || nick == NULL || task == NULL) {
+		return;
+	}
+
+	msg = fe_web_message_new(WEB_MSG_NICKLIST_UPDATE);
+	msg->id = fe_web_generate_message_id();
+	msg->server_tag = g_strdup(server->tag);
+	msg->target = g_strdup(channel->name);
+	msg->nick = g_strdup(nick);
+	msg->text = g_strdup(task);  /* task field: add, remove, +o, -o, +v, -v, +h, -h */
+
+	fe_web_send_to_server_clients(server, msg);
+	fe_web_message_free(msg);
+}
+
 /* Signal: "message public" */
 static void sig_message_public(IRC_SERVER_REC *server, const char *msg,
                                 const char *nick, const char *address,
@@ -211,6 +287,7 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
                               const char *account, const char *realname)
 {
 	WEB_MESSAGE_REC *web_msg;
+	IRC_CHANNEL_REC *chanrec;
 
 	if (server == NULL) {
 		return;
@@ -242,6 +319,12 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Send nicklist update (delta: add) after join */
+	chanrec = irc_channel_find(server, channel);
+	if (chanrec != NULL) {
+		fe_web_send_nicklist_update(server, chanrec, nick, "add");
+	}
 }
 
 /* Signal: "message part" */
@@ -250,6 +333,7 @@ static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
                               const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
+	IRC_CHANNEL_REC *chanrec;
 
 	if (server == NULL) {
 		return;
@@ -272,6 +356,12 @@ static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Send nicklist update (delta: remove) after part */
+	chanrec = irc_channel_find(server, channel);
+	if (chanrec != NULL) {
+		fe_web_send_nicklist_update(server, chanrec, nick, "remove");
+	}
 }
 
 /* Signal: "message kick" */
@@ -280,6 +370,7 @@ static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
                               const char *address, const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
+	IRC_CHANNEL_REC *chanrec;
 
 	if (server == NULL) {
 		return;
@@ -306,6 +397,12 @@ static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Send nicklist update (delta: remove) after kick */
+	chanrec = irc_channel_find(server, channel);
+	if (chanrec != NULL) {
+		fe_web_send_nicklist_update(server, chanrec, nick, "remove");
+	}
 }
 
 /* Signal: "message quit" */
@@ -313,6 +410,7 @@ static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
                               const char *address, const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
+	GSList *tmp;
 
 	if (server == NULL) {
 		return;
@@ -334,6 +432,14 @@ static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Send nicklist update (delta: remove) for all channels the user was in */
+	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
+		IRC_CHANNEL_REC *channel = tmp->data;
+		/* The user has already been removed from the nicklist by irssi core,
+		   so we just need to send delta update for each channel */
+		fe_web_send_nicklist_update(server, channel, nick, "remove");
+	}
 }
 
 /* Signal: "message topic" */
@@ -464,6 +570,59 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
 
+	/* Send nicklist delta updates for user modes (o, v, h) */
+	if (mode_str != NULL && params != NULL) {
+		IRC_CHANNEL_REC *chanrec = irc_channel_find(server, channel);
+		if (chanrec != NULL) {
+			char current_sign = '+';  /* Default to + */
+			int param_idx = 0;
+
+			for (i = 0; mode_str[i] != '\0'; i++) {
+				char c = mode_str[i];
+
+				/* Track + or - */
+				if (c == '+' || c == '-') {
+					current_sign = c;
+					continue;
+				}
+
+				/* Check if this is a user mode that affects nicklist */
+				if (c == 'o' || c == 'v' || c == 'h') {
+					/* These modes take a nick parameter */
+					if (param_idx < params_count) {
+						char task[3];
+						task[0] = current_sign;
+						task[1] = c;
+						task[2] = '\0';
+						fe_web_send_nicklist_update(server, chanrec, params[param_idx], task);
+						param_idx++;
+					}
+				} else if (c == 'q' || c == 'a') {
+					/* Owner/admin modes also take nick but we may not handle them */
+					if (param_idx < params_count) {
+						param_idx++;
+					}
+				} else if (c == 'l') {
+					/* +l takes param, -l doesn't */
+					if (current_sign == '+' && param_idx < params_count) {
+						param_idx++;
+					}
+				} else if (c == 'k') {
+					/* +k/-k both take param */
+					if (param_idx < params_count) {
+						param_idx++;
+					}
+				} else if (c == 'b' || c == 'e' || c == 'I') {
+					/* Ban/exempt/invite modes take mask parameter */
+					if (param_idx < params_count) {
+						param_idx++;
+					}
+				}
+				/* Other modes (n, t, m, i, s, p, etc.) don't take parameters */
+			}
+		}
+	}
+
 	/* Cleanup */
 	g_free(mode_str);
 	if (params != NULL) {
@@ -477,65 +636,13 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 /* Signal: "nick mode changed" */
 static void sig_nick_mode_changed(IRC_CHANNEL_REC *channel, NICK_REC *nick)
 {
-	WEB_MESSAGE_REC *web_msg;
-	IRC_SERVER_REC *server;
-	GString *nicklist;
-
-	if (channel == NULL || nick == NULL) {
-		return;
-	}
-
-	server = IRC_SERVER(channel->server);
-	if (server == NULL) {
-		return;
-	}
-
-	/* Send updated nicklist for the channel */
-	web_msg = fe_web_message_new(WEB_MSG_NICKLIST);
-	web_msg->id = fe_web_generate_message_id();
-	web_msg->server_tag = g_strdup(server->tag);
-	web_msg->target = g_strdup(channel->name);
-
-	/* Build nicklist JSON */
-	nicklist = g_string_new("[");
-	{
-		GSList *nicks;
-		GSList *nick_tmp;
-
-		nicks = nicklist_getnicks(CHANNEL(channel));
-		for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
-			NICK_REC *n = nick_tmp->data;
-			char *escaped_nick;
-			char prefix[8];
-
-			if (nicklist->len > 1) {
-				g_string_append_c(nicklist, ',');
-			}
-
-			/* Build prefix string (@, +, etc) */
-			prefix[0] = '\0';
-			if (n->op) {
-				strcat(prefix, "@");
-			}
-			if (n->halfop) {
-				strcat(prefix, "%");
-			}
-			if (n->voice) {
-				strcat(prefix, "+");
-			}
-
-			escaped_nick = fe_web_escape_json(n->nick);
-			g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
-			                      escaped_nick, prefix);
-			g_free(escaped_nick);
-		}
-		g_slist_free(nicks);
-	}
-	g_string_append_c(nicklist, ']');
-
-	web_msg->text = g_string_free(nicklist, FALSE);
-	fe_web_send_to_server_clients(server, web_msg);
-	fe_web_message_free(web_msg);
+	/* NOTE: We now send nicklist delta updates from sig_message_irc_mode
+	 * instead of sending full nicklist here. This signal is kept for
+	 * compatibility but does nothing. Delta updates are sent when the
+	 * MODE message arrives, which happens before this signal fires.
+	 */
+	(void)channel;
+	(void)nick;
 }
 
 /* Signal: "message nick" */
@@ -543,11 +650,13 @@ static void sig_message_nick(IRC_SERVER_REC *server, const char *newnick,
                               const char *oldnick, const char *address)
 {
 	WEB_MESSAGE_REC *web_msg;
+	GSList *tmp;
 
 	if (server == NULL) {
 		return;
 	}
 
+	/* Send nick_change message (global event) */
 	web_msg = fe_web_message_new(WEB_MSG_NICK_CHANGE);
 	web_msg->id = fe_web_generate_message_id();
 	web_msg->server_tag = g_strdup(server->tag);
@@ -556,6 +665,33 @@ static void sig_message_nick(IRC_SERVER_REC *server, const char *newnick,
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
+
+	/* Send nicklist_update (delta: change) for each channel the user is in */
+	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
+		IRC_CHANNEL_REC *channel = tmp->data;
+		NICK_REC *nick_rec;
+
+		/* Check if the user is in this channel (using NEW nick, as irssi already renamed) */
+		nick_rec = nicklist_find(CHANNEL(channel), newnick);
+		if (nick_rec != NULL) {
+			WEB_MESSAGE_REC *update_msg;
+
+			update_msg = fe_web_message_new(WEB_MSG_NICKLIST_UPDATE);
+			update_msg->id = fe_web_generate_message_id();
+			update_msg->server_tag = g_strdup(server->tag);
+			update_msg->target = g_strdup(channel->name);
+			update_msg->nick = g_strdup(oldnick);  /* Old nick */
+			update_msg->text = g_strdup("change");  /* task */
+
+			/* Add new nick to extra_data */
+			g_hash_table_insert(update_msg->extra_data,
+			                   g_strdup("new_nick"),
+			                   g_strdup(newnick));
+
+			fe_web_send_to_server_clients(server, update_msg);
+			fe_web_message_free(update_msg);
+		}
+	}
 }
 
 /* Signal: "server connected" */
