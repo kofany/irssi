@@ -1,26 +1,28 @@
 # fe-web WebSocket Client Specification
 
-## Version 1.3 (2025-10-12)
+## Version 1.4 (2025-10-12)
 
 This document provides a complete specification for implementing a WebSocket client that connects to the irssi fe-web module.
 
 **⚠️ IMPORTANT**:
 - Password authentication is **REQUIRED** as of version 1.1
 - **Application-level encryption (AES-256-GCM)** is available as of version 1.3 (enabled by default)
+- **SSL/TLS support (wss://)** is available as of version 1.4 (optional, can be combined with encryption)
 
 ---
 
 ## Table of Contents
 
 1. [Connection and Handshake](#connection-and-handshake)
-2. [Encryption](#encryption)
-3. [WebSocket Protocol](#websocket-protocol)
-4. [Message Format (JSON)](#message-format-json)
-5. [Client → Server Messages](#client--server-messages)
-6. [Server → Client Messages](#server--client-messages)
-7. [Connection Lifecycle](#connection-lifecycle)
-8. [Authentication](#authentication)
-9. [Complete Implementation Example](#complete-implementation-example)
+2. [Security Options](#security-options)
+3. [Encryption](#encryption)
+4. [WebSocket Protocol](#websocket-protocol)
+5. [Message Format (JSON)](#message-format-json)
+6. [Client → Server Messages](#client--server-messages)
+7. [Server → Client Messages](#server--client-messages)
+8. [Connection Lifecycle](#connection-lifecycle)
+9. [Authentication](#authentication)
+10. [Complete Implementation Example](#complete-implementation-example)
 
 ---
 
@@ -33,10 +35,14 @@ Connect to the irssi server:
 ```
 Host: 127.0.0.1 (default, configurable via fe_web_bind)
 Port: 9001 (default, configurable via fe_web_port)
-Protocol: WebSocket (ws://)
+Protocol: ws:// or wss:// (depending on server configuration)
 ```
 
-**Note**: fe-web uses plain WebSocket (ws://) with application-level encryption. See [Encryption](#encryption) section for details.
+**Protocol Selection:**
+- `ws://` - Plain WebSocket (default)
+- `wss://` - WebSocket Secure (if `fe_web_ssl` is enabled on server)
+
+**Note**: See [Security Options](#security-options) section for details on SSL/TLS and encryption.
 
 ### 2. WebSocket Handshake
 
@@ -86,6 +92,76 @@ After successful handshake with valid password:
 - Server responds with `HTTP/1.1 401 Unauthorized`
 - Connection is closed immediately
 - No `auth_ok` message is sent
+
+---
+
+## Security Options
+
+fe-web supports multiple security configurations:
+
+### Configuration Matrix
+
+| SSL/TLS | Encryption | Protocol | Security Level | Use Case |
+|---------|------------|----------|----------------|----------|
+| ON      | ON         | wss://   | **MAXIMUM** ⭐⭐⭐ | Production (backend/apps) |
+| ON      | OFF        | wss://   | Medium ⭐⭐ | Legacy compatibility |
+| OFF     | ON         | ws://    | Good ⭐⭐ | Browser via backend |
+| OFF     | OFF        | ws://    | **NONE** ❌ | Localhost debug only |
+
+### Server Configuration
+
+Check server settings to determine which security features are enabled:
+
+```
+/SET fe_web_ssl          # ON or OFF (default: OFF)
+/SET fe_web_encryption   # ON or OFF (default: ON)
+```
+
+### Client Implementation
+
+**For wss:// (SSL/TLS enabled):**
+```javascript
+// Backend/dedicated app - accept self-signed certificate
+const ws = new WebSocket('wss://irssi:9001/?password=secret', {
+    rejectUnauthorized: false  // Accept self-signed cert
+});
+```
+
+**For ws:// (SSL/TLS disabled):**
+```javascript
+// Standard WebSocket connection
+const ws = new WebSocket('ws://irssi:9001/?password=secret');
+```
+
+**Encryption layer (if enabled):**
+- Implement AES-256-GCM encryption (see [Encryption](#encryption) section)
+- Use BINARY frames (opcode 0x2) for encrypted messages
+- Use TEXT frames (opcode 0x1) for plain messages
+
+### Dual-Layer Security (Recommended)
+
+When both SSL and encryption are enabled:
+
+```
+┌─────────────────────────────────────┐
+│  Layer 1: SSL/TLS (wss://)          │
+│  └─> Protects transport             │
+└─────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────┐
+│  Layer 2: AES-256-GCM               │
+│  └─> End-to-end encryption          │
+└─────────────────────────────────────┘
+```
+
+**Benefits:**
+- Defense in depth (two independent security layers)
+- SSL protects against network sniffing
+- Encryption provides end-to-end security
+- Even if SSL is compromised, data remains encrypted
+
+**See:** [DUAL-LAYER-SECURITY.md](DUAL-LAYER-SECURITY.md) for complete details.
 
 ---
 

@@ -12,41 +12,78 @@ This document provides instructions for integrating The Lounge IRC client with i
 
 ### 1. Server Setup (irssi)
 
+**Option A: Encryption Only (Recommended for browser-based clients)**
 ```
 /LOAD fe-web
 /SET fe_web_enabled ON
 /SET fe_web_port 9001
 /SET fe_web_bind 127.0.0.1
 /SET fe_web_password yourpassword
+/SET fe_web_ssl OFF
+/SET fe_web_encryption ON
+/SAVE
+```
+
+**Option B: Dual-Layer Security (Recommended for backend/dedicated apps)**
+```
+/LOAD fe-web
+/SET fe_web_enabled ON
+/SET fe_web_port 9001
+/SET fe_web_bind 127.0.0.1
+/SET fe_web_password yourpassword
+/SET fe_web_ssl ON
 /SET fe_web_encryption ON
 /SAVE
 ```
 
 ### 2. Client Connection (The Lounge)
 
-**WebSocket URL format:**
+**For encryption only (Option A):**
 ```
 ws://127.0.0.1:9001/?password=yourpassword
 ```
 
-**Note**: Always use `ws://` (plain WebSocket). Encryption is handled at application level, not transport level.
+**For dual-layer security (Option B):**
+```
+wss://127.0.0.1:9001/?password=yourpassword
+```
+
+**Note**: When using wss://, backend must accept self-signed certificates.
 
 ---
 
-## Application-Level Encryption
+## Security Options
 
-### What Changed in Version 1.3
+### Version 1.4 Changes
 
-fe-web now uses **application-level encryption** (AES-256-GCM) instead of SSL/TLS.
+fe-web now supports **dual-layer security**:
+- **Layer 1**: SSL/TLS (wss://) - optional, self-signed certificate
+- **Layer 2**: Application-level encryption (AES-256-GCM) - optional, enabled by default
 
-**Why the change?**
-- ❌ SSL/TLS with self-signed certificates caused browser warnings
-- ❌ Users had to manually accept certificates
-- ✅ Application-level encryption works immediately without warnings
-- ✅ Zero configuration - no certificate management
+### Configuration Matrix
+
+| SSL | Encryption | Protocol | Use Case |
+|-----|------------|----------|----------|
+| OFF | ON         | ws://    | **Browser-based clients** (The Lounge web UI) |
+| ON  | ON         | wss://   | **Backend/dedicated apps** (The Lounge server) |
+| ON  | OFF        | wss://   | Legacy compatibility |
+| OFF | OFF        | ws://    | Debug only (NOT SECURE) |
+
+### Why Dual-Layer?
+
+**For browser-based clients:**
+- Use encryption only (ws://)
+- No certificate warnings
+- Zero configuration
+
+**For backend/dedicated apps:**
+- Use dual-layer (wss:// + encryption)
+- Defense in depth
+- Backend can easily accept self-signed certs
 
 **Key points:**
 - Encryption is **enabled by default** - controlled by `/SET fe_web_encryption ON/OFF` in irssi
+- SSL/TLS is **disabled by default** - controlled by `/SET fe_web_ssl ON/OFF` in irssi
 - Password is used for **both authentication and encryption key derivation**
 - All messages encrypted with **AES-256-GCM** (authenticated encryption)
 - **Binary WebSocket frames** (opcode 0x2) for encrypted data
