@@ -395,19 +395,40 @@ static void client_input(WEB_CLIENT_REC *client)
 	}
 
 	/* Read from socket (SSL or plain) */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: [%s] sig_listen called (use_ssl=%d, handshake_done=%d)",
+	          client->id, client->use_ssl, client->handshake_done);
+
 	if (client->use_ssl && client->ssl_channel != NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Reading from SSL channel...", client->id);
+
 		ret = fe_web_ssl_read(client->ssl_channel, (char *)buffer, sizeof(buffer));
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] SSL read returned: %d", client->id, ret);
 
 		if (ret == -2) {
 			/* SSL wants read - wait for more data */
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] SSL wants more data (WANT_READ/WANT_WRITE), waiting...",
+			          client->id);
 			return;
 		}
 	} else {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Reading from plain channel...", client->id);
+
 		channel = net_sendbuffer_handle(client->handle);
 		if (channel == NULL) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] net_sendbuffer_handle returned NULL!", client->id);
 			return;
 		}
 		ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Plain read returned: %d", client->id, ret);
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
@@ -415,8 +436,14 @@ static void client_input(WEB_CLIENT_REC *client)
 
 	if (ret <= 0) {
 		/* Connection closed or error */
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Connection closed (ret=%d)", client->id, ret);
+		if (ret == 0) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+			          "fe-web: [%s] Connection closed cleanly by peer", client->id);
+		} else {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] Connection error (ret=%d, errno=%d: %s)",
+			          client->id, ret, errno, strerror(errno));
+		}
 		fe_web_close_client(client);
 		return;
 	}

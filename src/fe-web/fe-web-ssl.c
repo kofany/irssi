@@ -17,9 +17,12 @@
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/bn.h>
+#include <openssl/err.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
+#include <stdio.h>
 
 /* Global SSL context */
 SSL_CTX *fe_web_ssl_ctx = NULL;
@@ -338,26 +341,78 @@ int fe_web_ssl_read(FE_WEB_SSL_CHANNEL *ssl_chan, char *buf, int len)
 {
 	int ret;
 	int ssl_err;
+	unsigned long err_code;
+	char err_buf[256];
 
 	if (!ssl_chan || !ssl_chan->ssl || !ssl_chan->handshake_done) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_read called with invalid state (ssl_chan=%p, ssl=%p, handshake_done=%d)",
+		          ssl_chan, ssl_chan ? ssl_chan->ssl : NULL, ssl_chan ? ssl_chan->handshake_done : 0);
 		return -1;
 	}
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: Attempting SSL_read (max %d bytes)...", len);
+
 	ret = SSL_read(ssl_chan->ssl, buf, len);
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: SSL_read returned %d", ret);
+
 	if (ret > 0) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: Successfully read %d bytes", ret);
 		return ret; /* Success */
 	}
 
 	ssl_err = SSL_get_error(ssl_chan->ssl, ret);
+
+	/* Get detailed error string */
+	err_code = ERR_get_error();
+	if (err_code != 0) {
+		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
+	} else {
+		snprintf(err_buf, sizeof(err_buf), "No OpenSSL error in queue");
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: SSL_read ret=%d, ssl_err=%d, errno=%d (%s), openssl_err=%s",
+	          ret, ssl_err, errno, strerror(errno), err_buf);
+
 	if (ssl_err == SSL_ERROR_WANT_READ) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: SSL_ERROR_WANT_READ - need more data from network");
 		return -2; /* Need more data */
 	}
 
+	if (ssl_err == SSL_ERROR_WANT_WRITE) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: SSL_ERROR_WANT_WRITE - need to write data first");
+		return -2; /* Need to write */
+	}
+
 	if (ssl_err == SSL_ERROR_ZERO_RETURN) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: SSL_ERROR_ZERO_RETURN - connection closed cleanly");
 		return 0; /* Connection closed */
 	}
 
+	if (ssl_err == SSL_ERROR_SYSCALL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_ERROR_SYSCALL - system call error (errno=%d: %s)",
+		          errno, strerror(errno));
+		return -1;
+	}
+
+	if (ssl_err == SSL_ERROR_SSL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_ERROR_SSL - protocol error: %s", err_buf);
+		return -1;
+	}
+
 	/* Real error */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+	          "fe-web-ssl: Unknown SSL error %d", ssl_err);
 	return -1;
 }
 
@@ -366,22 +421,71 @@ int fe_web_ssl_write(FE_WEB_SSL_CHANNEL *ssl_chan, const char *data, int len)
 {
 	int ret;
 	int ssl_err;
+	unsigned long err_code;
+	char err_buf[256];
 
 	if (!ssl_chan || !ssl_chan->ssl || !ssl_chan->handshake_done) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_write called with invalid state");
 		return -1;
 	}
 
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: Attempting SSL_write (%d bytes)...", len);
+
 	ret = SSL_write(ssl_chan->ssl, data, len);
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: SSL_write returned %d", ret);
+
 	if (ret > 0) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: Successfully wrote %d bytes", ret);
 		return ret; /* Success */
 	}
 
 	ssl_err = SSL_get_error(ssl_chan->ssl, ret);
+
+	/* Get detailed error string */
+	err_code = ERR_get_error();
+	if (err_code != 0) {
+		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
+	} else {
+		snprintf(err_buf, sizeof(err_buf), "No OpenSSL error in queue");
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: SSL_write ret=%d, ssl_err=%d, errno=%d (%s), openssl_err=%s",
+	          ret, ssl_err, errno, strerror(errno), err_buf);
+
 	if (ssl_err == SSL_ERROR_WANT_WRITE) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: SSL_ERROR_WANT_WRITE - need to retry write");
 		return -2; /* Need to retry */
 	}
 
+	if (ssl_err == SSL_ERROR_WANT_READ) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web-ssl: SSL_ERROR_WANT_READ - need to read data first");
+		return -2; /* Need to read */
+	}
+
+	if (ssl_err == SSL_ERROR_SYSCALL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_ERROR_SYSCALL - system call error (errno=%d: %s)",
+		          errno, strerror(errno));
+		return -1;
+	}
+
+	if (ssl_err == SSL_ERROR_SSL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: SSL_ERROR_SSL - protocol error: %s", err_buf);
+		return -1;
+	}
+
 	/* Real error */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+	          "fe-web-ssl: Unknown SSL write error %d", ssl_err);
 	return -1;
 }
 
