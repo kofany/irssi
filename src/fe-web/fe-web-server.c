@@ -229,16 +229,34 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	g_string_append_printf(response, "Sec-WebSocket-Accept: %s\r\n", accept_key);
 	g_string_append(response, "\r\n");
 
-	/* Send response */
-	if (client->handle != NULL) {
+	/* Send response - MUST use SSL if enabled! */
+	if (client->use_ssl && client->ssl_channel != NULL) {
+		int ssl_ret;
+		ssl_ret = fe_web_ssl_write(client->ssl_channel, response->str, response->len);
+		if (ssl_ret < 0) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] SSL write failed for handshake response",
+			          client->id);
+			g_free(accept_key);
+			g_string_free(response, TRUE);
+			return -1;
+		}
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Handshake response sent (%d bytes) [SSL]",
+		          client->id, (int)response->len);
+	} else if (client->handle != NULL) {
+		/* Plain connection (should never happen - SSL is mandatory) */
 		net_sendbuffer_send(client->handle, response->str, response->len);
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Handshake response sent (%d bytes)",
+		          "fe-web: [%s] Handshake response sent (%d bytes) [PLAIN]",
 		          client->id, (int)response->len);
 	} else {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web: [%s] ERROR: client->handle is NULL!",
+		          "fe-web: [%s] ERROR: Cannot send handshake - no handle!",
 		          client->id);
+		g_free(accept_key);
+		g_string_free(response, TRUE);
+		return -1;
 	}
 
 	g_free(accept_key);
