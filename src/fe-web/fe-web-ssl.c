@@ -31,49 +31,45 @@ SSL_CTX *fe_web_ssl_ctx = NULL;
 static X509 *server_cert = NULL;
 static EVP_PKEY *server_key = NULL;
 
-/* Generate RSA key pair (2048-bit) */
+/* Generate RSA key pair (2048-bit) using modern OpenSSL 3.0 API */
 static EVP_PKEY *generate_rsa_key(void)
 {
-	EVP_PKEY *pkey;
-	RSA *rsa;
-	BIGNUM *bn;
+	EVP_PKEY *pkey = NULL;
+	EVP_PKEY_CTX *ctx;
 
-	pkey = EVP_PKEY_new();
-	if (!pkey) {
+	/* Create context for RSA key generation */
+	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+	if (!ctx) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web-ssl: Failed to create EVP_PKEY");
+		          "fe-web-ssl: Failed to create EVP_PKEY_CTX");
 		return NULL;
 	}
 
-	bn = BN_new();
-	if (!bn || !BN_set_word(bn, RSA_F4)) {
+	/* Initialize key generation */
+	if (EVP_PKEY_keygen_init(ctx) <= 0) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web-ssl: Failed to create BIGNUM");
-		EVP_PKEY_free(pkey);
-		if (bn) BN_free(bn);
+		          "fe-web-ssl: Failed to initialize key generation");
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 	}
 
-	rsa = RSA_new();
-	if (!rsa || !RSA_generate_key_ex(rsa, 2048, bn, NULL)) {
+	/* Set RSA key size to 2048 bits */
+	if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: Failed to set key size");
+		EVP_PKEY_CTX_free(ctx);
+		return NULL;
+	}
+
+	/* Generate the key */
+	if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 		          "fe-web-ssl: Failed to generate RSA key");
-		EVP_PKEY_free(pkey);
-		BN_free(bn);
-		if (rsa) RSA_free(rsa);
+		EVP_PKEY_CTX_free(ctx);
 		return NULL;
 	}
 
-	BN_free(bn);
-
-	if (!EVP_PKEY_assign_RSA(pkey, rsa)) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web-ssl: Failed to assign RSA key");
-		EVP_PKEY_free(pkey);
-		RSA_free(rsa);
-		return NULL;
-	}
-
+	EVP_PKEY_CTX_free(ctx);
 	return pkey;
 }
 
@@ -172,6 +168,22 @@ void fe_web_ssl_init(void)
 		server_key = NULL;
 		return;
 	}
+
+	/* Enforce TLS 1.2 minimum (required by modern clients like cloudflared) */
+	if (!SSL_CTX_set_min_proto_version(fe_web_ssl_ctx, TLS1_2_VERSION)) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+		          "fe-web-ssl: Failed to set minimum TLS version to 1.2");
+		SSL_CTX_free(fe_web_ssl_ctx);
+		X509_free(server_cert);
+		EVP_PKEY_free(server_key);
+		fe_web_ssl_ctx = NULL;
+		server_cert = NULL;
+		server_key = NULL;
+		return;
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web-ssl: TLS 1.2+ enforced (modern security)");
 
 	/* Use generated certificate and key */
 	if (!SSL_CTX_use_certificate(fe_web_ssl_ctx, server_cert)) {
