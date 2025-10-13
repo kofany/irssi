@@ -11,6 +11,7 @@
 
 #include "module.h"
 #include "fe-web.h"
+#include "fe-web-ssl.h"
 #include "fe-web-crypto.h"
 
 #include <irssi/src/core/net-sendbuffer.h>
@@ -380,12 +381,27 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 		frame = fe_web_websocket_create_frame(0x1, (const guchar *)json, strlen(json), &frame_len);
 	}
 
-	/* Send frame */
-	net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
+	/* Send frame - use SSL if enabled */
+	if (client->use_ssl && client->ssl_channel != NULL) {
+		int ssl_ret;
+		ssl_ret = fe_web_ssl_write(client->ssl_channel, (const char *)frame, frame_len);
+		if (ssl_ret < 0) {
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] SSL write failed for %s",
+			          client->id, type_str);
+			g_free(frame);
+			g_free(json);
+			return;
+		}
+	} else {
+		/* Plain connection */
+		net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
+	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sent %s (%d bytes frame)%s",
+	          "fe-web: [%s] Sent %s (%d bytes frame)%s%s",
 	          client->id, type_str, (int)frame_len,
+	          client->use_ssl ? " [SSL]" : "",
 	          client->encryption_enabled ? " [ENCRYPTED]" : "");
 
 	g_free(frame);

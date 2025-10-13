@@ -6,7 +6,8 @@
 #include <irssi/src/irc/core/irc.h>
 #include <irssi/src/irc/core/irc-servers.h>
 
-
+/* Forward declaration for SSL channel */
+typedef struct _FE_WEB_SSL_CHANNEL FE_WEB_SSL_CHANNEL;
 
 /* Message types for WebSocket protocol (from PROTOCOL.md) */
 typedef enum {
@@ -54,6 +55,10 @@ typedef struct {
 	GString *output_buffer;
 	GByteArray *input_buffer;  /* For incomplete WebSocket frames */
 	int recv_tag;
+
+	/* SSL/TLS */
+	FE_WEB_SSL_CHANNEL *ssl_channel; /* SSL wrapper (if SSL enabled) */
+	unsigned int use_ssl:1;           /* Whether this connection uses SSL */
 
 	/* Encryption */
 	unsigned int encryption_enabled:1; /* Whether this connection uses encryption */

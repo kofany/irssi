@@ -11,6 +11,7 @@
 
 #include "module.h"
 #include "fe-web.h"
+#include "fe-web-ssl.h"
 #include "fe-web-crypto.h"
 
 #include <irssi/src/core/network.h>
@@ -41,6 +42,12 @@ static void fe_web_close_client(WEB_CLIENT_REC *client)
 	if (client->recv_tag != -1) {
 		g_source_remove(client->recv_tag);
 		client->recv_tag = -1;
+	}
+
+	/* Free SSL channel if exists */
+	if (client->ssl_channel != NULL) {
+		fe_web_ssl_channel_free(client->ssl_channel);
+		client->ssl_channel = NULL;
 	}
 
 	/* Close socket */
@@ -345,13 +352,41 @@ static void client_input(WEB_CLIENT_REC *client)
 		return;
 	}
 
-	/* Read from socket */
-	channel = net_sendbuffer_handle(client->handle);
-	if (channel == NULL) {
-		return;
+	/* SSL handshake if needed */
+	if (client->use_ssl && client->ssl_channel != NULL && !client->ssl_channel->handshake_done) {
+		ret = fe_web_ssl_accept(client->ssl_channel);
+
+		if (ret == 0) {
+			/* Need more data */
+			return;
+		} else if (ret < 0) {
+			/* Handshake failed */
+			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+			          "fe-web: [%s] SSL handshake failed", client->id);
+			fe_web_close_client(client);
+			return;
+		}
+
+		/* Handshake complete */
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] SSL handshake completed", client->id);
 	}
 
-	ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+	/* Read from socket (SSL or plain) */
+	if (client->use_ssl && client->ssl_channel != NULL) {
+		ret = fe_web_ssl_read(client->ssl_channel, (char *)buffer, sizeof(buffer));
+
+		if (ret == -2) {
+			/* SSL wants read - wait for more data */
+			return;
+		}
+	} else {
+		channel = net_sendbuffer_handle(client->handle);
+		if (channel == NULL) {
+			return;
+		}
+		ret = net_receive(channel, (char *)buffer, sizeof(buffer));
+	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: [%s] Received %d bytes", client->id, ret);
@@ -436,6 +471,14 @@ static void sig_listen(void)
 	sendbuf = net_sendbuffer_create(handle, 0);
 	client->handle = sendbuf;
 
+	/* Setup SSL if enabled */
+	if (fe_web_ssl_is_enabled()) {
+		client->ssl_channel = fe_web_ssl_channel_create(handle);
+		client->use_ssl = TRUE;
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: SSL enabled for connection from %s", addr);
+	}
+
 	/* Enable encryption if configured */
 	client->encryption_enabled = settings_get_bool("fe_web_encryption") && fe_web_crypto_is_enabled();
 
@@ -444,8 +487,10 @@ static void sig_listen(void)
 	                               (GInputFunction) client_input, client);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: New connection from %s (id: %s)%s",
-	          addr, client->id, client->encryption_enabled ? " [ENCRYPTED]" : "");
+	          "fe-web: New connection from %s (id: %s)%s%s",
+	          addr, client->id,
+	          client->use_ssl ? " [SSL]" : "",
+	          client->encryption_enabled ? " [ENCRYPTED]" : "");
 
 	g_free(addr);
 }
