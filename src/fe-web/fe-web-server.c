@@ -170,7 +170,7 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 		          "fe-web: [%s] Authentication failed - closing connection",
 		          client->id);
 
-		/* Send 401 Unauthorized response */
+		/* Send 401 Unauthorized response - MUST use SSL if enabled! */
 		response = g_string_new("");
 		g_string_append(response, "HTTP/1.1 401 Unauthorized\r\n");
 		g_string_append(response, "Content-Type: text/plain\r\n");
@@ -178,7 +178,11 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 		g_string_append(response, "\r\n");
 		g_string_append(response, "Unauthorized\n");
 
-		if (client->handle != NULL) {
+		if (client->use_ssl && client->ssl_channel != NULL) {
+			/* Send through SSL */
+			fe_web_ssl_write(client->ssl_channel, response->str, response->len);
+		} else if (client->handle != NULL) {
+			/* Plain connection (should never happen - SSL is mandatory) */
 			net_sendbuffer_send(client->handle, response->str, response->len);
 		}
 
@@ -367,11 +371,19 @@ static void fe_web_handle_websocket_data(WEB_CLIENT_REC *client)
 			fe_web_close_client(client);
 			return;
 		} else if (opcode == 0x9) { /* Ping frame */
-			/* Send pong */
+			/* Send pong - MUST use SSL if enabled! */
 			guchar *pong_frame;
 			gsize pong_len;
 			pong_frame = fe_web_websocket_create_frame(0xA, payload, payload_len, &pong_len);
-			net_sendbuffer_send(client->handle, (const char *)pong_frame, pong_len);
+
+			if (client->use_ssl && client->ssl_channel != NULL) {
+				/* Send through SSL */
+				fe_web_ssl_write(client->ssl_channel, (const char *)pong_frame, pong_len);
+			} else {
+				/* Plain connection (should never happen - SSL is mandatory) */
+				net_sendbuffer_send(client->handle, (const char *)pong_frame, pong_len);
+			}
+
 			g_free(pong_frame);
 		}
 		/* Opcode 0xA (pong) - ignore */
