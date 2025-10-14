@@ -1423,16 +1423,13 @@ static void sig_window_item_remove(WINDOW_REC *window, WI_ITEM_REC *item)
 		          "fe-web: Channel window closed: %s on %s", item->visible_name,
 		          server->tag);
 
-		/* Send CHANNEL_PART (we left the channel) */
-		msg = fe_web_message_new(WEB_MSG_CHANNEL_PART);
-		msg->id = fe_web_generate_message_id();
-		msg->server_tag = g_strdup(server->tag);
-		msg->target = g_strdup(item->visible_name);
-		msg->nick = g_strdup(server->nick); /* We are leaving */
-		msg->text = NULL;                   /* No reason */
+		/* DON'T send CHANNEL_PART here - it was already sent by sig_message_part()
+		 * when the IRC PART message was received from server. Sending it again causes:
+		 * 1. Duplicate channel_part events (first with hostname, second without)
+		 * 2. Second event is ignored because channel already removed from backend
+		 * 3. Confusion and potential race conditions
+		 * The window cleanup is internal to irssi, frontend doesn't need notification. */
 
-		fe_web_send_to_server_clients(server, msg);
-		fe_web_message_free(msg);
 		return;
 	}
 
