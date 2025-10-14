@@ -18,6 +18,7 @@
 #include <irssi/src/fe-common/core/printtext.h>
 #include <irssi/src/fe-common/core/window-items.h>
 #include <irssi/src/fe-common/core/fe-windows.h>
+#include <irssi/src/fe-common/core/window-activity.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -264,20 +265,16 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 				/* Find window item (channel or query) */
 				item = window_item_find(SERVER(server), target);
 				if (item != NULL) {
-					/* Clear activity for this item */
-					item->data_level = 0;
-					item->hilight_color = 0;
-
 					window = window_item_window(item);
 					if (window != NULL) {
-						window->data_level = 0;
-						window->hilight_color = 0;
-
 						/* Switch to this window in irssi (user clicked in
 						 * browser) */
 						window_set_active(window);
 
-						signal_emit("window dehilight", 1, window);
+						/* Clear activity using core irssi function
+						 * This properly updates statusbar and emits signals
+						 */
+						window_activity(window, 0, NULL);
 					}
 
 					printtext(
