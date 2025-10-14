@@ -42,9 +42,10 @@ void update_nick_context(const char *nick, const char *mode);
 void clear_nick_context(void);
 
 #define ishighalnum(c) ((unsigned char) (c) >= 128 || i_isalnum(c))
+/* RFC 2812 section 2.3.1: special = "[" / "\" / "]" / "^" / "_" / "`" / "{" / "|" / "}" / "~" */
 #define isnickchar(a)                                                                              \
 	(i_isalnum(a) || (a) == '`' || (a) == '-' || (a) == '_' || (a) == '[' || (a) == ']' ||     \
-	 (a) == '{' || (a) == '}' || (a) == '|' || (a) == '\\' || (a) == '^')
+	 (a) == '{' || (a) == '}' || (a) == '|' || (a) == '\\' || (a) == '^' || (a) == '~')
 
 GHashTable *printnicks;
 

@@ -528,9 +528,9 @@ void draw_right_contents(MAIN_WINDOW_REC *mw, SP_MAINWIN_CTX *ctx)
 		ctx->right_order = NULL;
 	}
 
-	/* If no channel active (no # in name), just draw border and return */
+	/* If no channel active, just draw border and return */
 	if (!aw || !aw->active || !aw->active->visible_name ||
-	    !strchr(aw->active->visible_name, '#')) {
+	    !IS_CHANNEL(aw->active)) {
 		draw_border_vertical(tw, ctx->right_w, ctx->right_h, 0);
 		irssi_set_dirty();
 		return;
