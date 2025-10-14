@@ -18,6 +18,8 @@
 #include <irssi/src/core/queries.h>
 #include <irssi/src/core/misc.h>
 #include <irssi/src/fe-common/core/printtext.h>
+#include <irssi/src/fe-common/core/window-items.h>
+#include <irssi/src/fe-common/core/fe-windows.h>
 #include <irssi/src/irc/core/irc.h>
 #include <irssi/src/irc/core/irc-servers.h>
 #include <irssi/src/irc/core/irc-channels.h>
@@ -31,6 +33,11 @@ static void event_whois_account(IRC_SERVER_REC *server, const char *data);
 static void event_whois_secure(IRC_SERVER_REC *server, const char *data);
 static void event_whois_oper(IRC_SERVER_REC *server, const char *data);
 static void event_whois_away(IRC_SERVER_REC *server, const char *data);
+
+/* Forward declarations for activity handlers */
+static void sig_window_hilight(WINDOW_REC *window);
+static void sig_window_activity(WINDOW_REC *window, int old_level);
+static void sig_window_dehilight(WINDOW_REC *window);
 
 
 /* fe-web WHOIS event dispatch table (file-scope) */
@@ -112,8 +119,8 @@ static WHOIS_REC *whois_get_or_create(IRC_SERVER_REC *server, const char *nick)
 	return rec;
 }
 
-/* Helper: Send nicklist for a channel (full list) */
-static void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel)
+/* Helper: Send nicklist for a channel (full list) - used by NAMES command */
+void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel)
 {
 	WEB_MESSAGE_REC *msg;
 	GString *nicklist;
@@ -1233,6 +1240,107 @@ static void event_end_of_whois(IRC_SERVER_REC *server, const char *data)
 	g_free(params);
 }
 
+/* Activity tracking: Send activity update when window gets highlighted */
+static void sig_window_hilight(WINDOW_REC *window)
+{
+	WEB_MESSAGE_REC *msg;
+	WI_ITEM_REC *item;
+	IRC_SERVER_REC *server;
+	int data_level;
+
+	if (window == NULL || window->active == NULL) {
+		return;
+	}
+
+	item = window->active;
+	server = IRC_SERVER(item->server);
+	if (server == NULL) {
+		return;
+	}
+
+	/* Get highest data_level (from item or window) */
+	data_level = item->data_level > 0 ? item->data_level : window->data_level;
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Activity HILIGHT for %s on %s (level=%d)",
+	          item->visible_name, server->tag, data_level);
+
+	/* Send ACTIVITY_UPDATE to all clients */
+	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
+	msg->id = fe_web_generate_message_id();
+	msg->server_tag = g_strdup(server->tag);
+	msg->target = g_strdup(item->visible_name);
+	msg->level = data_level;
+	fe_web_send_to_all_clients(msg);
+	fe_web_message_free(msg);
+}
+
+/* Activity tracking: Send activity update when window activity changes */
+static void sig_window_activity(WINDOW_REC *window, int old_level)
+{
+	WEB_MESSAGE_REC *msg;
+	WI_ITEM_REC *item;
+	IRC_SERVER_REC *server;
+	int data_level;
+
+	if (window == NULL || window->active == NULL) {
+		return;
+	}
+
+	item = window->active;
+	server = IRC_SERVER(item->server);
+	if (server == NULL) {
+		return;
+	}
+
+	/* Get highest data_level (from item or window) */
+	data_level = item->data_level > 0 ? item->data_level : window->data_level;
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Activity UPDATE for %s on %s (level=%d, old=%d)",
+	          item->visible_name, server->tag, data_level, old_level);
+
+	/* Send ACTIVITY_UPDATE to all clients */
+	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
+	msg->id = fe_web_generate_message_id();
+	msg->server_tag = g_strdup(server->tag);
+	msg->target = g_strdup(item->visible_name);
+	msg->level = data_level;
+	fe_web_send_to_all_clients(msg);
+	fe_web_message_free(msg);
+}
+
+/* Activity tracking: Send activity clear when window is dehighlighted (read) */
+static void sig_window_dehilight(WINDOW_REC *window)
+{
+	WEB_MESSAGE_REC *msg;
+	WI_ITEM_REC *item;
+	IRC_SERVER_REC *server;
+
+	if (window == NULL || window->active == NULL) {
+		return;
+	}
+
+	item = window->active;
+	server = IRC_SERVER(item->server);
+	if (server == NULL) {
+		return;
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Activity CLEAR (dehilight) for %s on %s",
+	          item->visible_name, server->tag);
+
+	/* Send ACTIVITY_UPDATE with level=0 (read) */
+	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
+	msg->id = fe_web_generate_message_id();
+	msg->server_tag = g_strdup(server->tag);
+	msg->target = g_strdup(item->visible_name);
+	msg->level = 0;  /* DATA_LEVEL_NONE = read */
+	fe_web_send_to_all_clients(msg);
+	fe_web_message_free(msg);
+}
+
 /* Initialize signal handlers */
 void fe_web_signals_init(void)
 {
@@ -1291,6 +1399,11 @@ void fe_web_signals_init(void)
 	/* User mode and away */
 	signal_add("user mode changed", (SIGNAL_FUNC) sig_user_mode_changed);
 	signal_add("event 301", (SIGNAL_FUNC) event_away_status);
+
+	/* Activity tracking (unread markers) */
+	signal_add("window hilight", (SIGNAL_FUNC) sig_window_hilight);
+	signal_add("window activity", (SIGNAL_FUNC) sig_window_activity);
+	signal_add("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
 
 	/* Initialize active_whois hash table */
 	active_whois = g_hash_table_new_full(g_str_hash, g_str_equal,
@@ -1353,6 +1466,11 @@ void fe_web_signals_deinit(void)
 	signal_remove("user mode changed", (SIGNAL_FUNC) sig_user_mode_changed);
 	signal_remove("event 301", (SIGNAL_FUNC) event_away_status);
 
+	/* Activity tracking (unread markers) */
+	signal_remove("window hilight", (SIGNAL_FUNC) sig_window_hilight);
+	signal_remove("window activity", (SIGNAL_FUNC) sig_window_activity);
+	signal_remove("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
+
 	/* Cleanup active_whois hash table */
 	if (active_whois != NULL) {
 		g_hash_table_destroy(active_whois);
@@ -1382,6 +1500,9 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 		IRC_CHANNEL_REC *channel = tmp->data;
 		WEB_MESSAGE_REC *msg;
 		GString *nicklist;
+		WINDOW_REC *window;
+		WI_ITEM_REC *item;
+		int data_level;
 
 		/* Send channel join */
 		msg = fe_web_message_new(WEB_MSG_CHANNEL_JOIN);
@@ -1449,6 +1570,24 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 		msg->text = g_string_free(nicklist, FALSE);
 		fe_web_send_message(client, msg);
 		fe_web_message_free(msg);
+
+		/* Send activity status if channel has unread activity */
+		window = window_find_item(server, CHANNEL(channel));
+		if (window != NULL && window->active != NULL) {
+			item = window->active;
+			data_level = item->data_level > 0 ? item->data_level : window->data_level;
+
+			if (data_level > 0) {
+				/* Channel has unread activity - send ACTIVITY_UPDATE */
+				msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
+				msg->id = fe_web_generate_message_id();
+				msg->server_tag = g_strdup(server->tag);
+				msg->target = g_strdup(channel->name);
+				msg->level = data_level;
+				fe_web_send_message(client, msg);
+				fe_web_message_free(msg);
+			}
+		}
 	}
 }
 

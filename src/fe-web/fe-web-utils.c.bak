@@ -142,10 +142,6 @@ static const char *fe_web_type_to_string(WEB_MESSAGE_TYPE type)
 		return "query_opened";
 	case WEB_MSG_QUERY_CLOSED:
 		return "query_closed";
-	case WEB_MSG_ACTIVITY_UPDATE:
-		return "activity_update";
-	case WEB_MSG_MARK_READ:
-		return "mark_read";
 	default:
 		return "unknown";
 	}

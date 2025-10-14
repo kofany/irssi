@@ -31,7 +31,9 @@ typedef enum {
 	WEB_MSG_ERROR,
 	WEB_MSG_PONG,
 	WEB_MSG_QUERY_OPENED,
-	WEB_MSG_QUERY_CLOSED
+	WEB_MSG_QUERY_CLOSED,
+	WEB_MSG_ACTIVITY_UPDATE,     /* Activity level changed (unread markers) */
+	WEB_MSG_MARK_READ            /* Mark channel as read (from client) */
 } WEB_MESSAGE_TYPE;
 
 /* WebSocket client connection record */
@@ -130,6 +132,9 @@ void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command);
 /* Signal handlers */
 void fe_web_signals_init(void);
 void fe_web_signals_deinit(void);
+
+/* Nicklist helpers */
+void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel);
 
 /* Message creation/destruction */
 WEB_MESSAGE_REC *fe_web_message_new(WEB_MESSAGE_TYPE type);

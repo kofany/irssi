@@ -16,6 +16,8 @@
 #include <irssi/src/core/levels.h>
 #include <irssi/src/core/queries.h>
 #include <irssi/src/fe-common/core/printtext.h>
+#include <irssi/src/fe-common/core/window-items.h>
+#include <irssi/src/fe-common/core/fe-windows.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -229,7 +231,6 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 				chanrec = irc_channel_find(server, channel);
 				if (chanrec != NULL) {
 					/* Use the helper function to send full nicklist */
-					extern void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *channel);
 					fe_web_send_nicklist_for_channel(server, chanrec);
 					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 					          "fe-web: [%s] Sent nicklist for %s",
@@ -247,6 +248,55 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		}
 
 		g_free(channel);
+		g_free(server_tag);
+	} else if (g_strcmp0(type, "mark_read") == 0) {
+		char *target;
+		char *server_tag;
+		IRC_SERVER_REC *server;
+		WINDOW_REC *window;
+		WI_ITEM_REC *item;
+
+		target = fe_web_json_get_string(json, "target");
+		server_tag = fe_web_json_get_string(json, "server");
+
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: [%s] Received mark_read: target=%s server=%s",
+		          client->id, target ? target : "(null)",
+		          server_tag ? server_tag : "(null)");
+
+		if (target != NULL && server_tag != NULL) {
+			server = IRC_SERVER(server_find_tag(server_tag));
+			if (server != NULL) {
+				/* Find window item (channel or query) */
+				item = window_item_find(SERVER(server), target);
+				if (item != NULL) {
+					/* Clear activity for this item */
+					item->data_level = 0;
+					item->hilight_color = 0;
+
+					window = window_item_window(item);
+					if (window != NULL) {
+						window->data_level = 0;
+						window->hilight_color = 0;
+						signal_emit("window dehilight", 1, window);
+					}
+
+					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+					          "fe-web: [%s] Marked %s as read",
+					          client->id, target);
+				} else {
+					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+					          "fe-web: [%s] ERROR: Target %s not found",
+					          client->id, target);
+				}
+			} else {
+				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
+				          "fe-web: [%s] ERROR: Server %s not found",
+				          client->id, server_tag);
+			}
+		}
+
+		g_free(target);
 		g_free(server_tag);
 	}
 
