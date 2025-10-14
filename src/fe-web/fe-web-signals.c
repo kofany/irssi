@@ -1331,24 +1331,38 @@ static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
 	WEB_MESSAGE_REC *msg;
 	WI_ITEM_REC *item;
 	IRC_SERVER_REC *server;
+	int data_level;
+
+	/* Debug: Always log when called */
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: sig_window_changed() called (new=%p, old=%p)", new_window, old_window);
 
 	/* Clear activity for the NEW active window (user is now viewing it) */
 	if (new_window == NULL || new_window->active == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: Window CHANGED - skipped (no active item)");
 		return;
 	}
 
 	item = new_window->active;
 	server = IRC_SERVER(item->server);
 	if (server == NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: Window CHANGED - skipped (no server)");
 		return;
 	}
 
+	data_level = item->data_level > 0 ? item->data_level : new_window->data_level;
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+	          "fe-web: Window CHANGED to %s on %s (data_level=%d)", item->visible_name,
+	          server->tag, data_level);
+
 	/* Only send if there was activity to clear */
-	if (new_window->data_level > 0 || item->data_level > 0) {
+	if (data_level > 0) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 		          "fe-web: Window CHANGED - clearing activity for %s on %s (was level=%d)",
-		          item->visible_name, server->tag,
-		          item->data_level > 0 ? item->data_level : new_window->data_level);
+		          item->visible_name, server->tag, data_level);
 
 		/* Send ACTIVITY_UPDATE with level=0 (read) */
 		msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
@@ -1358,6 +1372,9 @@ static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
 		msg->level = 0; /* DATA_LEVEL_NONE = read */
 		fe_web_send_to_all_clients(msg);
 		fe_web_message_free(msg);
+	} else {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: Window CHANGED - no activity to clear (level=0)");
 	}
 }
 
