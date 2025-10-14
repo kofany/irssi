@@ -1272,11 +1272,13 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 	/* Get highest data_level (from item or window) */
 	data_level = item->data_level > 0 ? item->data_level : window->data_level;
 
-	/* Skip if level didn't change (avoid duplicates with window hilight) */
-	if (data_level == old_level) {
+	/* Skip if level DECREASED (e.g. from hilight to text) - sig_window_hilight already sent
+	 * update */
+	/* But ALWAYS send if level stayed same or increased - this counts new messages */
+	if (data_level < old_level) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Activity UPDATE SKIPPED for %s on %s (level=%d unchanged)",
-		          item->visible_name, server->tag, data_level);
+		          "fe-web: Activity UPDATE SKIPPED for %s on %s (level decreased %d->%d)",
+		          item->visible_name, server->tag, old_level, data_level);
 		return;
 	}
 
