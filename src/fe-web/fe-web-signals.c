@@ -1,12 +1,12 @@
 /*
  fe-web-signals.c : IRC signal handlers for fe-web
 
-    Copyright (C) 2025
+	Copyright (C) 2025
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 */
 
 #include "module.h"
@@ -39,19 +39,20 @@ static void sig_window_hilight(WINDOW_REC *window);
 static void sig_window_activity(WINDOW_REC *window, int old_level);
 static void sig_window_dehilight(WINDOW_REC *window);
 
-
 /* fe-web WHOIS event dispatch table (file-scope) */
 typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
-static struct { int num; FEWEB_WHOIS_HANDLER func; } feweb_whois_events[] = {
-	{ 311, event_whois },
-	{ 312, event_whois_server },
-	{ 317, event_whois_idle },
-	{ 319, event_whois_channels },
-	{ 330, event_whois_account },
-	{ 671, event_whois_secure },
-	{ 0, NULL }
-};
-
+static struct
+{
+	int num;
+	FEWEB_WHOIS_HANDLER func;
+} feweb_whois_events[] = {
+	{311, event_whois},
+	{312, event_whois_server},
+	{317, event_whois_idle},
+	{319, event_whois_channels},
+	{330, event_whois_account},
+	{671, event_whois_secure},
+	{0, NULL}};
 
 /* Global hash table for tracking active WHOIS requests */
 /* Key: "server_tag:nick", Value: WHOIS_REC* */
@@ -90,7 +91,8 @@ static void whois_rec_free(WHOIS_REC *rec)
 	g_free(rec->account);
 
 	/* Free special list */
-	if (rec->special != NULL) {
+	if (rec->special != NULL)
+	{
 		g_slist_free_full(rec->special, g_free);
 	}
 
@@ -109,10 +111,13 @@ static WHOIS_REC *whois_get_or_create(IRC_SERVER_REC *server, const char *nick)
 	key = whois_key(server, nick);
 	rec = g_hash_table_lookup(active_whois, key);
 
-	if (rec == NULL) {
+	if (rec == NULL)
+	{
 		rec = whois_rec_new(nick);
 		g_hash_table_insert(active_whois, key, rec);
-	} else {
+	}
+	else
+	{
 		g_free(key);
 	}
 
@@ -126,7 +131,8 @@ void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *c
 	GString *nicklist;
 	GSList *nicks, *nick_tmp;
 
-	if (server == NULL || channel == NULL) {
+	if (server == NULL || channel == NULL)
+	{
 		return;
 	}
 
@@ -138,30 +144,35 @@ void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *c
 	/* Build nicklist JSON */
 	nicklist = g_string_new("[");
 	nicks = nicklist_getnicks(CHANNEL(channel));
-	for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+	for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next)
+	{
 		NICK_REC *nick = nick_tmp->data;
 		char *escaped_nick;
 		char prefix[8];
 
-		if (nicklist->len > 1) {
+		if (nicklist->len > 1)
+		{
 			g_string_append_c(nicklist, ',');
 		}
 
 		/* Build prefix string (@, +, etc) */
 		prefix[0] = '\0';
-		if (nick->op) {
+		if (nick->op)
+		{
 			strcat(prefix, "@");
 		}
-		if (nick->halfop) {
+		if (nick->halfop)
+		{
 			strcat(prefix, "%");
 		}
-		if (nick->voice) {
+		if (nick->voice)
+		{
 			strcat(prefix, "+");
 		}
 
 		escaped_nick = fe_web_escape_json(nick->nick);
 		g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
-		                      escaped_nick, prefix);
+							   escaped_nick, prefix);
 		g_free(escaped_nick);
 	}
 	g_slist_free(nicks);
@@ -174,13 +185,14 @@ void fe_web_send_nicklist_for_channel(IRC_SERVER_REC *server, IRC_CHANNEL_REC *c
 
 /* Helper: Send nicklist update (delta: add/remove/mode) */
 static void fe_web_send_nicklist_update(IRC_SERVER_REC *server,
-                                         IRC_CHANNEL_REC *channel,
-                                         const char *nick,
-                                         const char *task)
+										IRC_CHANNEL_REC *channel,
+										const char *nick,
+										const char *task)
 {
 	WEB_MESSAGE_REC *msg;
 
-	if (server == NULL || channel == NULL || nick == NULL || task == NULL) {
+	if (server == NULL || channel == NULL || nick == NULL || task == NULL)
+	{
 		return;
 	}
 
@@ -189,7 +201,7 @@ static void fe_web_send_nicklist_update(IRC_SERVER_REC *server,
 	msg->server_tag = g_strdup(server->tag);
 	msg->target = g_strdup(channel->name);
 	msg->nick = g_strdup(nick);
-	msg->text = g_strdup(task);  /* task field: add, remove, +o, -o, +v, -v, +h, -h */
+	msg->text = g_strdup(task); /* task field: add, remove, +o, -o, +v, -v, +h, -h */
 
 	fe_web_send_to_server_clients(server, msg);
 	fe_web_message_free(msg);
@@ -197,12 +209,13 @@ static void fe_web_send_nicklist_update(IRC_SERVER_REC *server,
 
 /* Signal: "message public" */
 static void sig_message_public(IRC_SERVER_REC *server, const char *msg,
-                                const char *nick, const char *address,
-                                const char *target)
+							   const char *nick, const char *address,
+							   const char *target)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -221,11 +234,12 @@ static void sig_message_public(IRC_SERVER_REC *server, const char *msg,
 
 /* Signal: "message own_public" */
 static void sig_message_own_public(IRC_SERVER_REC *server, const char *msg,
-                                    const char *target)
+								   const char *target)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -244,11 +258,12 @@ static void sig_message_own_public(IRC_SERVER_REC *server, const char *msg,
 
 /* Signal: "message private" */
 static void sig_message_private(IRC_SERVER_REC *server, const char *msg,
-                                 const char *nick, const char *address)
+								const char *nick, const char *address)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -267,11 +282,12 @@ static void sig_message_private(IRC_SERVER_REC *server, const char *msg,
 
 /* Signal: "message own_private" */
 static void sig_message_own_private(IRC_SERVER_REC *server, const char *msg,
-                                     const char *target, const char *orig_target)
+									const char *target, const char *orig_target)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -290,13 +306,14 @@ static void sig_message_own_private(IRC_SERVER_REC *server, const char *msg,
 
 /* Signal: "message join" */
 static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
-                              const char *nick, const char *address,
-                              const char *account, const char *realname)
+							 const char *nick, const char *address,
+							 const char *account, const char *realname)
 {
 	WEB_MESSAGE_REC *web_msg;
 	IRC_CHANNEL_REC *chanrec;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -307,21 +324,24 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
 	web_msg->nick = g_strdup(nick);
 
 	/* Add hostname (user@host) to extra_data */
-	if (address != NULL && *address != '\0') {
+	if (address != NULL && *address != '\0')
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
-		                   g_strdup(address));
+							g_strdup(address));
 	}
 
 	/* Add account name from extended-join (IRCv3) */
-	if (account != NULL && *account != '\0' && g_strcmp0(account, "*") != 0) {
+	if (account != NULL && *account != '\0' && g_strcmp0(account, "*") != 0)
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("account"),
-		                   g_strdup(account));
+							g_strdup(account));
 	}
 
 	/* Add realname (GECOS) from extended-join (IRCv3) */
-	if (realname != NULL && *realname != '\0') {
+	if (realname != NULL && *realname != '\0')
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("realname"),
-		                   g_strdup(realname));
+							g_strdup(realname));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
@@ -329,20 +349,22 @@ static void sig_message_join(IRC_SERVER_REC *server, const char *channel,
 
 	/* Send nicklist update (delta: add) after join */
 	chanrec = irc_channel_find(server, channel);
-	if (chanrec != NULL) {
+	if (chanrec != NULL)
+	{
 		fe_web_send_nicklist_update(server, chanrec, nick, "add");
 	}
 }
 
 /* Signal: "message part" */
 static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
-                              const char *nick, const char *address,
-                              const char *reason)
+							 const char *nick, const char *address,
+							 const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
 	IRC_CHANNEL_REC *chanrec;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -351,14 +373,16 @@ static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
 	web_msg->server_tag = g_strdup(server->tag);
 	web_msg->target = g_strdup(channel);
 	web_msg->nick = g_strdup(nick);
-	if (reason != NULL && *reason != '\0') {
+	if (reason != NULL && *reason != '\0')
+	{
 		web_msg->text = g_strdup(reason);
 	}
 
 	/* Add hostname (user@host) to extra_data */
-	if (address != NULL && *address != '\0') {
+	if (address != NULL && *address != '\0')
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
-		                   g_strdup(address));
+							g_strdup(address));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
@@ -366,20 +390,22 @@ static void sig_message_part(IRC_SERVER_REC *server, const char *channel,
 
 	/* Send nicklist update (delta: remove) after part */
 	chanrec = irc_channel_find(server, channel);
-	if (chanrec != NULL) {
+	if (chanrec != NULL)
+	{
 		fe_web_send_nicklist_update(server, chanrec, nick, "remove");
 	}
 }
 
 /* Signal: "message kick" */
 static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
-                              const char *nick, const char *kicker,
-                              const char *address, const char *reason)
+							 const char *nick, const char *kicker,
+							 const char *address, const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
 	IRC_CHANNEL_REC *chanrec;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -388,18 +414,20 @@ static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
 	web_msg->server_tag = g_strdup(server->tag);
 	web_msg->target = g_strdup(channel);
 	web_msg->nick = g_strdup(nick);
-	if (reason != NULL && *reason != '\0') {
+	if (reason != NULL && *reason != '\0')
+	{
 		web_msg->text = g_strdup(reason);
 	}
 
 	/* Add kicker to extra_data */
 	g_hash_table_insert(web_msg->extra_data, g_strdup("kicker"),
-	                   g_strdup(kicker));
+						g_strdup(kicker));
 
 	/* Add hostname (user@host) of kicked user to extra_data */
-	if (address != NULL && *address != '\0') {
+	if (address != NULL && *address != '\0')
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
-		                   g_strdup(address));
+							g_strdup(address));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
@@ -407,19 +435,21 @@ static void sig_message_kick(IRC_SERVER_REC *server, const char *channel,
 
 	/* Send nicklist update (delta: remove) after kick */
 	chanrec = irc_channel_find(server, channel);
-	if (chanrec != NULL) {
+	if (chanrec != NULL)
+	{
 		fe_web_send_nicklist_update(server, chanrec, nick, "remove");
 	}
 }
 
 /* Signal: "message quit" */
 static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
-                              const char *address, const char *reason)
+							 const char *address, const char *reason)
 {
 	WEB_MESSAGE_REC *web_msg;
 	GSList *tmp;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -427,21 +457,24 @@ static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
 	web_msg->id = fe_web_generate_message_id();
 	web_msg->server_tag = g_strdup(server->tag);
 	web_msg->nick = g_strdup(nick);
-	if (reason != NULL && *reason != '\0') {
+	if (reason != NULL && *reason != '\0')
+	{
 		web_msg->text = g_strdup(reason);
 	}
 
 	/* Add hostname (user@host) to extra_data */
-	if (address != NULL && *address != '\0') {
+	if (address != NULL && *address != '\0')
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("hostname"),
-		                   g_strdup(address));
+							g_strdup(address));
 	}
 
 	fe_web_send_to_server_clients(server, web_msg);
 	fe_web_message_free(web_msg);
 
 	/* Send nicklist update (delta: remove) for all channels the user was in */
-	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
+	for (tmp = server->channels; tmp != NULL; tmp = tmp->next)
+	{
 		IRC_CHANNEL_REC *channel = tmp->data;
 		/* The user has already been removed from the nicklist by irssi core,
 		   so we just need to send delta update for each channel */
@@ -451,12 +484,13 @@ static void sig_message_quit(IRC_SERVER_REC *server, const char *nick,
 
 /* Signal: "message topic" */
 static void sig_message_topic(IRC_SERVER_REC *server, const char *channel,
-                               const char *topic, const char *nick,
-                               const char *address)
+							  const char *topic, const char *nick,
+							  const char *address)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -487,13 +521,15 @@ static void parse_mode_string(const char *mode_str, char **mode_out, char ***par
 	*params_out = NULL;
 	*params_count = 0;
 
-	if (mode_str == NULL || *mode_str == '\0') {
+	if (mode_str == NULL || *mode_str == '\0')
+	{
 		return;
 	}
 
 	/* Split by whitespace */
 	parts = g_strsplit(mode_str, " ", -1);
-	if (parts == NULL || parts[0] == NULL) {
+	if (parts == NULL || parts[0] == NULL)
+	{
 		g_strfreev(parts);
 		return;
 	}
@@ -502,23 +538,27 @@ static void parse_mode_string(const char *mode_str, char **mode_out, char ***par
 	*mode_out = g_strdup(parts[0]);
 
 	/* Rest are parameters */
-	for (i = 1; parts[i] != NULL; i++) {
-		if (*parts[i] != '\0') {  /* Skip empty strings */
+	for (i = 1; parts[i] != NULL; i++)
+	{
+		if (*parts[i] != '\0')
+		{ /* Skip empty strings */
 			params_list = g_slist_append(params_list, g_strdup(parts[i]));
 			count++;
 		}
 	}
 
 	/* Convert GSList to array */
-	if (count > 0) {
+	if (count > 0)
+	{
 		GSList *tmp;
 
-		*params_out = g_new0(char *, count + 1);  /* NULL-terminated */
+		*params_out = g_new0(char *, count + 1); /* NULL-terminated */
 		i = 0;
-		for (tmp = params_list; tmp != NULL; tmp = tmp->next) {
-			(*params_out)[i++] = tmp->data;  /* Transfer ownership */
+		for (tmp = params_list; tmp != NULL; tmp = tmp->next)
+		{
+			(*params_out)[i++] = tmp->data; /* Transfer ownership */
 		}
-		g_slist_free(params_list);  /* Free list but not data */
+		g_slist_free(params_list); /* Free list but not data */
 		*params_count = count;
 	}
 
@@ -527,8 +567,8 @@ static void parse_mode_string(const char *mode_str, char **mode_out, char ***par
 
 /* Signal: "message irc mode" */
 static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
-                                  const char *nick, const char *address,
-                                  const char *mode)
+								 const char *nick, const char *address,
+								 const char *mode)
 {
 	WEB_MESSAGE_REC *web_msg;
 	char *mode_str = NULL;
@@ -537,7 +577,8 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 	GString *params_json;
 	int i;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -551,16 +592,20 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 	web_msg->nick = g_strdup(nick);
 
 	/* Add mode as extra_data field */
-	if (mode_str != NULL) {
+	if (mode_str != NULL)
+	{
 		g_hash_table_insert(web_msg->extra_data, g_strdup("mode"), g_strdup(mode_str));
 	}
 
 	/* Add params as JSON array in extra_data */
-	if (params_count > 0) {
+	if (params_count > 0)
+	{
 		params_json = g_string_new("[");
-		for (i = 0; i < params_count; i++) {
+		for (i = 0; i < params_count; i++)
+		{
 			char *escaped = fe_web_escape_json(params[i]);
-			if (i > 0) {
+			if (i > 0)
+			{
 				g_string_append_c(params_json, ',');
 			}
 			g_string_append_printf(params_json, "\"%s\"", escaped);
@@ -568,8 +613,10 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 		}
 		g_string_append_c(params_json, ']');
 		g_hash_table_insert(web_msg->extra_data, g_strdup("params"),
-		                   g_string_free(params_json, FALSE));
-	} else {
+							g_string_free(params_json, FALSE));
+	}
+	else
+	{
 		/* Empty array for no params */
 		g_hash_table_insert(web_msg->extra_data, g_strdup("params"), g_strdup("[]"));
 	}
@@ -578,25 +625,31 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 	fe_web_message_free(web_msg);
 
 	/* Send nicklist delta updates for user modes (o, v, h) */
-	if (mode_str != NULL && params != NULL) {
+	if (mode_str != NULL && params != NULL)
+	{
 		IRC_CHANNEL_REC *chanrec = irc_channel_find(server, channel);
-		if (chanrec != NULL) {
-			char current_sign = '+';  /* Default to + */
+		if (chanrec != NULL)
+		{
+			char current_sign = '+'; /* Default to + */
 			int param_idx = 0;
 
-			for (i = 0; mode_str[i] != '\0'; i++) {
+			for (i = 0; mode_str[i] != '\0'; i++)
+			{
 				char c = mode_str[i];
 
 				/* Track + or - */
-				if (c == '+' || c == '-') {
+				if (c == '+' || c == '-')
+				{
 					current_sign = c;
 					continue;
 				}
 
 				/* Check if this is a user mode that affects nicklist */
-				if (c == 'o' || c == 'v' || c == 'h') {
+				if (c == 'o' || c == 'v' || c == 'h')
+				{
 					/* These modes take a nick parameter */
-					if (param_idx < params_count) {
+					if (param_idx < params_count)
+					{
 						char task[3];
 						task[0] = current_sign;
 						task[1] = c;
@@ -604,24 +657,36 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 						fe_web_send_nicklist_update(server, chanrec, params[param_idx], task);
 						param_idx++;
 					}
-				} else if (c == 'q' || c == 'a') {
+				}
+				else if (c == 'q' || c == 'a')
+				{
 					/* Owner/admin modes also take nick but we may not handle them */
-					if (param_idx < params_count) {
+					if (param_idx < params_count)
+					{
 						param_idx++;
 					}
-				} else if (c == 'l') {
+				}
+				else if (c == 'l')
+				{
 					/* +l takes param, -l doesn't */
-					if (current_sign == '+' && param_idx < params_count) {
+					if (current_sign == '+' && param_idx < params_count)
+					{
 						param_idx++;
 					}
-				} else if (c == 'k') {
+				}
+				else if (c == 'k')
+				{
 					/* +k/-k both take param */
-					if (param_idx < params_count) {
+					if (param_idx < params_count)
+					{
 						param_idx++;
 					}
-				} else if (c == 'b' || c == 'e' || c == 'I') {
+				}
+				else if (c == 'b' || c == 'e' || c == 'I')
+				{
 					/* Ban/exempt/invite modes take mask parameter */
-					if (param_idx < params_count) {
+					if (param_idx < params_count)
+					{
 						param_idx++;
 					}
 				}
@@ -632,8 +697,10 @@ static void sig_message_irc_mode(IRC_SERVER_REC *server, const char *channel,
 
 	/* Cleanup */
 	g_free(mode_str);
-	if (params != NULL) {
-		for (i = 0; i < params_count; i++) {
+	if (params != NULL)
+	{
+		for (i = 0; i < params_count; i++)
+		{
 			g_free(params[i]);
 		}
 		g_free(params);
@@ -654,12 +721,13 @@ static void sig_nick_mode_changed(IRC_CHANNEL_REC *channel, NICK_REC *nick)
 
 /* Signal: "message nick" */
 static void sig_message_nick(IRC_SERVER_REC *server, const char *newnick,
-                              const char *oldnick, const char *address)
+							 const char *oldnick, const char *address)
 {
 	WEB_MESSAGE_REC *web_msg;
 	GSList *tmp;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -674,13 +742,15 @@ static void sig_message_nick(IRC_SERVER_REC *server, const char *newnick,
 	fe_web_message_free(web_msg);
 
 	/* Send nicklist_update (delta: change) for each channel the user is in */
-	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
+	for (tmp = server->channels; tmp != NULL; tmp = tmp->next)
+	{
 		IRC_CHANNEL_REC *channel = tmp->data;
 		NICK_REC *nick_rec;
 
 		/* Check if the user is in this channel (using NEW nick, as irssi already renamed) */
 		nick_rec = nicklist_find(CHANNEL(channel), newnick);
-		if (nick_rec != NULL) {
+		if (nick_rec != NULL)
+		{
 			WEB_MESSAGE_REC *update_msg;
 
 			update_msg = fe_web_message_new(WEB_MSG_NICKLIST_UPDATE);
@@ -688,12 +758,12 @@ static void sig_message_nick(IRC_SERVER_REC *server, const char *newnick,
 			update_msg->server_tag = g_strdup(server->tag);
 			update_msg->target = g_strdup(channel->name);
 			update_msg->nick = g_strdup(oldnick);  /* Old nick */
-			update_msg->text = g_strdup("change");  /* task */
+			update_msg->text = g_strdup("change"); /* task */
 
 			/* Add new nick to extra_data */
 			g_hash_table_insert(update_msg->extra_data,
-			                   g_strdup("new_nick"),
-			                   g_strdup(newnick));
+								g_strdup("new_nick"),
+								g_strdup(newnick));
 
 			fe_web_send_to_server_clients(server, update_msg);
 			fe_web_message_free(update_msg);
@@ -706,7 +776,8 @@ static void sig_server_connected(IRC_SERVER_REC *server)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -724,7 +795,8 @@ static void sig_server_disconnected(IRC_SERVER_REC *server)
 {
 	WEB_MESSAGE_REC *web_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -744,18 +816,20 @@ static void sig_channel_joined(IRC_CHANNEL_REC *channel)
 	WEB_MESSAGE_REC *msg;
 	GString *nicklist;
 
-	if (channel == NULL) {
+	if (channel == NULL)
+	{
 		return;
 	}
 
 	server = IRC_SERVER(channel->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: YOU joined %s on %s - sending nicklist",
-	          channel->name, server->tag);
+			  "fe-web: YOU joined %s on %s - sending nicklist",
+			  channel->name, server->tag);
 
 	/* Send nicklist */
 	msg = fe_web_message_new(WEB_MSG_NICKLIST);
@@ -770,30 +844,35 @@ static void sig_channel_joined(IRC_CHANNEL_REC *channel)
 		GSList *nick_tmp;
 
 		nicks = nicklist_getnicks(CHANNEL(channel));
-		for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+		for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next)
+		{
 			NICK_REC *nick = nick_tmp->data;
 			char *escaped_nick;
 			char prefix[8];
 
-			if (nicklist->len > 1) {
+			if (nicklist->len > 1)
+			{
 				g_string_append_c(nicklist, ',');
 			}
 
 			/* Build prefix string (@, +, etc) */
 			prefix[0] = '\0';
-			if (nick->op) {
+			if (nick->op)
+			{
 				strcat(prefix, "@");
 			}
-			if (nick->halfop) {
+			if (nick->halfop)
+			{
 				strcat(prefix, "%");
 			}
-			if (nick->voice) {
+			if (nick->voice)
+			{
 				strcat(prefix, "+");
 			}
 
 			escaped_nick = fe_web_escape_json(nick->nick);
 			g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
-			                      escaped_nick, prefix);
+								   escaped_nick, prefix);
 			g_free(escaped_nick);
 		}
 		g_slist_free(nicks);
@@ -805,8 +884,8 @@ static void sig_channel_joined(IRC_CHANNEL_REC *channel)
 	fe_web_message_free(msg);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Sent nicklist for %s (%d users)",
-	          channel->name, g_slist_length(nicklist_getnicks(CHANNEL(channel))));
+			  "fe-web: Sent nicklist for %s (%d users)",
+			  channel->name, g_slist_length(nicklist_getnicks(CHANNEL(channel))));
 }
 
 /* Signal: "query created" - Query window opened */
@@ -815,18 +894,20 @@ static void sig_query_created(QUERY_REC *query, gpointer automatic)
 	IRC_SERVER_REC *server;
 	WEB_MESSAGE_REC *msg;
 
-	if (query == NULL) {
+	if (query == NULL)
+	{
 		return;
 	}
 
 	server = IRC_SERVER(query->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Query opened with %s on %s (automatic: %d)",
-	          query->name, server->tag, GPOINTER_TO_INT(automatic));
+			  "fe-web: Query opened with %s on %s (automatic: %d)",
+			  query->name, server->tag, GPOINTER_TO_INT(automatic));
 
 	/* Send query_opened event */
 	msg = fe_web_message_new(WEB_MSG_QUERY_OPENED);
@@ -838,7 +919,7 @@ static void sig_query_created(QUERY_REC *query, gpointer automatic)
 	fe_web_message_free(msg);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Sent query_opened for %s", query->name);
+			  "fe-web: Sent query_opened for %s", query->name);
 }
 
 /* Signal: "query destroyed" - Query window closed */
@@ -847,18 +928,20 @@ static void sig_query_destroyed(QUERY_REC *query)
 	IRC_SERVER_REC *server;
 	WEB_MESSAGE_REC *msg;
 
-	if (query == NULL) {
+	if (query == NULL)
+	{
 		return;
 	}
 
 	server = IRC_SERVER(query->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Query closed with %s on %s",
-	          query->name, server->tag);
+			  "fe-web: Query closed with %s on %s",
+			  query->name, server->tag);
 
 	/* Send query_closed event */
 	msg = fe_web_message_new(WEB_MSG_QUERY_CLOSED);
@@ -870,7 +953,7 @@ static void sig_query_destroyed(QUERY_REC *query)
 	fe_web_message_free(msg);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Sent query_closed for %s", query->name);
+			  "fe-web: Sent query_closed for %s", query->name);
 }
 
 /* Signal: "event 311" - WHOIS user/host */
@@ -883,10 +966,11 @@ static void event_whois(IRC_SERVER_REC *server, const char *data)
 		return;
 
 	params = event_get_params(data, 6, NULL, &nick, &user,
-	                          &host, NULL, &realname);
+							  &host, NULL, &realname);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		g_free(rec->user);
 		g_free(rec->host);
 		g_free(rec->realname);
@@ -910,14 +994,15 @@ static void event_whois_server(IRC_SERVER_REC *server, const char *data)
 	params = event_get_params(data, 4, NULL, &nick, &whoserver, &desc);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		g_free(rec->server);
 		g_free(rec->server_info);
 		rec->server = g_strdup(whoserver);
 		rec->server_info = g_strdup(desc);
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS server for %s: %s [%s]", nick, whoserver, desc);
+				  "fe-web: WHOIS server for %s: %s [%s]", nick, whoserver, desc);
 	}
 
 	g_free(params);
@@ -933,21 +1018,23 @@ static void event_whois_idle(IRC_SERVER_REC *server, const char *data)
 		return;
 
 	params = event_get_params(data, 5 | PARAM_FLAG_GETREST, NULL,
-	                          &nick, &secstr, &signonstr, &rest);
+							  &nick, &secstr, &signonstr, &rest);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		g_free(rec->idle);
 		g_free(rec->signon);
 		rec->idle = g_strdup(secstr);
 		/* Only set signon if "signon time" is in rest */
-		if (strstr(rest, "signon time") != NULL) {
+		if (strstr(rest, "signon time") != NULL)
+		{
 			rec->signon = g_strdup(signonstr);
 		}
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS idle for %s: idle=%s signon=%s", nick, secstr,
-		          rec->signon ? rec->signon : "none");
+				  "fe-web: WHOIS idle for %s: idle=%s signon=%s", nick, secstr,
+				  rec->signon ? rec->signon : "none");
 	}
 
 	g_free(params);
@@ -965,12 +1052,13 @@ static void event_whois_channels(IRC_SERVER_REC *server, const char *data)
 	params = event_get_params(data, 3, NULL, &nick, &chans);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		g_free(rec->channels);
 		rec->channels = g_strdup(chans);
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS channels for %s: %s", nick, chans);
+				  "fe-web: WHOIS channels for %s: %s", nick, chans);
 	}
 
 	g_free(params);
@@ -988,12 +1076,13 @@ static void event_whois_account(IRC_SERVER_REC *server, const char *data)
 	params = event_get_params(data, 3, NULL, &nick, &account);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		g_free(rec->account);
 		rec->account = g_strdup(account);
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS account for %s: %s", nick, account);
+				  "fe-web: WHOIS account for %s: %s", nick, account);
 	}
 
 	g_free(params);
@@ -1011,11 +1100,12 @@ static void event_whois_secure(IRC_SERVER_REC *server, const char *data)
 	params = event_get_params(data, 2, NULL, &nick);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		rec->secure = TRUE;
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS secure for %s: true", nick);
+				  "fe-web: WHOIS secure for %s: true", nick);
 	}
 
 	g_free(params);
@@ -1035,13 +1125,14 @@ static void event_whois_oper(IRC_SERVER_REC *server, const char *data)
 		type = "IRC Operator";
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL) {
+	if (rec != NULL)
+	{
 		/* mark oper flag and add to special list for client visibility */
 		rec->oper = TRUE;
 		rec->special = g_slist_append(rec->special, g_strdup(type));
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS oper for %s: %s", nick, type);
+				  "fe-web: WHOIS oper for %s: %s", nick, type);
 	}
 
 	g_free(params);
@@ -1059,19 +1150,19 @@ static void event_whois_away(IRC_SERVER_REC *server, const char *data)
 	params = event_get_params(data, 3, NULL, &nick, &awaymsg);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL && awaymsg != NULL && *awaymsg != '\0') {
+	if (rec != NULL && awaymsg != NULL && *awaymsg != '\0')
+	{
 		GString *line = g_string_new(NULL);
 		g_string_printf(line, "is away: %s", awaymsg);
 		rec->special = g_slist_append(rec->special, g_strdup(line->str));
 		g_string_free(line, TRUE);
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS away for %s: %s", nick, awaymsg);
+				  "fe-web: WHOIS away for %s: %s", nick, awaymsg);
 	}
 
 	g_free(params);
 }
-
 
 /* Signal: "user mode changed" - User mode change */
 static void sig_user_mode_changed(IRC_SERVER_REC *server, const char *oldmode)
@@ -1098,7 +1189,7 @@ static void event_away_status(IRC_SERVER_REC *server, const char *data)
 	WEB_MESSAGE_REC *msg;
 
 	if (server == NULL || data == NULL)
-	return;
+		return;
 
 	params = event_get_params(data, 3, NULL, &nick, &awaymsg);
 
@@ -1125,11 +1216,13 @@ static void event_whois_default(IRC_SERVER_REC *server, const char *data)
 		return;
 
 	/* Get event number from current_server_event */
-num = atoi(current_server_event);
+	num = atoi(current_server_event);
 
 	/* Dispatch standard WHOIS numerics via our handlers (redirect sends them here) */
-	for (int i = 0; feweb_whois_events[i].num != 0; i++) {
-		if (feweb_whois_events[i].num == num) {
+	for (int i = 0; feweb_whois_events[i].num != 0; i++)
+	{
+		if (feweb_whois_events[i].num == num)
+		{
 			feweb_whois_events[i].func(server, data);
 			return;
 		}
@@ -1138,12 +1231,13 @@ num = atoi(current_server_event);
 	params = event_get_params(data, 3 | PARAM_FLAG_GETREST, NULL, &nick, &text);
 
 	rec = whois_get_or_create(server, nick);
-	if (rec != NULL && text != NULL && *text != '\0') {
+	if (rec != NULL && text != NULL && *text != '\0')
+	{
 		/* Add to special list - only non-standard events */
 		rec->special = g_slist_append(rec->special, g_strdup(text));
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS special (event %d) for %s: %s", num, nick, text);
+				  "fe-web: WHOIS special (event %d) for %s: %s", num, nick, text);
 	}
 
 	g_free(params);
@@ -1165,8 +1259,9 @@ static void event_end_of_whois(IRC_SERVER_REC *server, const char *data)
 	rec = g_hash_table_lookup(active_whois, key);
 	/* Check if we have any WHOIS data (don't rely on whois_found flag) */
 	if (rec != NULL && (rec->user != NULL || rec->channels != NULL ||
-	                    rec->idle != NULL || rec->account != NULL ||
-	                    rec->special != NULL)) {
+						rec->idle != NULL || rec->account != NULL ||
+						rec->special != NULL))
+	{
 		/* Send WHOIS message to clients */
 		msg = fe_web_message_new(WEB_MSG_WHOIS);
 		msg->id = fe_web_generate_message_id();
@@ -1176,44 +1271,47 @@ static void event_end_of_whois(IRC_SERVER_REC *server, const char *data)
 		/* Add extra data */
 		if (rec->user != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("user"),
-			                   g_strdup(rec->user));
+								g_strdup(rec->user));
 		if (rec->host != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("host"),
-			                   g_strdup(rec->host));
+								g_strdup(rec->host));
 		if (rec->realname != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("realname"),
-			                   g_strdup(rec->realname));
+								g_strdup(rec->realname));
 		if (rec->server != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("server"),
-			                   g_strdup(rec->server));
+								g_strdup(rec->server));
 		if (rec->server_info != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("server_info"),
-			                   g_strdup(rec->server_info));
+								g_strdup(rec->server_info));
 		if (rec->channels != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("channels"),
-			                   g_strdup(rec->channels));
+								g_strdup(rec->channels));
 		if (rec->idle != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("idle"),
-			                   g_strdup(rec->idle));
+								g_strdup(rec->idle));
 		if (rec->signon != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("signon"),
-			                   g_strdup(rec->signon));
+								g_strdup(rec->signon));
 		if (rec->account != NULL)
 			g_hash_table_insert(msg->extra_data, g_strdup("account"),
-			                   g_strdup(rec->account));
+								g_strdup(rec->account));
 		if (rec->secure)
 			g_hash_table_insert(msg->extra_data, g_strdup("secure"),
-			                   g_strdup("true"));
+								g_strdup("true"));
 
 		/* Add special WHOIS lines as JSON array */
-		if (rec->special != NULL) {
+		if (rec->special != NULL)
+		{
 			GString *special_json = g_string_new("[");
 			GSList *tmp;
 			gboolean first = TRUE;
 
-			for (tmp = rec->special; tmp != NULL; tmp = tmp->next) {
+			for (tmp = rec->special; tmp != NULL; tmp = tmp->next)
+			{
 				char *escaped;
-				if (!first) g_string_append(special_json, ",");
+				if (!first)
+					g_string_append(special_json, ",");
 				escaped = fe_web_escape_json((char *)tmp->data);
 				g_string_append_printf(special_json, "\"%s\"", escaped);
 				g_free(escaped);
@@ -1222,15 +1320,15 @@ static void event_end_of_whois(IRC_SERVER_REC *server, const char *data)
 			g_string_append(special_json, "]");
 
 			g_hash_table_insert(msg->extra_data, g_strdup("special"),
-			                   g_string_free(special_json, FALSE));
+								g_string_free(special_json, FALSE));
 		}
 
 		fe_web_send_to_server_clients(server, msg);
 		fe_web_message_free(msg);
 
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Sent WHOIS response for %s on %s",
-		          nick, server->tag);
+				  "fe-web: Sent WHOIS response for %s on %s",
+				  nick, server->tag);
 
 		/* Remove from active_whois */
 		g_hash_table_remove(active_whois, key);
@@ -1248,13 +1346,15 @@ static void sig_window_hilight(WINDOW_REC *window)
 	IRC_SERVER_REC *server;
 	int data_level;
 
-	if (window == NULL || window->active == NULL) {
+	if (window == NULL || window->active == NULL)
+	{
 		return;
 	}
 
 	item = window->active;
 	server = IRC_SERVER(item->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -1262,8 +1362,8 @@ static void sig_window_hilight(WINDOW_REC *window)
 	data_level = item->data_level > 0 ? item->data_level : window->data_level;
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity HILIGHT for %s on %s (level=%d)",
-	          item->visible_name, server->tag, data_level);
+			  "fe-web: Activity HILIGHT for %s on %s (level=%d)",
+			  item->visible_name, server->tag, data_level);
 
 	/* Send ACTIVITY_UPDATE to all clients */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
@@ -1283,13 +1383,15 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 	IRC_SERVER_REC *server;
 	int data_level;
 
-	if (window == NULL || window->active == NULL) {
+	if (window == NULL || window->active == NULL)
+	{
 		return;
 	}
 
 	item = window->active;
 	server = IRC_SERVER(item->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -1297,8 +1399,8 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 	data_level = item->data_level > 0 ? item->data_level : window->data_level;
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity UPDATE for %s on %s (level=%d, old=%d)",
-	          item->visible_name, server->tag, data_level, old_level);
+			  "fe-web: Activity UPDATE for %s on %s (level=%d, old=%d)",
+			  item->visible_name, server->tag, data_level, old_level);
 
 	/* Send ACTIVITY_UPDATE to all clients */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
@@ -1317,162 +1419,206 @@ static void sig_window_dehilight(WINDOW_REC *window)
 	WI_ITEM_REC *item;
 	IRC_SERVER_REC *server;
 
-	if (window == NULL || window->active == NULL) {
+	if (window == NULL || window->active == NULL)
+	{
 		return;
 	}
 
 	item = window->active;
 	server = IRC_SERVER(item->server);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity CLEAR (dehilight) for %s on %s",
-	          item->visible_name, server->tag);
+			  "fe-web: Activity CLEAR (dehilight) for %s on %s",
+			  item->visible_name, server->tag);
 
 	/* Send ACTIVITY_UPDATE with level=0 (read) */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
 	msg->id = fe_web_generate_message_id();
 	msg->server_tag = g_strdup(server->tag);
 	msg->target = g_strdup(item->visible_name);
-	msg->level = 0;  /* DATA_LEVEL_NONE = read */
+	msg->level = 0; /* DATA_LEVEL_NONE = read */
 	fe_web_send_to_all_clients(msg);
 	fe_web_message_free(msg);
+}
+
+/* Activity tracking: Handle window change (user switched to different window in irssi) */
+static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
+{
+	WEB_MESSAGE_REC *msg;
+	WI_ITEM_REC *item;
+	IRC_SERVER_REC *server;
+
+	/* Clear activity for the NEW active window (user is now viewing it) */
+	if (new_window == NULL || new_window->active == NULL)
+	{
+		return;
+	}
+
+	item = new_window->active;
+	server = IRC_SERVER(item->server);
+	if (server == NULL)
+	{
+		return;
+	}
+
+	/* Only send if there was activity to clear */
+	if (new_window->data_level > 0 || item->data_level > 0)
+	{
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+				  "fe-web: Window CHANGED - clearing activity for %s on %s (was level=%d)",
+				  item->visible_name, server->tag,
+				  item->data_level > 0 ? item->data_level : new_window->data_level);
+
+		/* Send ACTIVITY_UPDATE with level=0 (read) */
+		msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
+		msg->id = fe_web_generate_message_id();
+		msg->server_tag = g_strdup(server->tag);
+		msg->target = g_strdup(item->visible_name);
+		msg->level = 0; /* DATA_LEVEL_NONE = read */
+		fe_web_send_to_all_clients(msg);
+		fe_web_message_free(msg);
+	}
 }
 
 /* Initialize signal handlers */
 void fe_web_signals_init(void)
 {
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Initializing signal handlers (including WHOIS handlers)");
+			  "fe-web: Initializing signal handlers (including WHOIS handlers)");
 
 	/* Message signals */
-	signal_add("message public", (SIGNAL_FUNC) sig_message_public);
-	signal_add("message own_public", (SIGNAL_FUNC) sig_message_own_public);
-	signal_add("message private", (SIGNAL_FUNC) sig_message_private);
-	signal_add("message own_private", (SIGNAL_FUNC) sig_message_own_private);
+	signal_add("message public", (SIGNAL_FUNC)sig_message_public);
+	signal_add("message own_public", (SIGNAL_FUNC)sig_message_own_public);
+	signal_add("message private", (SIGNAL_FUNC)sig_message_private);
+	signal_add("message own_private", (SIGNAL_FUNC)sig_message_own_private);
 
 	/* Channel events */
-	signal_add("message join", (SIGNAL_FUNC) sig_message_join);
-	signal_add("message part", (SIGNAL_FUNC) sig_message_part);
-	signal_add("message kick", (SIGNAL_FUNC) sig_message_kick);
-	signal_add("message quit", (SIGNAL_FUNC) sig_message_quit);
+	signal_add("message join", (SIGNAL_FUNC)sig_message_join);
+	signal_add("message part", (SIGNAL_FUNC)sig_message_part);
+	signal_add("message kick", (SIGNAL_FUNC)sig_message_kick);
+	signal_add("message quit", (SIGNAL_FUNC)sig_message_quit);
 
 	/* Channel info */
-	signal_add("message topic", (SIGNAL_FUNC) sig_message_topic);
-	signal_add("message irc mode", (SIGNAL_FUNC) sig_message_irc_mode);
-	signal_add("nick mode changed", (SIGNAL_FUNC) sig_nick_mode_changed);
+	signal_add("message topic", (SIGNAL_FUNC)sig_message_topic);
+	signal_add("message irc mode", (SIGNAL_FUNC)sig_message_irc_mode);
+	signal_add("nick mode changed", (SIGNAL_FUNC)sig_nick_mode_changed);
 
 	/* Nick changes */
-	signal_add("message nick", (SIGNAL_FUNC) sig_message_nick);
+	signal_add("message nick", (SIGNAL_FUNC)sig_message_nick);
 
 	/* Server events */
-	signal_add("server connected", (SIGNAL_FUNC) sig_server_connected);
-	signal_add("server disconnected", (SIGNAL_FUNC) sig_server_disconnected);
+	signal_add("server connected", (SIGNAL_FUNC)sig_server_connected);
+	signal_add("server disconnected", (SIGNAL_FUNC)sig_server_disconnected);
 
 	/* Channel lifecycle (YOU joined/parted) */
-	signal_add("channel joined", (SIGNAL_FUNC) sig_channel_joined);
+	signal_add("channel joined", (SIGNAL_FUNC)sig_channel_joined);
 
 	/* Query lifecycle */
-	signal_add("query created", (SIGNAL_FUNC) sig_query_created);
-	signal_add("query destroyed", (SIGNAL_FUNC) sig_query_destroyed);
+	signal_add("query created", (SIGNAL_FUNC)sig_query_created);
+	signal_add("query destroyed", (SIGNAL_FUNC)sig_query_destroyed);
 
 	/* WHOIS events - use signal_add_last to run after fe-common/irc handlers */
-	signal_add_last("whois event", (SIGNAL_FUNC) event_whois);
-	signal_add_last("event 311", (SIGNAL_FUNC) event_whois);
-	signal_add_last("event 312", (SIGNAL_FUNC) event_whois_server);
-	signal_add_last("event 317", (SIGNAL_FUNC) event_whois_idle);
-	signal_add_last("event 319", (SIGNAL_FUNC) event_whois_channels);
-	signal_add_last("event 330", (SIGNAL_FUNC) event_whois_account);
-	signal_add_last("whois account", (SIGNAL_FUNC) event_whois_account);
-	signal_add_last("event 671", (SIGNAL_FUNC) event_whois_secure);
+	signal_add_last("whois event", (SIGNAL_FUNC)event_whois);
+	signal_add_last("event 311", (SIGNAL_FUNC)event_whois);
+	signal_add_last("event 312", (SIGNAL_FUNC)event_whois_server);
+	signal_add_last("event 317", (SIGNAL_FUNC)event_whois_idle);
+	signal_add_last("event 319", (SIGNAL_FUNC)event_whois_channels);
+	signal_add_last("event 330", (SIGNAL_FUNC)event_whois_account);
+	signal_add_last("whois account", (SIGNAL_FUNC)event_whois_account);
+	signal_add_last("event 671", (SIGNAL_FUNC)event_whois_secure);
 	/* Extra WHOIS info */
-	signal_add_last("event 313", (SIGNAL_FUNC) event_whois_oper);
-	signal_add_last("whois oper", (SIGNAL_FUNC) event_whois_oper);
-	signal_add_last("whois away", (SIGNAL_FUNC) event_whois_away);
+	signal_add_last("event 313", (SIGNAL_FUNC)event_whois_oper);
+	signal_add_last("whois oper", (SIGNAL_FUNC)event_whois_oper);
+	signal_add_last("whois away", (SIGNAL_FUNC)event_whois_away);
 	/* Catch-all and end */
-	signal_add_last("whois default event", (SIGNAL_FUNC) event_whois_default);
-	signal_add_last("whois end", (SIGNAL_FUNC) event_end_of_whois);
-	signal_add_last("event 318", (SIGNAL_FUNC) event_end_of_whois);
+	signal_add_last("whois default event", (SIGNAL_FUNC)event_whois_default);
+	signal_add_last("whois end", (SIGNAL_FUNC)event_end_of_whois);
+	signal_add_last("event 318", (SIGNAL_FUNC)event_end_of_whois);
 
 	/* User mode and away */
-	signal_add("user mode changed", (SIGNAL_FUNC) sig_user_mode_changed);
-	signal_add("event 301", (SIGNAL_FUNC) event_away_status);
+	signal_add("user mode changed", (SIGNAL_FUNC)sig_user_mode_changed);
+	signal_add("event 301", (SIGNAL_FUNC)event_away_status);
 
 	/* Activity tracking (unread markers) */
-	signal_add("window hilight", (SIGNAL_FUNC) sig_window_hilight);
-	signal_add("window activity", (SIGNAL_FUNC) sig_window_activity);
-	signal_add("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
+	signal_add("window hilight", (SIGNAL_FUNC)sig_window_hilight);
+	signal_add("window activity", (SIGNAL_FUNC)sig_window_activity);
+	signal_add("window dehilight", (SIGNAL_FUNC)sig_window_dehilight);
+	signal_add("window changed", (SIGNAL_FUNC)sig_window_changed);
 
 	/* Initialize active_whois hash table */
 	active_whois = g_hash_table_new_full(g_str_hash, g_str_equal,
-	                                      g_free, (GDestroyNotify) whois_rec_free);
+										 g_free, (GDestroyNotify)whois_rec_free);
 }
 
 /* Deinitialize signal handlers */
 void fe_web_signals_deinit(void)
 {
 	/* Message signals */
-	signal_remove("message public", (SIGNAL_FUNC) sig_message_public);
-	signal_remove("message own_public", (SIGNAL_FUNC) sig_message_own_public);
-	signal_remove("message private", (SIGNAL_FUNC) sig_message_private);
-	signal_remove("message own_private", (SIGNAL_FUNC) sig_message_own_private);
+	signal_remove("message public", (SIGNAL_FUNC)sig_message_public);
+	signal_remove("message own_public", (SIGNAL_FUNC)sig_message_own_public);
+	signal_remove("message private", (SIGNAL_FUNC)sig_message_private);
+	signal_remove("message own_private", (SIGNAL_FUNC)sig_message_own_private);
 
 	/* Channel events */
-	signal_remove("message join", (SIGNAL_FUNC) sig_message_join);
-	signal_remove("message part", (SIGNAL_FUNC) sig_message_part);
-	signal_remove("message kick", (SIGNAL_FUNC) sig_message_kick);
-	signal_remove("message quit", (SIGNAL_FUNC) sig_message_quit);
+	signal_remove("message join", (SIGNAL_FUNC)sig_message_join);
+	signal_remove("message part", (SIGNAL_FUNC)sig_message_part);
+	signal_remove("message kick", (SIGNAL_FUNC)sig_message_kick);
+	signal_remove("message quit", (SIGNAL_FUNC)sig_message_quit);
 
 	/* Channel info */
-	signal_remove("message topic", (SIGNAL_FUNC) sig_message_topic);
-	signal_remove("message irc mode", (SIGNAL_FUNC) sig_message_irc_mode);
-	signal_remove("nick mode changed", (SIGNAL_FUNC) sig_nick_mode_changed);
+	signal_remove("message topic", (SIGNAL_FUNC)sig_message_topic);
+	signal_remove("message irc mode", (SIGNAL_FUNC)sig_message_irc_mode);
+	signal_remove("nick mode changed", (SIGNAL_FUNC)sig_nick_mode_changed);
 
 	/* Nick changes */
-	signal_remove("message nick", (SIGNAL_FUNC) sig_message_nick);
+	signal_remove("message nick", (SIGNAL_FUNC)sig_message_nick);
 
 	/* Server events */
-	signal_remove("server connected", (SIGNAL_FUNC) sig_server_connected);
-	signal_remove("server disconnected", (SIGNAL_FUNC) sig_server_disconnected);
+	signal_remove("server connected", (SIGNAL_FUNC)sig_server_connected);
+	signal_remove("server disconnected", (SIGNAL_FUNC)sig_server_disconnected);
 
 	/* Channel lifecycle */
-	signal_remove("channel joined", (SIGNAL_FUNC) sig_channel_joined);
+	signal_remove("channel joined", (SIGNAL_FUNC)sig_channel_joined);
 
 	/* Query lifecycle */
-	signal_remove("query created", (SIGNAL_FUNC) sig_query_created);
-	signal_remove("query destroyed", (SIGNAL_FUNC) sig_query_destroyed);
+	signal_remove("query created", (SIGNAL_FUNC)sig_query_created);
+	signal_remove("query destroyed", (SIGNAL_FUNC)sig_query_destroyed);
 
 	/* WHOIS events */
-	signal_remove("whois event", (SIGNAL_FUNC) event_whois);
-	signal_remove("event 311", (SIGNAL_FUNC) event_whois);
-	signal_remove("event 312", (SIGNAL_FUNC) event_whois_server);
-	signal_remove("event 317", (SIGNAL_FUNC) event_whois_idle);
-	signal_remove("event 319", (SIGNAL_FUNC) event_whois_channels);
-	signal_remove("event 330", (SIGNAL_FUNC) event_whois_account);
-	signal_remove("whois account", (SIGNAL_FUNC) event_whois_account);
-	signal_remove("event 671", (SIGNAL_FUNC) event_whois_secure);
+	signal_remove("whois event", (SIGNAL_FUNC)event_whois);
+	signal_remove("event 311", (SIGNAL_FUNC)event_whois);
+	signal_remove("event 312", (SIGNAL_FUNC)event_whois_server);
+	signal_remove("event 317", (SIGNAL_FUNC)event_whois_idle);
+	signal_remove("event 319", (SIGNAL_FUNC)event_whois_channels);
+	signal_remove("event 330", (SIGNAL_FUNC)event_whois_account);
+	signal_remove("whois account", (SIGNAL_FUNC)event_whois_account);
+	signal_remove("event 671", (SIGNAL_FUNC)event_whois_secure);
 	/* Extra WHOIS info */
-	signal_remove("event 313", (SIGNAL_FUNC) event_whois_oper);
-	signal_remove("whois oper", (SIGNAL_FUNC) event_whois_oper);
-	signal_remove("whois away", (SIGNAL_FUNC) event_whois_away);
+	signal_remove("event 313", (SIGNAL_FUNC)event_whois_oper);
+	signal_remove("whois oper", (SIGNAL_FUNC)event_whois_oper);
+	signal_remove("whois away", (SIGNAL_FUNC)event_whois_away);
 	/* Catch-all and end */
-	signal_remove("whois default event", (SIGNAL_FUNC) event_whois_default);
-	signal_remove("whois end", (SIGNAL_FUNC) event_end_of_whois);
-	signal_remove("event 318", (SIGNAL_FUNC) event_end_of_whois);
+	signal_remove("whois default event", (SIGNAL_FUNC)event_whois_default);
+	signal_remove("whois end", (SIGNAL_FUNC)event_end_of_whois);
+	signal_remove("event 318", (SIGNAL_FUNC)event_end_of_whois);
 
 	/* User mode and away */
-	signal_remove("user mode changed", (SIGNAL_FUNC) sig_user_mode_changed);
-	signal_remove("event 301", (SIGNAL_FUNC) event_away_status);
+	signal_remove("user mode changed", (SIGNAL_FUNC)sig_user_mode_changed);
+	signal_remove("event 301", (SIGNAL_FUNC)event_away_status);
 
 	/* Activity tracking (unread markers) */
-	signal_remove("window hilight", (SIGNAL_FUNC) sig_window_hilight);
-	signal_remove("window activity", (SIGNAL_FUNC) sig_window_activity);
-	signal_remove("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
+	signal_remove("window hilight", (SIGNAL_FUNC)sig_window_hilight);
+	signal_remove("window activity", (SIGNAL_FUNC)sig_window_activity);
+	signal_remove("window dehilight", (SIGNAL_FUNC)sig_window_dehilight);
+	signal_remove("window changed", (SIGNAL_FUNC)sig_window_changed);
 
 	/* Cleanup active_whois hash table */
-	if (active_whois != NULL) {
+	if (active_whois != NULL)
+	{
 		g_hash_table_destroy(active_whois);
 		active_whois = NULL;
 	}
@@ -1484,7 +1630,8 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 	GSList *tmp;
 	WEB_MESSAGE_REC *state_msg;
 
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		return;
 	}
 
@@ -1496,7 +1643,8 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 	fe_web_message_free(state_msg);
 
 	/* Dump channels */
-	for (tmp = server->channels; tmp != NULL; tmp = tmp->next) {
+	for (tmp = server->channels; tmp != NULL; tmp = tmp->next)
+	{
 		IRC_CHANNEL_REC *channel = tmp->data;
 		WEB_MESSAGE_REC *msg;
 		GString *nicklist;
@@ -1514,7 +1662,8 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 		fe_web_message_free(msg);
 
 		/* Send topic */
-		if (channel->topic != NULL && *channel->topic != '\0') {
+		if (channel->topic != NULL && *channel->topic != '\0')
+		{
 			msg = fe_web_message_new(WEB_MSG_TOPIC);
 			msg->id = fe_web_generate_message_id();
 			msg->server_tag = g_strdup(server->tag);
@@ -1537,30 +1686,35 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 			GSList *nick_tmp;
 
 			nicks = nicklist_getnicks(CHANNEL(channel));
-			for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next) {
+			for (nick_tmp = nicks; nick_tmp != NULL; nick_tmp = nick_tmp->next)
+			{
 				NICK_REC *nick = nick_tmp->data;
 				char *escaped_nick;
 				char prefix[8];
 
-				if (nicklist->len > 1) {
+				if (nicklist->len > 1)
+				{
 					g_string_append_c(nicklist, ',');
 				}
 
 				/* Build prefix string (@, +, etc) */
 				prefix[0] = '\0';
-				if (nick->op) {
+				if (nick->op)
+				{
 					strcat(prefix, "@");
 				}
-				if (nick->halfop) {
+				if (nick->halfop)
+				{
 					strcat(prefix, "%");
 				}
-				if (nick->voice) {
+				if (nick->voice)
+				{
 					strcat(prefix, "+");
 				}
 
 				escaped_nick = fe_web_escape_json(nick->nick);
 				g_string_append_printf(nicklist, "{\"nick\":\"%s\",\"prefix\":\"%s\"}",
-				                      escaped_nick, prefix);
+									   escaped_nick, prefix);
 				g_free(escaped_nick);
 			}
 			g_slist_free(nicks);
@@ -1573,11 +1727,13 @@ static void fe_web_dump_server_state(WEB_CLIENT_REC *client, IRC_SERVER_REC *ser
 
 		/* Send activity status if channel has unread activity */
 		window = window_find_item(server, CHANNEL(channel));
-		if (window != NULL && window->active != NULL) {
+		if (window != NULL && window->active != NULL)
+		{
 			item = window->active;
 			data_level = item->data_level > 0 ? item->data_level : window->data_level;
 
-			if (data_level > 0) {
+			if (data_level > 0)
+			{
 				/* Channel has unread activity - send ACTIVITY_UPDATE */
 				msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
 				msg->id = fe_web_generate_message_id();
@@ -1598,45 +1754,50 @@ void fe_web_dump_state(WEB_CLIENT_REC *client)
 	GSList *tmp;
 	extern GSList *servers;
 
-	if (client == NULL) {
+	if (client == NULL)
+	{
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Dumping state (all_servers: %d)",
-	          client->id, client->wants_all_servers);
+			  "fe-web: [%s] Dumping state (all_servers: %d)",
+			  client->id, client->wants_all_servers);
 
 	/* If wants all servers, dump all */
-	if (client->wants_all_servers) {
+	if (client->wants_all_servers)
+	{
 		int count = 0;
-		for (tmp = servers; tmp != NULL; tmp = tmp->next) {
+		for (tmp = servers; tmp != NULL; tmp = tmp->next)
+		{
 			server = IRC_SERVER(tmp->data);
-			if (server != NULL && server->connected) {
+			if (server != NULL && server->connected)
+			{
 				printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-				          "fe-web: [%s] Dumping server: %s",
-				          client->id, server->tag);
+						  "fe-web: [%s] Dumping server: %s",
+						  client->id, server->tag);
 				fe_web_dump_server_state(client, server);
 				count++;
 			}
 		}
 		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Dumped %d servers", client->id, count);
+				  "fe-web: [%s] Dumped %d servers", client->id, count);
 		return;
 	}
 
 	/* Dump specific server */
 	server = client->server;
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web: [%s] ERROR: No server assigned for state dump",
-		          client->id);
+				  "fe-web: [%s] ERROR: No server assigned for state dump",
+				  client->id);
 		return;
 	}
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Dumping server: %s",
-	          client->id, server->tag);
+			  "fe-web: [%s] Dumping server: %s",
+			  client->id, server->tag);
 	fe_web_dump_server_state(client, server);
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] State dump completed", client->id);
+			  "fe-web: [%s] State dump completed", client->id);
 }
