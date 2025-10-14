@@ -1237,6 +1237,21 @@ static void sig_window_hilight(WINDOW_REC *window)
 	/* Get highest data_level (from item or window) */
 	data_level = item->data_level > 0 ? item->data_level : window->data_level;
 
+	/* CRITICAL FIX: Skip if window->data_level is 0 (being cleared by core)
+	 * This prevents sending stale activity_update when core is clearing activity.
+	 * Core calls window_activity(window, 0, NULL) which:
+	 * 1. Sets window->data_level = 0
+	 * 2. Emits "window hilight" signal
+	 * But item->data_level might not be cleared yet, so we check window level.
+	 */
+	if (window->data_level == 0) {
+		printtext(
+		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		    "fe-web: Activity HILIGHT SKIPPED for %s on %s (window level=0, being cleared)",
+		    item->visible_name, server->tag);
+		return;
+	}
+
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: Activity HILIGHT for %s on %s (level=%d)", item->visible_name,
 	          server->tag, data_level);
