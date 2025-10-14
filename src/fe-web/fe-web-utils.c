@@ -248,8 +248,9 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 	/* timestamp */
 	g_string_append_printf(json, ",\"timestamp\":%ld", (long)msg->timestamp);
 
-	/* level (for message types) */
-	if (msg->level != 0) {
+	/* level (for message types and activity_update) */
+	/* IMPORTANT: For activity_update, level=0 means "read", so we MUST send it! */
+	if (msg->level != 0 || msg->type == WEB_MSG_ACTIVITY_UPDATE) {
 		g_string_append_printf(json, ",\"level\":%d", msg->level);
 	}
 
