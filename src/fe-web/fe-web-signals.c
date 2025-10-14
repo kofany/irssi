@@ -39,6 +39,10 @@ static void sig_window_hilight(WINDOW_REC *window);
 static void sig_window_activity(WINDOW_REC *window, int old_level);
 static void sig_window_dehilight(WINDOW_REC *window);
 
+/* Forward declarations for window lifecycle handlers */
+static void sig_window_item_remove(WINDOW_REC *window, WI_ITEM_REC *item);
+static void sig_window_destroyed(WINDOW_REC *window);
+
 /* fe-web WHOIS event dispatch table (file-scope) */
 typedef void (*FEWEB_WHOIS_HANDLER)(IRC_SERVER_REC *server, const char *data);
 static struct {
@@ -1395,6 +1399,77 @@ static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
 	}
 }
 
+/* Window lifecycle: Handle window item removal (channel/query closed in irssi) */
+static void sig_window_item_remove(WINDOW_REC *window, WI_ITEM_REC *item)
+{
+	WEB_MESSAGE_REC *msg;
+	IRC_SERVER_REC *server;
+	IRC_CHANNEL_REC *channel;
+	QUERY_REC *query;
+
+	if (item == NULL) {
+		return;
+	}
+
+	server = IRC_SERVER(item->server);
+	if (server == NULL) {
+		return;
+	}
+
+	/* Check if it's a channel */
+	channel = IRC_CHANNEL(item);
+	if (channel != NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: Channel window closed: %s on %s", item->visible_name,
+		          server->tag);
+
+		/* Send CHANNEL_PART (we left the channel) */
+		msg = fe_web_message_new(WEB_MSG_CHANNEL_PART);
+		msg->id = fe_web_generate_message_id();
+		msg->server_tag = g_strdup(server->tag);
+		msg->target = g_strdup(item->visible_name);
+		msg->nick = g_strdup(server->nick); /* We are leaving */
+		msg->text = NULL;                   /* No reason */
+
+		fe_web_send_to_server_clients(server, msg);
+		fe_web_message_free(msg);
+		return;
+	}
+
+	/* Check if it's a query */
+	query = QUERY(item);
+	if (query != NULL) {
+		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		          "fe-web: Query window closed: %s on %s", item->visible_name, server->tag);
+
+		/* Send QUERY_CLOSED */
+		msg = fe_web_message_new(WEB_MSG_QUERY_CLOSED);
+		msg->id = fe_web_generate_message_id();
+		msg->server_tag = g_strdup(server->tag);
+		msg->nick = g_strdup(item->visible_name);
+
+		fe_web_send_to_server_clients(server, msg);
+		fe_web_message_free(msg);
+		return;
+	}
+}
+
+/* Window lifecycle: Handle window destruction (entire window closed) */
+static void sig_window_destroyed(WINDOW_REC *window)
+{
+	/* Note: "window item remove" is emitted BEFORE "window destroyed"
+	 * for each item in the window, so we don't need to send part/close
+	 * messages here - they were already sent by sig_window_item_remove().
+	 * This handler is here for completeness and future use. */
+
+	if (window == NULL) {
+		return;
+	}
+
+	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Window destroyed: refnum=%d",
+	          window->refnum);
+}
+
 /* Initialize signal handlers */
 void fe_web_signals_init(void)
 {
@@ -1459,6 +1534,10 @@ void fe_web_signals_init(void)
 	signal_add("window activity", (SIGNAL_FUNC) sig_window_activity);
 	signal_add("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
 	signal_add("window changed", (SIGNAL_FUNC) sig_window_changed);
+
+	/* Window lifecycle (channel/query closed in irssi) */
+	signal_add("window item remove", (SIGNAL_FUNC) sig_window_item_remove);
+	signal_add("window destroyed", (SIGNAL_FUNC) sig_window_destroyed);
 
 	/* Initialize active_whois hash table */
 	active_whois =
@@ -1526,6 +1605,10 @@ void fe_web_signals_deinit(void)
 	signal_remove("window activity", (SIGNAL_FUNC) sig_window_activity);
 	signal_remove("window dehilight", (SIGNAL_FUNC) sig_window_dehilight);
 	signal_remove("window changed", (SIGNAL_FUNC) sig_window_changed);
+
+	/* Window lifecycle (channel/query closed in irssi) */
+	signal_remove("window item remove", (SIGNAL_FUNC) sig_window_item_remove);
+	signal_remove("window destroyed", (SIGNAL_FUNC) sig_window_destroyed);
 
 	/* Cleanup active_whois hash table */
 	if (active_whois != NULL) {
