@@ -1256,6 +1256,18 @@ static void sig_window_hilight(WINDOW_REC *window)
 		return;
 	}
 
+	/* OPTIMIZATION: Skip if this is the active window in irssi
+	 * User is already viewing this window locally, no need to notify browsers
+	 * This prevents unnecessary activity markers when reading messages in irssi
+	 */
+	if (window == active_win) {
+		printtext(
+		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		    "fe-web: Activity HILIGHT SKIPPED for %s on %s (active window in irssi)",
+		    item->visible_name, server->tag);
+		return;
+	}
+
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
 	          "fe-web: Activity HILIGHT for %s on %s (level=%d)", item->visible_name,
 	          server->tag, data_level);
@@ -1290,6 +1302,18 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 
 	/* Get highest data_level (from item or window) */
 	data_level = item->data_level > 0 ? item->data_level : window->data_level;
+
+	/* OPTIMIZATION: Skip if this is the active window in irssi
+	 * User is already viewing this window locally, no need to notify browsers
+	 * This prevents unnecessary activity markers when reading messages in irssi
+	 */
+	if (window == active_win) {
+		printtext(
+		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
+		    "fe-web: Activity UPDATE SKIPPED for %s on %s (active window in irssi)",
+		    item->visible_name, server->tag);
+		return;
+	}
 
 	/* Skip if level DECREASED (e.g. from hilight to text) - sig_window_hilight already sent
 	 * update */

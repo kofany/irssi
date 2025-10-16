@@ -279,6 +279,11 @@ Synchronize client with one or all IRC networks.
 
 Execute an IRC command on a specific server/network.
 
+**IMPORTANT**: Commands MUST start with "/" prefix! The irssi command system
+(src/core/commands.c) checks if the first character is a cmdchar (default: "/").
+If not present, irssi treats the input as regular text and sends it via "send text"
+signal instead of executing as a command.
+
 ```json
 {
   "type": "command",

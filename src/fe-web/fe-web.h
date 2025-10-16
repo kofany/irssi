@@ -5,6 +5,10 @@
 #include <irssi/src/core/network.h>
 #include <irssi/src/irc/core/irc.h>
 #include <irssi/src/irc/core/irc-servers.h>
+#include <irssi/src/irc/core/irc-chatnets.h>
+#include <irssi/src/irc/core/irc-servers-setup.h>
+#include <irssi/src/core/servers-setup.h>
+#include <irssi/src/core/chatnets.h>
 
 /* Forward declaration for SSL channel */
 typedef struct _FE_WEB_SSL_CHANNEL FE_WEB_SSL_CHANNEL;
@@ -33,7 +37,16 @@ typedef enum {
 	WEB_MSG_QUERY_OPENED,
 	WEB_MSG_QUERY_CLOSED,
 	WEB_MSG_ACTIVITY_UPDATE,     /* Activity level changed (unread markers) */
-	WEB_MSG_MARK_READ            /* Mark channel as read (from client) */
+	WEB_MSG_MARK_READ,           /* Mark channel as read (from client) */
+	WEB_MSG_NETWORK_LIST,        /* Request: list all networks */
+	WEB_MSG_NETWORK_LIST_RESPONSE, /* Response: network list */
+	WEB_MSG_SERVER_LIST,         /* Request: list all servers */
+	WEB_MSG_SERVER_LIST_RESPONSE, /* Response: server list */
+	WEB_MSG_NETWORK_ADD,         /* Request: add/modify network */
+	WEB_MSG_NETWORK_REMOVE,      /* Request: remove network */
+	WEB_MSG_SERVER_ADD,          /* Request: add/modify server */
+	WEB_MSG_SERVER_REMOVE,       /* Request: remove server */
+	WEB_MSG_COMMAND_RESULT       /* Response: operation result */
 } WEB_MESSAGE_TYPE;
 
 /* WebSocket client connection record */
@@ -154,6 +167,20 @@ char *fe_web_generate_message_id(void);
 char *fe_web_json_get_string(const char *json, const char *key);
 int fe_web_json_get_int(const char *json, const char *key, int default_value);
 int fe_web_json_has_key(const char *json, const char *key);
+
+/* JSON building for network/server management */
+GString *fe_web_build_network_json(IRC_CHATNET_REC *rec);
+GString *fe_web_build_server_json(IRC_SERVER_SETUP_REC *rec);
+GString *fe_web_build_command_result_json(gboolean success, const char *message, 
+                                          const char *error_code);
+
+/* Network/Server management handlers */
+void fe_web_handle_network_list(WEB_CLIENT_REC *client, const char *json);
+void fe_web_handle_server_list(WEB_CLIENT_REC *client, const char *json);
+void fe_web_handle_network_add(WEB_CLIENT_REC *client, const char *json);
+void fe_web_handle_network_remove(WEB_CLIENT_REC *client, const char *json);
+void fe_web_handle_server_add(WEB_CLIENT_REC *client, const char *json);
+void fe_web_handle_server_remove(WEB_CLIENT_REC *client, const char *json);
 
 /* State dump */
 void fe_web_dump_state(WEB_CLIENT_REC *client);

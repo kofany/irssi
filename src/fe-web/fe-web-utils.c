@@ -146,6 +146,24 @@ static const char *fe_web_type_to_string(WEB_MESSAGE_TYPE type)
 		return "activity_update";
 	case WEB_MSG_MARK_READ:
 		return "mark_read";
+	case WEB_MSG_NETWORK_LIST:
+		return "network_list";
+	case WEB_MSG_NETWORK_LIST_RESPONSE:
+		return "network_list_response";
+	case WEB_MSG_SERVER_LIST:
+		return "server_list";
+	case WEB_MSG_SERVER_LIST_RESPONSE:
+		return "server_list_response";
+	case WEB_MSG_NETWORK_ADD:
+		return "network_add";
+	case WEB_MSG_NETWORK_REMOVE:
+		return "network_remove";
+	case WEB_MSG_SERVER_ADD:
+		return "server_add";
+	case WEB_MSG_SERVER_REMOVE:
+		return "server_remove";
+	case WEB_MSG_COMMAND_RESULT:
+		return "command_result";
 	default:
 		return "unknown";
 	}
@@ -233,16 +251,32 @@ char *fe_web_message_to_json(WEB_MESSAGE_REC *msg)
 		g_free(escaped);
 	}
 
-	/* text (or "task" for nicklist_update) */
+	/* text (or "task" for nicklist_update, or raw JSON for network_list/server_list) */
 	if (msg->text != NULL) {
-		escaped = fe_web_escape_json(msg->text);
 		if (msg->type == WEB_MSG_NICKLIST_UPDATE) {
 			/* For nicklist_update, serialize text field as "task" */
+			escaped = fe_web_escape_json(msg->text);
 			g_string_append_printf(json, ",\"task\":\"%s\"", escaped);
+			g_free(escaped);
+		} else if (msg->type == WEB_MSG_NETWORK_LIST_RESPONSE) {
+			/* For network_list_response, text contains JSON array - insert raw */
+			g_string_append_printf(json, ",\"networks\":%s", msg->text);
+		} else if (msg->type == WEB_MSG_SERVER_LIST_RESPONSE) {
+			/* For server_list_response, text contains JSON array - insert raw */
+			g_string_append_printf(json, ",\"servers\":%s", msg->text);
+		} else if (msg->type == WEB_MSG_COMMAND_RESULT) {
+			/* For command_result, text contains JSON object - insert raw (without outer braces) */
+			if (msg->text[0] == '{' && msg->text[strlen(msg->text)-1] == '}') {
+				/* Skip outer braces and insert content */
+				char *content = g_strndup(msg->text + 1, strlen(msg->text) - 2);
+				g_string_append_printf(json, ",%s", content);
+				g_free(content);
+			}
 		} else {
+			escaped = fe_web_escape_json(msg->text);
 			g_string_append_printf(json, ",\"text\":\"%s\"", escaped);
+			g_free(escaped);
 		}
-		g_free(escaped);
 	}
 
 	/* timestamp */

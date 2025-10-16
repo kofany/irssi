@@ -1,0 +1,1947 @@
+2025-10-15 07:29:06 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513346-0012","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513346,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513346-0012',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513346,
+  level: 1
+}
+2025-10-15 07:29:06 [DEBUG] [IrssiClient] Channel 2 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:06 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513346-0013","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513346,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513346-0013',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513346,
+  level: 1
+}
+2025-10-15 07:29:06 [DEBUG] [IrssiClient] Channel 2 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:06 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 3
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513349534-6"}
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513349-0014","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513349,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513349-0014',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513349,
+  level: 1
+}
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Channel 3 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513349546-7"}
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513349-0015","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513349,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513349-0015',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513349,
+  level: 1
+}
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Channel 3 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:09 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 4
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513350277-8"}
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513350289-9"}
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513350-0016","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513350,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513350-0016',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513350,
+  level: 1
+}
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Channel 4 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513350-0017","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513350,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513350-0017',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513350,
+  level: 1
+}
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Channel 4 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:10 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 2
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513351310-10"}
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513351314-11"}
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513351-0018","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513351,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513351-0018',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513351,
+  level: 1
+}
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Channel 2 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513351-0019","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513351,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513351-0019',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513351,
+  level: 1
+}
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Channel 2 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:11 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:17 [INFO] [irssi:config:get] Request from yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:17 [INFO] [irssi:config:get] Sent config info to yJA0x4n_WyqkFLGxAAAB
+[FeWebSocket] Sending: {"type":"ping","id":"ping-1760513358479"}
+[FeWebSocket] Received message, type: binary, length: 124
+[FeWebSocket] Decrypting binary message (124 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513358-0020","type":"pong","response_to":"ping-1760513358479","timestamp":1760513358}
+[FeWebSocket] Received: {
+  id: '1760513358-0020',
+  type: 'pong',
+  response_to: 'ping-1760513358479',
+  timestamp: 1760513358
+}
+[FeWebSocket] Calling 1 handler(s) for type: pong
+2025-10-15 07:29:18 [DEBUG] [FeWebAdapter] Received pong
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 3
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513360834-12"}
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513360835-13"}
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513360-0021","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513360,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513360-0021',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513360,
+  level: 1
+}
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Channel 3 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513360-0022","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513360,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513360-0022',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513360,
+  level: 1
+}
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Channel 3 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:20 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:22 [INFO] [IrssiClient] Listing networks for user kfn
+[FeWebSocket] Sending: {"type":"network_list","id":"req-1760513362378-9ik7b5fo6"}
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+[FeWebSocket] Reconnecting in 1000ms...
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0025","type":"auth_ok","timestamp":1760513363}
+[FeWebSocket] Received: { id: '1760513363-0025', type: 'auth_ok', timestamp: 1760513363 }
+2025-10-15 07:29:23 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513363418-14"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] Authenticated to fe-web
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0026","type":"state_dump","server":"IRCal","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0026',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0027","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0027',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:29:23 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0028","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0028',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 5
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Nicklist update: 5 (2 users)
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0029","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0029',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513363,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0030","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0030',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:29:23 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0031","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0031',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 6
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Nicklist update: 6 (13 users)
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0032","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0032',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513363,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0033","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0033',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:23 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:29:23 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0034","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513363}
+[FeWebSocket] Received: {
+  id: '1760513363-0034',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513363
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 7
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Nicklist update: 7 (24 users)
+2025-10-15 07:29:23 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0035","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0035',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513363,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:23 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:29:23 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:29:23 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 5
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513363443-15"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513363445-16"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0036","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0036',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513363,
+  level: 1
+}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Channel 5 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0037","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0037',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513363,
+  level: 1
+}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Channel 5 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 6
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513363469-17"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513363469-18"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0038","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0038',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513363,
+  level: 1
+}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Channel 6 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 7
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513363481-19"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513363482-20"}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0039","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0039',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513363,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0040","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0040',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513363,
+  level: 1
+}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Channel 7 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513363-0041","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513363,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513363-0041',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513363,
+  level: 1
+}
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Channel 7 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:23 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 6
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513370678-21"}
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513370689-22"}
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513370-0042","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513370,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513370-0042',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513370,
+  level: 1
+}
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Channel 6 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513370-0043","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513370,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513370-0043',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513370,
+  level: 1
+}
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Channel 6 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:30 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 5
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513371100-23"}
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513371106-24"}
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513371-0044","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513371,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513371-0044',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513371,
+  level: 1
+}
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Channel 5 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513371-0045","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513371,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513371-0045',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513371,
+  level: 1
+}
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Channel 5 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:31 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 4
+2025-10-15 07:29:32 [ERROR] [network:list_irssi] Error: Request timeout for network_list
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 7
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513373049-25"}
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513373059-26"}
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513373-0046","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513373,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513373-0046',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513373,
+  level: 1
+}
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Channel 7 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513373-0047","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513373,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513373-0047',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513373,
+  level: 1
+}
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Channel 7 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:33 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:35 [INFO] [IrssiClient] Listing networks for user kfn
+[FeWebSocket] Sending: {"type":"network_list","id":"req-1760513375174-hx3t86en1"}
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+[FeWebSocket] Reconnecting in 1000ms...
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0050","type":"auth_ok","timestamp":1760513376}
+[FeWebSocket] Received: { id: '1760513376-0050', type: 'auth_ok', timestamp: 1760513376 }
+2025-10-15 07:29:36 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513376204-27"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] Authenticated to fe-web
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0051","type":"state_dump","server":"IRCal","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0051',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0052","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0052',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:29:36 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0053","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0053',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 8
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Nicklist update: 8 (2 users)
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0054","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0054',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513376,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0055","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0055',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:29:36 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0056","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0056',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 9
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Nicklist update: 9 (13 users)
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0057","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0057',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513376,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0058","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0058',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:36 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:29:36 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0059","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513376}
+[FeWebSocket] Received: {
+  id: '1760513376-0059',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513376
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 10
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Nicklist update: 10 (24 users)
+2025-10-15 07:29:36 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0060","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0060',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513376,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:36 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:29:36 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:29:36 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 8
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513376230-28"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513376235-29"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0061","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0061',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 8 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0062","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0062',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 8 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 9
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513376247-30"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513376250-31"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0063","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0063',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 9 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0064","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0064',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 9 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 10
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513376265-32"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513376269-33"}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0065","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0065',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 10 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513376-0066","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513376,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513376-0066',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513376,
+  level: 1
+}
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Channel 10 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:36 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:42 [INFO] [IrssiClient] Listing networks for user kfn
+[FeWebSocket] Sending: {"type":"network_list","id":"req-1760513382821-tkb6ipjs2"}
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+[FeWebSocket] Reconnecting in 1000ms...
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0069","type":"auth_ok","timestamp":1760513383}
+[FeWebSocket] Received: { id: '1760513383-0069', type: 'auth_ok', timestamp: 1760513383 }
+2025-10-15 07:29:43 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513383854-34"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] Authenticated to fe-web
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0070","type":"state_dump","server":"IRCal","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0070',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0071","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0071',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:29:43 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0072","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0072',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 11
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Nicklist update: 11 (2 users)
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0073","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0073',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513383,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0074","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0074',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:29:43 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0075","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0075',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 12
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Nicklist update: 12 (13 users)
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0076","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0076',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513383,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0077","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0077',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:29:43 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:29:43 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0078","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513383}
+[FeWebSocket] Received: {
+  id: '1760513383-0078',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513383
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 13
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Nicklist update: 13 (24 users)
+2025-10-15 07:29:43 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0079","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0079',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513383,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:43 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:29:43 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:29:43 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 11
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513383877-35"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513383878-36"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0080","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0080',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 11 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0081","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0081',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 11 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 12
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513383893-37"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513383895-38"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0082","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0082',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 12 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0083","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0083',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 12 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Browser yJA0x4n_WyqkFLGxAAAB opened channel 13
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513383910-39"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Marked as read: network-1760513328480-uwpavowc8/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513383910-40"}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0084","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0084',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 13 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513383-0085","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513383,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513383-0085',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513383,
+  level: 1
+}
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Channel 13 is open in browser yJA0x4n_WyqkFLGxAAAB
+2025-10-15 07:29:43 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:29:45 [ERROR] [network:list_irssi] Error: Request timeout for network_list
+2025-10-15 07:29:52 [ERROR] [network:list_irssi] Error: Request timeout for network_list
+^C2025-10-15 07:29:57 [INFO] Exiting...
+2025-10-15 07:29:57 [INFO] User kfn quitting...
+[FeWebSocket] Disconnecting...
+2025-10-15 07:29:57 [INFO] User kfn: browser detached (yJA0x4n_WyqkFLGxAAAB), remaining: 0
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+ irssilounge  npm start
+
+> thelounge@4.4.3 start
+> node index start
+
+2025-10-15 07:31:12 [INFO] The Lounge source (a3a7fcb4 / v4.4.3) (Node.js 24.4.0 on darwin arm64)
+2025-10-15 07:31:12 [INFO] Configuration file: /Users/kfn/.thelounge/config.js
+2025-10-15 07:31:12 [INFO] Available at http://[::]:9000/ in private mode
+2025-10-15 07:31:12 [INFO] Loading user kfn in irssi proxy mode
+2025-10-15 07:31:12 [INFO] irssi client created for user kfn
+2025-10-15 07:31:12 [INFO] User kfn has irssi config - auto-connecting to irssi...
+2025-10-15 07:31:12 [INFO] User kfn auto-connecting to irssi...
+2025-10-15 07:31:12 [INFO] irssi password decrypted for user kfn
+2025-10-15 07:31:12 [INFO] Message storage encryption key derived for user kfn
+2025-10-15 07:31:12 [INFO] Encrypted message storage enabled for user kfn
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Registering fe-web message handlers
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0091","type":"auth_ok","timestamp":1760513472}
+[FeWebSocket] Received: { id: '1760513472-0091', type: 'auth_ok', timestamp: 1760513472 }
+2025-10-15 07:31:12 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513472208-1"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Authenticated to fe-web
+2025-10-15 07:31:12 [INFO] User kfn connected to irssi at wss://localhost:9001 (dual-layer security)
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0092","type":"state_dump","server":"IRCal","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0092',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Created network for server tag: IRCal with lobby channel
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Network IRCal serverOptions: {"CHANTYPES":["#","&","!"],"PREFIX":{"prefix":[{"symbol":"!","mode":"Y"},{"symbol":"@","mode":"o"},{"symbol":"%","mode":"h"},{"symbol":"+","mode":"v"}],"modeToSymbol":{"Y":"!","o":"@","h":"%","v":"+"},"symbols":["!","@","%","+"]},"NETWORK":"IRCal"}
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0093","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0093',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Set network nick for IRCal: kfn (from first channel join)
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:31:12 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0094","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0094',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 2
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Nicklist update: 2 (2 users)
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0095","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513472,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513472-0095',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513472,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0096","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0096',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:31:12 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0097","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0097',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 3
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Nicklist update: 3 (13 users)
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0098","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513472,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513472-0098',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513472,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0099","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0099',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:31:12 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0100","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513472}
+[FeWebSocket] Received: {
+  id: '1760513472-0100',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513472
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 4
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Nicklist update: 4 (24 users)
+2025-10-15 07:31:12 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513472-0101","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513472,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513472-0101',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513472,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:31:12 [INFO] [FeWebAdapter] Emitting init event with 1 networks
+2025-10-15 07:31:12 [INFO] [IrssiClient] Init with 1 networks
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loading messages from storage for 1 networks...
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for IRCal/#irc.al from storage
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for IRCal/#cz from storage
+2025-10-15 07:31:12 [INFO] [IrssiClient] Loaded 0 messages for IRCal/#Polska from storage
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Network IRCal serverOptions: {"CHANTYPES":["#","&","!"],"PREFIX":{"prefix":[{"symbol":"!","mode":"Y"},{"symbol":"@","mode":"o"},{"symbol":"%","mode":"h"},{"symbol":"+","mode":"v"}],"modeToSymbol":{"Y":"!","o":"@","h":"%","v":"+"},"symbols":["!","@","%","+"]},"NETWORK":"IRCal"}
+2025-10-15 07:31:12 [DEBUG] [IrssiClient] Init event structure: 1 networks, channels: IRCal(4)
+2025-10-15 07:31:12 [INFO] [IrssiClient] ⏰ TIMING: Sent init event with 1 networks
+2025-10-15 07:31:12 [INFO] [IrssiClient] ⏰ TIMING: Sent names for channel 2 (2 users) after init
+2025-10-15 07:31:12 [INFO] [IrssiClient] ⏰ TIMING: Sent names for channel 3 (13 users) after init
+2025-10-15 07:31:12 [INFO] [IrssiClient] ⏰ TIMING: Sent names for channel 4 (24 users) after init
+2025-10-15 07:31:12 [INFO] [IrssiClient] ⏰ TIMING: handleInit() COMPLETED
+2025-10-15 07:31:23 [INFO] Logging in irssi user kfn...
+2025-10-15 07:31:23 [INFO] User kfn logging in...
+2025-10-15 07:31:23 [INFO] irssi password decrypted for user kfn
+2025-10-15 07:31:23 [INFO] Message storage encryption key already exists (from autoconnect)
+2025-10-15 07:31:23 [INFO] Message storage already enabled (from autoconnect)
+2025-10-15 07:31:23 [WARN] User kfn already connected to irssi
+2025-10-15 07:31:23 [INFO] User kfn logged in successfully
+2025-10-15 07:31:23 [INFO] User kfn: browser attached (qBeVGCGGEnQMauAQAAAD), total: 1
+2025-10-15 07:31:23 [INFO] User kfn: sending init to new browser qBeVGCGGEnQMauAQAAAD (1 networks)
+2025-10-15 07:31:23 [INFO] [IrssiClient] ⏰ TIMING: sendInitialState() START for socket qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:31:23 [INFO] [IrssiClient] Loading messages from storage for 1 networks...
+2025-10-15 07:31:23 [INFO] Browser qBeVGCGGEnQMauAQAAAD attached to irssi user kfn
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Loaded 0 messages for IRCal/IRCal
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Loaded 0 messages for IRCal/#irc.al
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Loaded 0 messages for IRCal/#cz
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Loaded 0 messages for IRCal/#Polska
+2025-10-15 07:31:23 [INFO] [IrssiClient] ⏰ TIMING: sendInitialState() SENT init event for socket qBeVGCGGEnQMauAQAAAD with 1 networks
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent names for channel 2 (2 users) in init
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent names for channel 3 (13 users) in init
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent names for channel 4 (24 users) in init
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent activity_update for channel 2 (unread=0, level=1) in init
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent activity_update for channel 3 (unread=0, level=1) in init
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent activity_update for channel 4 (unread=0, level=1) in init
+2025-10-15 07:31:23 [INFO] User kfn: sent initial state to browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 1
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/IRCal (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"IRCal","id":"msg-1760513483365-2"}
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/IRCal
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/IRCal (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"IRCal","id":"msg-1760513483365-3"}
+2025-10-15 07:31:23 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/IRCal
+2025-10-15 07:31:38 [INFO] [IrssiClient] Listing networks for user kfn
+[FeWebSocket] Sending: {"type":"network_list","id":"req-1760513498527-9k4b58qp5"}
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+[FeWebSocket] Reconnecting in 1000ms...
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0104","type":"auth_ok","timestamp":1760513499}
+[FeWebSocket] Received: { id: '1760513499-0104', type: 'auth_ok', timestamp: 1760513499 }
+2025-10-15 07:31:39 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513499562-4"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] Authenticated to fe-web
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0105","type":"state_dump","server":"IRCal","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0105',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0106","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0106',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:31:39 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0107","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0107',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 5
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Nicklist update: 5 (2 users)
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0108","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0108',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0109","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0109',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:31:39 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0110","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0110',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 6
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Nicklist update: 6 (13 users)
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0111","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0111',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0112","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0112',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:31:39 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:31:39 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0113","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513499}
+[FeWebSocket] Received: {
+  id: '1760513499-0113',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513499
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 7
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Nicklist update: 7 (24 users)
+2025-10-15 07:31:39 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0114","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0114',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:31:39 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:31:39 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:31:39 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 5
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513499599-5"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513499600-6"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 6
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513499610-7"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513499614-8"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0115","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0115',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0116","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0116',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0117","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0117',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513499,
+  level: 1
+}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Channel 6 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 7
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513499626-9"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513499627-10"}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0118","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0118',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513499,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0119","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0119',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513499,
+  level: 1
+}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Channel 7 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513499-0120","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513499,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513499-0120',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513499,
+  level: 1
+}
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Channel 7 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:31:39 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:31:48 [ERROR] [network:list_irssi] Error: Request timeout for network_list
+2025-10-15 07:32:00 [INFO] [IrssiClient] Listing networks for user kfn
+[FeWebSocket] Sending: {"type":"network_list","id":"req-1760513520021-dx3c1p65p"}
+[FeWebSocket] WebSocket closed (code: 1006, reason: )
+[FeWebSocket] Reconnecting in 1000ms...
+[FeWebSocket] Deriving encryption key (fe-web v1.5)...
+[FeWebEncryption] Encryption key derived successfully (fe-web v1.5)
+[FeWebSocket] Connecting to wss://localhost:9001/?password=Pulinek1708 (Layer 1: TLS, Layer 2: AES-256-GCM)...
+[FeWebSocket] SSL/TLS options: rejectUnauthorized=false, minVersion=TLSv1.2, maxVersion=TLSv1.3
+[FeWebSocket] WebSocket connected, waiting for auth_ok...
+[FeWebSocket] Received message, type: binary, length: 92
+[FeWebSocket] Decrypting binary message (92 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0123","type":"auth_ok","timestamp":1760513521}
+[FeWebSocket] Received: { id: '1760513521-0123', type: 'auth_ok', timestamp: 1760513521 }
+2025-10-15 07:32:01 [INFO] User kfn: irssi authentication successful
+[FeWebSocket] authHandler called, msg.type: auth_ok
+[FeWebSocket] Authenticated - resolving promise
+[FeWebSocket] Sending: {"type":"sync_server","server":"*","id":"msg-1760513521060-11"}
+[FeWebSocket] Calling resolve()
+[FeWebSocket] resolve() called
+[FeWebSocket] Calling 1 handler(s) for type: auth_ok
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] Authenticated to fe-web
+[FeWebSocket] Received message, type: binary, length: 112
+[FeWebSocket] Decrypting binary message (112 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0124","type":"state_dump","server":"IRCal","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0124',
+  type: 'state_dump',
+  server: 'IRCal',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: state_dump
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] State dump started for server: IRCal
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] Network IRCal status: connected=true
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Network update: IRCal
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0125","type":"channel_join","server":"IRCal","channel":"#irc.al","nick":"kfn","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0125',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#irc.al',
+  nick: 'kfn',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] Created channel #irc.al on IRCal
+2025-10-15 07:32:01 [INFO] [IrssiClient] Channel join: #irc.al
+[FeWebSocket] Received message, type: binary, length: 215
+[FeWebSocket] Decrypting binary message (215 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0126","type":"nicklist","server":"IRCal","channel":"#irc.al","text":"[{\"nick\":\"kofany\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0126',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#irc.al',
+  text: '[{"nick":"kofany","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#irc.al, text.length=59
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Parsed 2 users from nicklist JSON
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Added 2 users to channel.users Map
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 2 users for channel 8
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"kofany","modes":["@"],"mode":"@"},{"nick":"kfn","modes":[],"mode":""}]
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Nicklist update: 8 (2 users)
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0127","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0127',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513521,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0128","type":"channel_join","server":"IRCal","channel":"#cz","nick":"kfn","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0128',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#cz',
+  nick: 'kfn',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] Created channel #cz on IRCal
+2025-10-15 07:32:01 [INFO] [IrssiClient] Channel join: #cz
+[FeWebSocket] Received message, type: binary, length: 622
+[FeWebSocket] Decrypting binary message (622 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0129","type":"nicklist","server":"IRCal","channel":"#cz","text":"[{\"nick\":\"xyz\",\"prefix\":\"\"},{\"nick\":\"tuning\",\"prefix\":\"\"},{\"nick\":\"kill\",\"prefix\":\"\"},{\"nick\":\"kebab\",\"prefix\":\"\"},{\"nick\":\"kofany\",\"prefix\":\"\"},{\"nick\":\"irc22\",\"prefix\":\"\"},{\"nick\":\"203IAAAA1\",\"prefix\":\"\"},{\"nick\":\"for4\",\"prefix\":\"\"},{\"nick\":\"hugo\",\"prefix\":\"\"},{\"nick\":\"bolton\",\"prefix\":\"@\"},{\"nick\":\"btw\",\"prefix\":\"\"},{\"nick\":\"203IAAAAH\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"}]","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0129',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#cz',
+  text: '[{"nick":"xyz","prefix":""},{"nick":"tuning","prefix":""},{"nick":"kill","prefix":""},{"nick":"kebab","prefix":""},{"nick":"kofany","prefix":""},{"nick":"irc22","prefix":""},{"nick":"203IAAAA1","prefix":""},{"nick":"for4","prefix":""},{"nick":"hugo","prefix":""},{"nick":"bolton","prefix":"@"},{"nick":"btw","prefix":""},{"nick":"203IAAAAH","prefix":"@"},{"nick":"kfn","prefix":""}]',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#cz, text.length=382
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Parsed 13 users from nicklist JSON
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Added 13 users to channel.users Map
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 13 users for channel 9
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"203IAAAAH","modes":["@"],"mode":"@"},{"nick":"bolton","modes":["@"],"mode":"@"},{"nick":"203IAAAA1","modes":[],"mode":""}]
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Nicklist update: 9 (13 users)
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0130","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0130',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513521,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0131","type":"channel_join","server":"IRCal","channel":"#Polska","nick":"kfn","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0131',
+  type: 'channel_join',
+  server: 'IRCal',
+  channel: '#Polska',
+  nick: 'kfn',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: channel_join
+2025-10-15 07:32:01 [INFO] [FeWebAdapter] Created channel #Polska on IRCal
+2025-10-15 07:32:01 [INFO] [IrssiClient] Channel join: #Polska
+[FeWebSocket] Received message, type: binary, length: 1043
+[FeWebSocket] Decrypting binary message (1043 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0132","type":"nicklist","server":"IRCal","channel":"#Polska","text":"[{\"nick\":\"yooz\",\"prefix\":\"@\"},{\"nick\":\"kfn\",\"prefix\":\"\"},{\"nick\":\"snowek\",\"prefix\":\"\"},{\"nick\":\"mxl\",\"prefix\":\"@\"},{\"nick\":\"soltys\",\"prefix\":\"@\"},{\"nick\":\"zuy\",\"prefix\":\"+\"},{\"nick\":\"szejk\",\"prefix\":\"@\"},{\"nick\":\"LySy\",\"prefix\":\"@\"},{\"nick\":\"nosfar\",\"prefix\":\"+\"},{\"nick\":\"[N]\",\"prefix\":\"\"},{\"nick\":\"golisz\",\"prefix\":\"\"},{\"nick\":\"tro\",\"prefix\":\"\"},{\"nick\":\"juen\",\"prefix\":\"+\"},{\"nick\":\"adrael5\",\"prefix\":\"\"},{\"nick\":\"makumba\",\"prefix\":\"@\"},{\"nick\":\"oper1t\",\"prefix\":\"@\"},{\"nick\":\"DkrTremos\",\"prefix\":\"\"},{\"nick\":\"operit\",\"prefix\":\"@\"},{\"nick\":\"Jasiu\",\"prefix\":\"+\"},{\"nick\":\"zielu_\",\"prefix\":\"\"},{\"nick\":\"d4n\",\"prefix\":\"\"},{\"nick\":\"iBot_\",\"prefix\":\"\"},{\"nick\":\"KroY\",\"prefix\":\"@\"},{\"nick\":\"soczek\",\"prefix\":\"@\"}]","timestamp":1760513521}
+[FeWebSocket] Received: {
+  id: '1760513521-0132',
+  type: 'nicklist',
+  server: 'IRCal',
+  channel: '#Polska',
+  text: '[{"nick":"yooz","prefix":"@"},{"nick":"kfn","prefix":""},{"nick":"snowek","prefix":""},{"nick":"mxl","prefix":"@"},{"nick":"soltys","prefix":"@"},{"nick":"zuy","prefix":"+"},{"nick":"szejk","prefix":"@"},{"nick":"LySy","prefix":"@"},{"nick":"nosfar","prefix":"+"},{"nick":"[N]","prefix":""},{"nick":"golisz","prefix":""},{"nick":"tro","prefix":""},{"nick":"juen","prefix":"+"},{"nick":"adrael5","prefix":""},{"nick":"makumba","prefix":"@"},{"nick":"oper1t","prefix":"@"},{"nick":"DkrTremos","prefix":""},{"nick":"operit","prefix":"@"},{"nick":"Jasiu","prefix":"+"},{"nick":"zielu_","prefix":""},{"nick":"d4n","prefix":""},{"nick":"iBot_","prefix":""},{"nick":"KroY","prefix":"@"},{"nick":"soczek","prefix":"@"}]',
+  timestamp: 1760513521
+}
+[FeWebSocket] Calling 1 handler(s) for type: nicklist
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] handleNicklist: server=IRCal, channel=#Polska, text.length=711
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Parsed 24 users from nicklist JSON
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Added 24 users to channel.users Map
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] Calling onNicklistUpdate with 24 users for channel 10
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] First 3 users BEFORE callback: [{"nick":"Jasiu","modes":["+"],"mode":"+"},{"nick":"juen","modes":["+"],"mode":"+"},{"nick":"KroY","modes":["@"],"mode":"@"}]
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Nicklist update: 10 (24 users)
+2025-10-15 07:32:01 [DEBUG] [FeWebAdapter] onNicklistUpdate callback COMPLETED
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0133","type":"activity_update","server":"IRCal","channel":"#Polska","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0133',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#Polska',
+  timestamp: 1760513521,
+  level: 1
+}
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:32:01 [INFO] [IrssiClient] Loaded 0 messages for #irc.al from storage
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Activity update: IRCal/#irc.al level=1 unread=0 (from DB)
+2025-10-15 07:32:01 [INFO] [IrssiClient] Loaded 0 messages for #cz from storage
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Activity update: IRCal/#cz level=1 unread=0 (from DB)
+2025-10-15 07:32:01 [INFO] [IrssiClient] Loaded 0 messages for #Polska from storage
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Activity update: IRCal/#Polska level=1 unread=0 (from DB)
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 8
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513521086-12"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#irc.al (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#irc.al","id":"msg-1760513521089-13"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#irc.al
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0134","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0134',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 8 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0135","type":"activity_update","server":"IRCal","channel":"#irc.al","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0135',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#irc.al',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 8 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#irc.al (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 9
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513521108-14"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#cz (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#cz","id":"msg-1760513521109-15"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#cz
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0136","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0136',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 9 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+[FeWebSocket] Received message, type: binary, length: 143
+[FeWebSocket] Decrypting binary message (143 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0137","type":"activity_update","server":"IRCal","channel":"#cz","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0137',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#cz',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 9 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#cz (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Browser qBeVGCGGEnQMauAQAAAD opened channel 10
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513521123-16"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0138","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0138',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 10 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Marked as read: network-1760513472209-grc2dgc7c/#Polska (fromIrssi=false)
+[FeWebSocket] Sending: {"type":"mark_read","server":"IRCal","target":"#Polska","id":"msg-1760513521127-17"}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Sent mark_read to irssi for IRCal/#Polska
+[FeWebSocket] Received message, type: binary, length: 147
+[FeWebSocket] Decrypting binary message (147 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513521-0139","type":"activity_update","server":"IRCal","channel":"#polska","timestamp":1760513521,"level":1}
+[FeWebSocket] Received: {
+  id: '1760513521-0139',
+  type: 'activity_update',
+  server: 'IRCal',
+  channel: '#polska',
+  timestamp: 1760513521,
+  level: 1
+}
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Channel 10 is open in browser qBeVGCGGEnQMauAQAAAD
+2025-10-15 07:32:01 [DEBUG] [IrssiClient] Ignoring activity_update for IRCal/#Polska (channel is open in browser)
+[FeWebSocket] No handlers registered for message type: activity_update
+2025-10-15 07:32:10 [ERROR] [network:list_irssi] Error: Request timeout for network_list
+[FeWebSocket] Sending: {"type":"ping","id":"ping-1760513551061"}
+[FeWebSocket] Received message, type: binary, length: 124
+[FeWebSocket] Decrypting binary message (124 bytes)...
+[FeWebSocket] Decrypted message: {"id":"1760513551-0140","type":"pong","response_to":"ping-1760513551061","timestamp":1760513551}
+[FeWebSocket] Received: {
+  id: '1760513551-0140',
+  type: 'pong',
+  response_to: 'ping-1760513551061',
+  timestamp: 1760513551
+}
+[FeWebSocket] Calling 1 handler(s) for type: pong
+2025-10-15 07:32:31 [DEBUG] [FeWebAdapter] Received pong
+^C2025-10-15 07:32:57 [INFO] Exiting...
+2025-10-15 07:32:57 [INFO] User kfn quitting...
+[FeWebSocket] Disconnecting...
+2025-10-15 07:32:57 [INFO] User kfn: browser detached (qBeVGCGGEnQMauAQAAAD), remaining: 0
+[FeWebSocket] WebSocket closed (code: 1006, reason: )

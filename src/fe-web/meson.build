@@ -14,6 +14,7 @@ shared_module('fe_web',
     'fe-web-websocket.c',
     'fe-web-ssl.c',
     'fe-web-crypto.c',
+    'fe-web-netserver.c',
   )
   + [ irssi_version_h ],
   include_directories : rootinc,

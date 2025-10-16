@@ -267,9 +267,12 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 				if (item != NULL) {
 					window = window_item_window(item);
 					if (window != NULL) {
-						/* Switch to this window in irssi (user clicked in
-						 * browser) */
-						window_set_active(window);
+						/* DON'T switch window - frontend already switched
+						 * Switching here causes unnecessary window jumping in irssi
+						 * when user clicks on channel in browser.
+						 * We only need to clear activity markers.
+						 */
+						/* window_set_active(window); // REMOVED */
 
 						/* Clear activity using core irssi function
 						 * This properly updates statusbar and emits signals
@@ -279,7 +282,7 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 
 					printtext(
 					    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					    "fe-web: [%s] Marked %s as read (switched to window)",
+					    "fe-web: [%s] Marked %s as read (cleared activity only)",
 					    client->id, target);
 				} else {
 					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
@@ -295,6 +298,18 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 
 		g_free(target);
 		g_free(server_tag);
+	} else if (g_strcmp0(type, "network_list") == 0) {
+		fe_web_handle_network_list(client, json);
+	} else if (g_strcmp0(type, "server_list") == 0) {
+		fe_web_handle_server_list(client, json);
+	} else if (g_strcmp0(type, "network_add") == 0) {
+		fe_web_handle_network_add(client, json);
+	} else if (g_strcmp0(type, "network_remove") == 0) {
+		fe_web_handle_network_remove(client, json);
+	} else if (g_strcmp0(type, "server_add") == 0) {
+		fe_web_handle_server_add(client, json);
+	} else if (g_strcmp0(type, "server_remove") == 0) {
+		fe_web_handle_server_remove(client, json);
 	}
 
 	g_free(type);
@@ -345,23 +360,17 @@ void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command)
 		return;
 	}
 
-	/* Check if client has a server assigned */
-	if (client->server == NULL) {
-		WEB_MESSAGE_REC *msg;
-		msg = fe_web_message_new(WEB_MSG_ERROR);
-		msg->id = fe_web_generate_message_id();
-		msg->text = g_strdup("Not connected to any server");
-		fe_web_send_message(client, msg);
-		fe_web_message_free(msg);
-		return;
-	}
-
-	/* Send command to server */
-	/* Signal: "send command", cmd, SERVER_REC, active_item */
+	/* Send command via signal system
+	 * NOTE: client->server CAN BE NULL for global commands like SERVER CONNECT!
+	 * The irssi command system (src/core/commands.c) fully supports NULL server
+	 * for protocol-independent commands (protocol == -1).
+	 * Commands that require a server will emit CMDERR_NOT_CONNECTED automatically.
+	 */
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Executing command on server %s: %s", client->id,
-	          client->server->tag, command);
+	          "fe-web: [%s] Executing command: %s (server: %s)", client->id,
+	          command, client->server ? client->server->tag : "(null)");
 
+	/* Signal: "send command", cmd, SERVER_REC, active_item */
 	signal_emit("send command", 3, command, client->server, NULL);
 
 	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] Command signal emitted",
