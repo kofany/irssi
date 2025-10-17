@@ -11,6 +11,16 @@ erssi-v1.0.0 2025-10-15  erssi-org team <https://github.com/erssi-org>
 	  - Auto-detection of sensitive fields (SASL, passwords, autosendcmd)
 	  - Transparent migration tools between storage modes
 	
+	+ WEB INTERFACE (FE-WEB MODULE)
+	  - WebSocket-based web frontend (RFC 6455 compliant)
+	  - Real-time bidirectional communication
+	  - SSL/TLS support with auto-generated certificates (wss://)
+	  - AES-256-GCM application-level encryption
+	  - Multi-client support with per-client state management
+	  - Network and server configuration management via web API
+	  - Full IRC protocol event handling and forwarding
+	  - JSON-based message protocol
+	
 	+ ADVANCED SIDEPANELS SYSTEM
 	  - Modular architecture: core, layout, render, activity, signals
 	  - Dual sidepanels: window list (left) + nicklist (right)
