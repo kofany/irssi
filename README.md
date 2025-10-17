@@ -45,6 +45,23 @@
 - **Performance Optimizations**: Granular panel redraws instead of full refreshes, batched updates for mass join/part events
 - **Separate Configuration**: Uses `~/.erssi/` directory, allowing coexistence with standard irssi
 
+### 🔐 Secure Credential Management
+- **Integrated Encryption**: Passwords automatically encrypted with AES-256-CBC
+- **Master Password Protection**: PBKDF2 key derivation with 100,000 iterations
+- **External Storage Support**: Store credentials in separate encrypted file
+- **Universal Coverage**: Automatically handles all sensitive fields including fe-web password
+- **Transparent Operation**: No code changes needed - works through settings system
+- **Migration Tools**: Easy switching between storage modes and encryption states
+
+### 🌐 Web Interface (fe-web)
+- **WebSocket Server**: Real-time bidirectional communication (RFC 6455 compliant)
+- **SSL/TLS Support**: Secure connections with auto-generated certificates (wss://)
+- **Application Encryption**: AES-256-GCM for message-level security
+- **Multi-Client Support**: Multiple web clients with independent state management
+- **Credential Integration**: Web password automatically protected by credential system
+- **Network Management**: Configure servers and networks through web API
+- **Full IRC Events**: Complete IRC protocol event handling and forwarding
+
 ### Full Compatibility
 - **100% Perl Script Compatible**: All existing irssi Perl scripts work without modification
 - **Theme Compatible**: Use any irssi theme seamlessly
@@ -246,7 +263,64 @@ Evolved Irssi includes advanced nick formatting features that can be configured:
 /set nick_mode_color_enabled on
 ```
 
-### 🔧 Sidepanel Debug (Advanced)
+### � Credential Management Settings
+
+Secure your passwords and sensitive data:
+
+```bash
+# Set master password for encryption
+/credential passwd <your-master-password>
+
+# Enable config encryption (encrypts passwords in config file)
+/set credential_config_encrypt on
+
+# Or use external encrypted file (recommended)
+/set credential_storage_mode external
+/set credential_external_file .credentials
+
+# Check credential status
+/credential status
+
+# List all stored credentials
+/credential list
+```
+
+**Protected Fields**:
+- Server passwords
+- SASL username/password
+- Proxy passwords
+- OTR passwords
+- TLS certificate passwords
+- Autosendcmd (NickServ identify, Q AUTH, etc.)
+- **fe_web_password** - Web interface password
+
+### 🌐 Web Interface Settings
+
+Configure the built-in web interface:
+
+```bash
+# Enable web interface
+/set fe_web_enabled on
+/set fe_web_port 9001
+/set fe_web_bind 127.0.0.1
+
+# Set web password (automatically encrypted by credential system)
+/set fe_web_password <strong-password>
+
+# Generate strong random password
+/set fe_web_password $(openssl rand -base64 32)
+
+# Check web server status
+/fe_web status
+```
+
+**Security Notes**:
+- Web password is automatically encrypted when `credential_config_encrypt` is enabled
+- In external storage mode, web password is moved to `.credentials` file
+- SSL/TLS is always enabled for web connections
+- Application-level AES-256-GCM encryption protects all web traffic
+
+### �🔧 Sidepanel Debug (Advanced)
 
 For troubleshooting sidepanel performance:
 

@@ -1,6 +1,6 @@
-erssi-v1.0.0 2025-10-15  erssi-org team <https://github.com/erssi-org>
+erssi-v1.0.0 2025-10-17  erssi-org team <https://github.com/erssi-org>
 	Lead Developer: Jerzy (kofany) Dąbrowski <https://github.com/kofany>
-	
+	https://erssi.org && https://erssi.dev
 	ERSSI - Enhanced/Evolved IRC Client
 	First stable release of erssi, a modern fork of irssi with advanced features.
 	
@@ -10,6 +10,8 @@ erssi-v1.0.0 2025-10-15  erssi-org team <https://github.com/erssi-org>
 	  - External credential file support (.credentials)
 	  - Auto-detection of sensitive fields (SASL, passwords, autosendcmd)
 	  - Transparent migration tools between storage modes
+	  - Integrated with fe-web: web password automatically encrypted
+	  - Universal coverage: all sensitive settings protected
 	
 	+ WEB INTERFACE (FE-WEB MODULE)
 	  - WebSocket-based web frontend (RFC 6455 compliant)
@@ -20,6 +22,8 @@ erssi-v1.0.0 2025-10-15  erssi-org team <https://github.com/erssi-org>
 	  - Network and server configuration management via web API
 	  - Full IRC protocol event handling and forwarding
 	  - JSON-based message protocol
+	  - Credential system integration: fe_web_password automatically protected
+	  - Transparent encryption/decryption via settings system
 	
 	+ ADVANCED SIDEPANELS SYSTEM
 	  - Modular architecture: core, layout, render, activity, signals

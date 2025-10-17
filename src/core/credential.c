@@ -80,6 +80,7 @@ static const char *sensitive_fields[] = {
 	"oper_password",
 	"tls_pass",
 	"autosendcmd",
+	"fe_web_password",
 	NULL
 };
 
