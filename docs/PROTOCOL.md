@@ -895,7 +895,7 @@ Command execution result.
 
 **Encryption:** AES-256-GCM
 **Key Derivation:** PBKDF2
-- Iterations: 100,000
+- Iterations: 10,000
 - Hash: SHA-256
 - Salt: Fixed (`"irssi-fe-web-v1"`)
 

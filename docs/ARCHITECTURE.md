@@ -9,7 +9,7 @@ FE-Web is a frontend module for Irssi that exposes IRC functionality through a W
 ## Module Structure
 
 ```
-fe-web/
+irssi/
 ├── src/
 │   ├── fe-web.c              # Main module, initialization, commands
 │   ├── fe-web.h              # Public API and type definitions
@@ -22,12 +22,14 @@ fe-web/
 │   ├── fe-web-json.c         # JSON parsing/building
 │   ├── fe-web-websocket.c    # WebSocket protocol (RFC 6455)
 │   ├── fe-web-ssl.c          # SSL/TLS certificate generation
-│   └── fe-web-crypto.c       # AES-256-GCM encryption
-├── docs/
-│   ├── PROTOCOL.md           # WebSocket protocol specification
-│   ├── ARCHITECTURE.md       # This file
-│   └── CLIENT-SPEC.md        # Client implementation guide
-└── meson.build               # Build configuration
+│   ├── fe-web-ssl.h          # SSL/TLS header
+│   ├── fe-web-crypto.c       # AES-256-GCM encryption
+│   ├── fe-web-crypto.h       # Crypto header
+│   └── meson.build           # Build configuration
+└── docs/
+    ├── PROTOCOL.md           # WebSocket protocol specification
+    ├── ARCHITECTURE.md       # This file
+    └── CLIENT-SPEC.md        # Client implementation guide
 ```
 
 ## Component Architecture
@@ -344,7 +346,7 @@ signal_add("window activity", sig_window_activity);
 - Key Size: 256 bits
 - IV Size: 12 bytes (random per message)
 - Tag Size: 16 bytes (authentication)
-- KDF: PBKDF2-HMAC-SHA256, 100,000 iterations
+- KDF: PBKDF2-HMAC-SHA256, 10,000 iterations
 
 ## Security Architecture
 
