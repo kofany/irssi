@@ -5,23 +5,36 @@ project('irssi-fe-web', 'c',
 )
 
 # Dependencies
-dep = dependency('irssi-1', required : true)
+irssi_dep = dependency('irssi-1', required : true)
 glib_dep = dependency('glib-2.0', version : '>=2.32', required : true)
+openssl_dep = dependency('openssl', version : '>=3.0', required : true)
 
 # Include directories
-rootinc = include_directories('.')
+inc = include_directories('.')
 
-# Module suffix
-module_suffix = 'so'
+# Source files
+fe_web_sources = files(
+  'src/fe-web.c',
+  'src/fe-web-server.c',
+  'src/fe-web-ssl.c',
+  'src/fe-web-crypto.c',
+  'src/fe-web-client.c',
+  'src/fe-web-signals.c',
+  'src/fe-web-netserver.c',
+  'src/fe-web-utils.c',
+  'src/fe-web-json.c',
+  'src/fe-web-websocket.c',
+)
 
-# Install directory
-moduledir = get_option('prefix') / get_option('libdir') / 'irssi' / 'modules'
-
-# Version header (dummy for standalone module)
-irssi_version_h = []
-
-# Build module from src/
-subdir('src')
+# Build shared module
+shared_module('fe_web',
+  sources : fe_web_sources,
+  dependencies : [irssi_dep, glib_dep, openssl_dep],
+  name_prefix : 'lib',
+  name_suffix : 'so',
+  install : true,
+  install_dir : get_option('prefix') / get_option('libdir') / 'irssi' / 'modules'
+)
 
 # Install documentation
 install_data(

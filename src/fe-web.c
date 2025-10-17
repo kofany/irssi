@@ -147,7 +147,4 @@ void fe_web_deinit(void)
 	fe_web_crypto_deinit();
 }
 
-void fe_web_abicheck(int *version)
-{
-	*version = IRSSI_ABI_VERSION;
-}
+MODULE_ABICHECK(fe_web)
