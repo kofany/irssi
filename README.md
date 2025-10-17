@@ -1,15 +1,19 @@
-# Evolved Irssi (erssi) 🚀
+# erssi 🚀
+**Enhanced/Evolved IRC Client**
 
-[![GitHub stars](https://img.shields.io/github/stars/kofany/irssi.svg?style=social&label=Stars)](https://github.com/kofany/irssi/tree/evolved-irssi)
+[![GitHub stars](https://img.shields.io/github/stars/erssi-org/erssi.svg?style=social&label=Stars)](https://github.com/erssi-org/erssi)
 [![License](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](https://opensource.org/licenses/GPL-2.0)
 [![IRC Network](https://img.shields.io/badge/Chat-IRC-green.svg)](irc://irc.ircnet.com)
 [![Build Status](https://img.shields.io/badge/Build-Meson%2BNinja-orange.svg)](https://mesonbuild.com/)
+[![Website](https://img.shields.io/badge/Website-erssi.org-blue.svg)](https://erssi.org)
 
-## What is Evolved Irssi?
+## What is erssi?
 
-Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robust foundation of the classic irssi, introducing modern features and enhanced user experience without sacrificing the simplicity and power that made irssi legendary.
+**erssi v1.0.0** is a next-generation IRC client that builds upon the robust foundation of classic irssi, introducing modern features and enhanced user experience without sacrificing the simplicity and power that made irssi legendary.
 
 🎯 **Mission**: Modernizing IRC, one feature at a time, while preserving the soul of irssi.
+
+🌐 **Website**: https://erssi.org
 
 ## 🌟 Key Features
 
@@ -116,30 +120,30 @@ Evolved Irssi (erssi) is a next-generation IRC client that builds upon the robus
 
 ```bash
 # Clone and run the installation script
-git clone https://github.com/kofany/irssi.git -b evolved-irssi
-cd irssi
-./install-irssi.sh
+git clone https://github.com/erssi-org/erssi.git
+cd erssi
+./install-erssi.sh
 ```
 
 The installation script will:
 - ✅ Detect your system (macOS/Linux)
 - ✅ Install all required dependencies automatically
-- ✅ Offer installation as `irssi` or `erssi`
-- ✅ Choose global (`/opt/`) or local (`~/.local`) installation
-- ✅ Build with full feature support
+- ✅ Choose global (`/opt/erssi`) or local (`~/.local`) installation
+- ✅ Build with full feature support (Perl, OTR, UTF8proc)
+- ✅ Create symlinks for easy access
 
 ### Installation Options
 
-**Option 1: Standard irssi replacement**
+**Option 1: Global installation (Recommended)**
 ```bash
-./install-irssi.sh
-# Choose: 1 (irssi) → replaces system irssi
+./install-erssi.sh
+# Choose: 1 (Global) → installs to /opt/erssi with symlink in /usr/bin
 ```
 
-**Option 2: Independent erssi installation (Recommended)**
+**Option 2: Local installation**
 ```bash
-./install-irssi.sh
-# Choose: 2 (erssi) → installs alongside existing irssi
+./install-erssi.sh
+# Choose: 2 (Local) → installs to ~/.local with symlink in ~/.local/bin
 ```
 
 ## 📦 Manual Installation
@@ -148,17 +152,11 @@ For advanced users who prefer manual control:
 
 ```bash
 # Install dependencies (varies by system)
-# See INSTALL-SCRIPT.md for complete package lists
+# See docs/INSTALL for complete package lists
 
-# For erssi (evolved version)
-./erssi-convert.sh
-meson setup Build --prefix=/opt/erssi -Dwith-perl=yes -Dwith-otr=yes
+meson setup Build --prefix=/opt/erssi -Dwith-perl=yes -Dwith-otr=yes -Ddisable-utf8proc=no
 ninja -C Build
-sudo ninja -C Build install
-
-# For standard irssi
-meson setup Build --prefix=/opt/irssi -Dwith-perl=yes -Dwith-otr=yes
-ninja -C Build  
+sudo ninja -C Build install  
 sudo ninja -C Build install
 ```
 

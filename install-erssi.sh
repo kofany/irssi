@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# erssi Installation Script
+# Enhanced/Evolved IRC Client
+# https://erssi.org
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -9,7 +13,6 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Global variables
-app_name=""
 install_path=""
 system=""
 pkg_mgr=""
@@ -96,13 +99,13 @@ install_dependencies() {
    print_success "Dependencies installed successfully"
 }
 
-check_existing_irssi() {
-   if command -v irssi >/dev/null 2>&1; then
-       local irssi_path=$(which irssi)
-       print_warning "Existing irssi installation found at: $irssi_path"
+check_existing_erssi() {
+   if command -v erssi >/dev/null 2>&1; then
+       local erssi_path=$(which erssi)
+       print_warning "Existing erssi installation found at: $erssi_path"
        return 0
    else
-       print_info "No existing irssi installation found"
+       print_info "No existing erssi installation found"
        return 1
    fi
 }
@@ -135,7 +138,7 @@ ask_dependencies_installation() {
                ;;
            3) 
                print_info "Installation cancelled. Install dependencies manually and run script again."
-               print_info "See INSTALL-SCRIPT.md for complete dependency lists for your system."
+               print_info "See docs/INSTALL for complete dependency lists for your system."
                exit 0 
                ;;
            *) print_error "Please enter 1, 2, or 3" ;;
@@ -143,7 +146,6 @@ ask_dependencies_installation() {
    done
 }
 
-# Funkcja yes/no wzorowana na tahioN
 yes_or_no() {
    while true; do
        echo -e "${CYAN}$* [y/n]? \c"
@@ -159,16 +161,15 @@ yes_or_no() {
    done
 }
 
-ask_installation_type() {
+ask_installation_location() {
    echo ""
-   print_info "Choose installation type:"
-   echo "1) Install as 'irssi' (replaces system irssi if exists)"
-   echo "2) Install as 'erssi' (independent installation - Evolved irssi)"
+   print_info "Choose installation location:"
+   echo "1) Global installation to /opt/erssi (requires sudo)"
+   echo "2) Local installation to ~/.local (user only)"
    echo ""
 
-   if check_existing_irssi; then
-       print_warning "WARNING: Choosing option 1 will REPLACE your existing irssi installation!"
-       print_warning "Your existing irssi configuration will be preserved, but the binary will be replaced."
+   if check_existing_erssi; then
+       print_warning "WARNING: Existing erssi installation will be replaced!"
    fi
 
    while true; do
@@ -176,26 +177,7 @@ ask_installation_type() {
        read -n 1 choice
        echo -e "\n"
        case "$choice" in
-           1) app_name="irssi"; break ;;
-           2) app_name="erssi"; break ;;
-           *) print_error "Please enter 1 or 2" ;;
-       esac
-   done
-}
-
-ask_installation_location() {
-   echo ""
-   print_info "Choose installation location:"
-   echo "1) Global installation to /opt/$app_name (requires sudo)"
-   echo "2) Local installation to ~/.local (user only)"
-   echo ""
-
-   while true; do
-       echo -e "${CYAN}Enter your choice (1 or 2): \c"
-       read -n 1 choice
-       echo -e "\n"
-       case "$choice" in
-           1) install_path="/opt/$app_name"; break ;;
+           1) install_path="/opt/erssi"; break ;;
            2) install_path="$HOME/.local"; break ;;
            *) print_error "Please enter 1 or 2" ;;
        esac
@@ -218,7 +200,7 @@ setup_build_environment() {
 convert_to_erssi() {
    print_info "Converting irssi to erssi..."
    
-   # Sprawdź czy potrzebne pliki istnieją
+   # Check if required files exist
    if [[ ! -f "meson.build" ]]; then
        print_error "meson.build not found for erssi conversion"
        exit 1
@@ -258,7 +240,6 @@ convert_to_erssi() {
    # 3. GLOBALNA zmiana: #include <irssi/ -> #include <erssi/
    # Omijamy katalogi build*, .git i scripts
    if [[ "$system" == "macos" ]]; then
-       # Na macOS ustawienie LC_ALL=C rozwiązuje problemy z kodowaniem
        export LC_ALL=C
        find . -type f -not -path "./build*/*" -not -path "./Build*/*" -not -path "./.git/*" -not -path "./scripts/*" | \
            xargs sed -i '' 's|<irssi/|<erssi/|g' || {
@@ -276,7 +257,6 @@ convert_to_erssi() {
    # 4. GLOBALNA zmiana: ".irssi/" -> ".erssi/" (tylko z slashem)
    # Omijamy katalogi build*, .git i scripts
    if [[ "$system" == "macos" ]]; then
-       # Na macOS ustawienie LC_ALL=C rozwiązuje problemy z kodowaniem
        export LC_ALL=C
        find . -type f -not -path "./build*/*" -not -path "./Build*/*" -not -path "./.git/*" -not -path "./scripts/*" | \
            xargs sed -i '' 's|\.irssi/|\.erssi/|g' || {
@@ -308,11 +288,11 @@ convert_to_erssi() {
        print_warning "src/fe-text/meson.build not found - skipping executable name change"
    fi
 
-   print_success "Successfully converted to erssi - exactly 5 changes made"
+   print_success "Successfully converted to erssi - 5 changes made"
 }
 
 build_and_install() {
-   print_info "Building $app_name..."
+   print_info "Building erssi..."
 
    # Clean previous builds
    if [[ -d "Build" ]]; then
@@ -324,6 +304,7 @@ build_and_install() {
        "--prefix=$install_path"
        "-Dwith-perl=yes"
        "-Dwith-otr=yes"
+       "-Dwith-proxy=yes"
        "-Ddisable-utf8proc=no"
    )
 
@@ -339,7 +320,7 @@ build_and_install() {
        exit 1
    }
 
-   print_info "Installing $app_name to $install_path..."
+   print_info "Installing erssi to $install_path..."
 
    if [[ "$install_path" == "/opt/"* ]]; then
        sudo ninja -C Build install || {
@@ -353,30 +334,46 @@ build_and_install() {
        }
    fi
 
-   print_success "$app_name built and installed successfully"
+   print_success "erssi built and installed successfully"
 }
 
 create_symlinks() {
-   local bin_path="$install_path/bin/$app_name"
+   local bin_path="$install_path/bin/erssi"
 
    if [[ ! -f "$bin_path" ]]; then
        print_error "Binary not found at $bin_path"
        return 1
    fi
 
-   # Create symlink in user's local bin if it's a global install
-   if [[ "$install_path" == "/opt/"* ]]; then
+   # For global install, create symlink in /usr/bin
+   if [[ "$install_path" == "/opt/erssi" ]]; then
+       print_info "Creating symlink in /usr/bin..."
+       
+       # Remove old symlink if exists
+       if [[ -L "/usr/bin/erssi" ]]; then
+           sudo rm -f /usr/bin/erssi
+       fi
+       
+       sudo ln -sf "$bin_path" /usr/bin/erssi || {
+           print_error "Failed to create symlink in /usr/bin"
+           print_warning "You may need to manually add $install_path/bin to your PATH"
+           return 1
+       }
+       
+       print_success "Created symlink: /usr/bin/erssi -> $bin_path"
+   else
+       # For local install, create symlink in ~/.local/bin
        mkdir -p "$HOME/.local/bin" || {
            print_error "Failed to create $HOME/.local/bin"
            return 1
        }
        
-       ln -sf "$bin_path" "$HOME/.local/bin/$app_name" || {
+       ln -sf "$bin_path" "$HOME/.local/bin/erssi" || {
            print_error "Failed to create symlink"
            return 1
        }
        
-       print_success "Created symlink: $HOME/.local/bin/$app_name -> $bin_path"
+       print_success "Created symlink: $HOME/.local/bin/erssi -> $bin_path"
 
        # Add to PATH if not already there
        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
@@ -387,25 +384,33 @@ create_symlinks() {
 
 show_completion_message() {
    echo ""
-   print_success "🎉 $app_name installation completed!"
+   print_success "🎉 erssi installation completed!"
    echo ""
    print_info "Installation details:"
-   echo "  • Application: $app_name"
+   echo "  • Application: erssi v1.0.0"
    echo "  • Location: $install_path"
-   echo "  • Binary: $install_path/bin/$app_name"
-   echo ""
-
-   if [[ "$app_name" == "erssi" ]]; then
-       print_info "Erssi-specific features:"
-       echo "  • Configuration directory: ~/.erssi/"
-       echo "  • All irssi functionality with evolved features"
+   echo "  • Binary: $install_path/bin/erssi"
+   
+   if [[ "$install_path" == "/opt/erssi" ]]; then
+       echo "  • Symlink: /usr/bin/erssi"
+   else
+       echo "  • Symlink: $HOME/.local/bin/erssi"
    fi
+   
+   echo ""
+   print_info "erssi-specific features:"
+   echo "  • Configuration directory: ~/.erssi/"
+   echo "  • Secure credential management with AES-256 encryption"
+   echo "  • Advanced sidepanels with mouse gesture support"
+   echo "  • Full Unicode/emoji grapheme cluster support"
+   echo "  • All RFC 2812 compliant channel types (#, &, !, +)"
+   echo ""
+   print_info "To run: erssi"
+   print_info "Website: https://erssi.org"
 
-   print_info "To run: $app_name"
-
-   if [[ "$install_path" == "/opt/"* ]] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+   if [[ "$install_path" != "/opt/erssi" ]] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
        echo ""
-       print_warning "Note: Add ~/.local/bin to your PATH to run $app_name from anywhere:"
+       print_warning "Note: Add ~/.local/bin to your PATH to run erssi from anywhere:"
        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
        echo "  source ~/.bashrc"
    fi
@@ -423,8 +428,11 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 main() {
-   echo "🚀 Advanced Irssi/Erssi Installation Script"
-   echo "=========================================="
+   echo "🚀 erssi Installation Script"
+   echo "====================================="
+   echo "Enhanced/Evolved IRC Client v1.0.0"
+   echo "https://erssi.org"
+   echo ""
 
    # Detect system and package manager
    detect_system
@@ -435,7 +443,7 @@ main() {
 
    # Check if we're in the right directory
    if [[ ! -f "meson.build" ]]; then
-       print_error "meson.build not found. Please run this script from the irssi source directory."
+       print_error "meson.build not found. Please run this script from the erssi source directory."
        exit 1
    fi
 
@@ -450,19 +458,16 @@ main() {
    # Setup build environment
    setup_build_environment
 
-   # Ask user preferences
-   ask_installation_type
-   ask_installation_location
+   # Convert to erssi
+   convert_to_erssi
 
-   # Convert to erssi if needed
-   if [[ "$app_name" == "erssi" ]]; then
-       convert_to_erssi
-   fi
+   # Ask installation location
+   ask_installation_location
 
    # Build and install
    build_and_install
 
-   # Create symlinks if needed
+   # Create symlinks
    create_symlinks
 
    # Show completion message
@@ -470,6 +475,7 @@ main() {
 
    echo ""
    print_success "Installation complete! 🎉"
+   print_info "Run 'erssi' to start the client"
 }
 
 # Check if script is being sourced or executed
