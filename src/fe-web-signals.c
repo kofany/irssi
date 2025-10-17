@@ -1202,10 +1202,6 @@ static void sig_window_hilight(WINDOW_REC *window)
 	 * But item->data_level might not be cleared yet, so we check window level.
 	 */
 	if (window->data_level == 0) {
-		printtext(
-		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		    "fe-web: Activity HILIGHT SKIPPED for %s on %s (window level=0, being cleared)",
-		    item->visible_name, server->tag);
 		return;
 	}
 
@@ -1214,10 +1210,6 @@ static void sig_window_hilight(WINDOW_REC *window)
 	 * This prevents unnecessary activity markers when reading messages in irssi
 	 */
 	if (window == active_win) {
-		printtext(
-		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		    "fe-web: Activity HILIGHT SKIPPED for %s on %s (active window in irssi)",
-		    item->visible_name, server->tag);
 		return;
 	}
 
@@ -1257,10 +1249,6 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 	 * This prevents unnecessary activity markers when reading messages in irssi
 	 */
 	if (window == active_win) {
-		printtext(
-		    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		    "fe-web: Activity UPDATE SKIPPED for %s on %s (active window in irssi)",
-		    item->visible_name, server->tag);
 		return;
 	}
 

@@ -97,8 +97,6 @@ static int fe_web_verify_password(const char *data)
 	if (password != NULL) {
 		if (g_strcmp0(configured_password, password) == 0) {
 			result = 1;
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: Password verified successfully");
 		} else {
 			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 			          "fe-web: Invalid password!");
@@ -209,15 +207,9 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 			g_string_free(response, TRUE);
 			return -1;
 		}
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Handshake response sent (%d bytes) [SSL]",
-		          client->id, (int)response->len);
 	} else if (client->handle != NULL) {
 		/* Plain connection (should never happen - SSL is mandatory) */
 		net_sendbuffer_send(client->handle, response->str, response->len);
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Handshake response sent (%d bytes) [PLAIN]",
-		          client->id, (int)response->len);
 	} else {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 		          "fe-web: [%s] ERROR: Cannot send handshake - no handle!",
@@ -231,9 +223,6 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	g_string_free(response, TRUE);
 
 	client->handshake_done = TRUE;
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handshake completed successfully",
-	          client->id);
 	return 1;
 }
 
@@ -322,9 +311,6 @@ static void fe_web_handle_websocket_data(WEB_CLIENT_REC *client)
 					memcpy(unmasked_payload, decrypted, decrypted_len);
 					unmasked_payload[decrypted_len] = '\0';
 					g_free(decrypted);
-
-					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					          "fe-web: [%s] Decrypted message (%d bytes)", client->id, decrypted_len);
 				}
 
 				/* Handle JSON message */
@@ -384,8 +370,6 @@ static void client_input(WEB_CLIENT_REC *client)
 		}
 
 		/* Handshake complete */
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] SSL handshake completed", client->id);
 	}
 
 	/* Read from socket (SSL or plain) */
@@ -488,10 +472,6 @@ static void sig_listen(void)
 	/* Add input handler */
 	client->recv_tag = i_input_add(handle, I_INPUT_READ,
 	                               (GInputFunction) client_input, client);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: New connection from %s (id: %s) [SSL+ENCRYPTED]",
-	          addr, client->id);
 
 	g_free(addr);
 }
