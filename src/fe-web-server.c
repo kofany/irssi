@@ -390,10 +390,7 @@ static void client_input(WEB_CLIENT_REC *client)
 
 	if (ret <= 0) {
 		/* Connection closed or error */
-		if (ret == 0) {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Connection closed cleanly by peer", client->id);
-		} else {
+		if (ret < 0) {
 			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 			          "fe-web: [%s] Connection error (ret=%d, errno=%d: %s)",
 			          client->id, ret, errno, strerror(errno));

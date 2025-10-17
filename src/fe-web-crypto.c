@@ -37,9 +37,6 @@ void fe_web_crypto_init(void)
 {
 	const char *password;
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-crypto: Initializing encryption...");
-
 	/* Initialize OpenSSL */
 	OpenSSL_add_all_algorithms();
 	ERR_load_crypto_strings();
@@ -61,8 +58,6 @@ void fe_web_crypto_init(void)
 	}
 
 	key_initialized = 1;
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-crypto: Encryption initialized (AES-256-GCM)");
 }
 
 /* Cleanup crypto subsystem */
@@ -75,9 +70,6 @@ void fe_web_crypto_deinit(void)
 	/* Cleanup OpenSSL */
 	EVP_cleanup();
 	ERR_free_strings();
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-crypto: Encryption deinitialized");
 }
 
 /* Derive encryption key from password using PBKDF2 */
