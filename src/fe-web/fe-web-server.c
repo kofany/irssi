@@ -121,46 +121,18 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	char *accept_key;
 	GString *response;
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Processing handshake, buffer len: %d",
-	          client->id, (int)strlen(data));
-
-	/* DEBUG: Print received handshake data */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] ========== HANDSHAKE DATA START ==========", client->id);
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "%s", data);
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] ========== HANDSHAKE DATA END ==========", client->id);
-
 	/* Look for Sec-WebSocket-Key header */
 	key_line = strstr(data, "Sec-WebSocket-Key:");
 	if (key_line == NULL) {
-		/* DEBUG: Try case-insensitive search */
+		/* Try case-insensitive search */
 		key_line = strcasestr(data, "Sec-WebSocket-Key:");
-		if (key_line != NULL) {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Found Sec-WebSocket-Key with different case!",
-			          client->id);
-		} else {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] No Sec-WebSocket-Key found yet (case-insensitive search also failed)",
-			          client->id);
+		if (key_line == NULL) {
 			return 0; /* Not complete handshake yet */
 		}
 	}
 
 	/* Check for end of headers */
 	if (strstr(data, "\r\n\r\n") == NULL) {
-		/* DEBUG: Check for alternative line endings */
-		if (strstr(data, "\n\n") != NULL) {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Found \\n\\n but not \\r\\n\\r\\n (Unix line endings?)",
-			          client->id);
-		} else {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Headers not complete yet (no \\r\\n\\r\\n or \\n\\n found)",
-			          client->id);
-		}
 		return 0; /* Headers not complete */
 	}
 
@@ -214,16 +186,8 @@ static int fe_web_handle_handshake(WEB_CLIENT_REC *client, const char *data)
 	}
 	client->websocket_key = g_strndup(key_start, key_end - key_start);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] WebSocket key: %s",
-	          client->id, client->websocket_key);
-
 	/* Compute accept key */
 	accept_key = fe_web_websocket_compute_accept(client->websocket_key);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Computed accept key: %s",
-	          client->id, accept_key);
 
 	/* Build handshake response */
 	response = g_string_new("");
@@ -425,44 +389,20 @@ static void client_input(WEB_CLIENT_REC *client)
 	}
 
 	/* Read from socket (SSL or plain) */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] sig_listen called (use_ssl=%d, handshake_done=%d)",
-	          client->id, client->use_ssl, client->handshake_done);
-
 	if (client->use_ssl && client->ssl_channel != NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Reading from SSL channel...", client->id);
-
 		ret = fe_web_ssl_read(client->ssl_channel, (char *)buffer, sizeof(buffer));
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] SSL read returned: %d", client->id, ret);
 
 		if (ret == -2) {
 			/* SSL wants read - wait for more data */
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] SSL wants more data (WANT_READ/WANT_WRITE), waiting...",
-			          client->id);
 			return;
 		}
 	} else {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Reading from plain channel...", client->id);
-
 		channel = net_sendbuffer_handle(client->handle);
 		if (channel == NULL) {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-			          "fe-web: [%s] net_sendbuffer_handle returned NULL!", client->id);
 			return;
 		}
 		ret = net_receive(channel, (char *)buffer, sizeof(buffer));
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Plain read returned: %d", client->id, ret);
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Received %d bytes", client->id, ret);
 
 	if (ret <= 0) {
 		/* Connection closed or error */
@@ -483,10 +423,6 @@ static void client_input(WEB_CLIENT_REC *client)
 
 	/* Handle handshake first */
 	if (!client->handshake_done) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Handshake not done yet, buffer len: %u",
-		          client->id, client->input_buffer->len);
-
 		/* Null-terminate for string operations */
 		g_byte_array_append(client->input_buffer, (guchar *)"\0", 1);
 
@@ -494,18 +430,12 @@ static void client_input(WEB_CLIENT_REC *client)
 			/* Handshake complete - send auth_ok */
 			WEB_MESSAGE_REC *msg;
 
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Sending auth_ok message...", client->id);
-
 			msg = fe_web_message_new(WEB_MSG_AUTH_OK);
 			msg->id = fe_web_generate_message_id();
 			fe_web_send_message(client, msg);
 			fe_web_message_free(msg);
 
 			client->authenticated = TRUE;
-
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Client authenticated", client->id);
 
 			/* Clear input buffer */
 			g_byte_array_set_size(client->input_buffer, 0);
@@ -517,8 +447,6 @@ static void client_input(WEB_CLIENT_REC *client)
 	}
 
 	/* Handle WebSocket frames */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Processing WebSocket frames...", client->id);
 	fe_web_handle_websocket_data(client);
 }
 

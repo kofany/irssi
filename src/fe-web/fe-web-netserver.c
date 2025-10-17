@@ -47,11 +47,7 @@ static void send_command_result(WEB_CLIENT_REC *client, const char *request_id,
 	
 	/* Store the JSON content in text field */
 	msg->text = g_strdup(json_content->str);
-	
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sending command result: %s", client->id,
-	          success ? "SUCCESS" : "FAILURE");
-	
+
 	/* Send using standard fe-web message infrastructure (handles SSL+encryption) */
 	fe_web_send_message(client, msg);
 	
@@ -67,31 +63,25 @@ void fe_web_handle_network_list(WEB_CLIENT_REC *client, const char *json_str)
 	GSList *tmp;
 	gboolean first;
 	char *request_id;
-	int count;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling network_list request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 
 	/* Build networks JSON array */
 	networks_array = g_string_new("[");
 	first = TRUE;
-	count = 0;
-	
+
 	for (tmp = chatnets; tmp != NULL; tmp = tmp->next) {
 		IRC_CHATNET_REC *rec = IRC_CHATNET(tmp->data);
 		GString *network_json;
-		
+
 		if (rec == NULL) {
 			continue;
 		}
-		
+
 		if (!first) {
 			g_string_append(networks_array, ",");
 		}
 		first = FALSE;
-		count++;
 		
 		network_json = fe_web_build_network_json(rec);
 		if (network_json != NULL) {
@@ -116,9 +106,6 @@ void fe_web_handle_network_list(WEB_CLIENT_REC *client, const char *json_str)
 	/* Send using standard fe-web message infrastructure (handles SSL+encryption) */
 	fe_web_send_message(client, msg);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sent network list with %d networks", client->id, count);
-
 	fe_web_message_free(msg);
 	g_string_free(networks_array, TRUE);
 }
@@ -132,10 +119,6 @@ void fe_web_handle_server_list(WEB_CLIENT_REC *client, const char *json_str)
 	gboolean first;
 	char *request_id;
 	char *filter_network;
-	int count;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling server_list request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 	filter_network = fe_web_json_get_string(json_str, "network");
@@ -143,28 +126,26 @@ void fe_web_handle_server_list(WEB_CLIENT_REC *client, const char *json_str)
 	/* Build servers JSON array */
 	servers_array = g_string_new("[");
 	first = TRUE;
-	count = 0;
-	
+
 	for (tmp = setupservers; tmp != NULL; tmp = tmp->next) {
 		IRC_SERVER_SETUP_REC *rec = IRC_SERVER_SETUP(tmp->data);
 		GString *server_json;
-		
+
 		if (rec == NULL) {
 			continue;
 		}
-		
+
 		/* Apply network filter if specified */
 		if (filter_network != NULL && rec->chatnet != NULL) {
 			if (g_strcmp0(rec->chatnet, filter_network) != 0) {
 				continue;
 			}
 		}
-		
+
 		if (!first) {
 			g_string_append(servers_array, ",");
 		}
 		first = FALSE;
-		count++;
 		
 		server_json = fe_web_build_server_json(rec);
 		if (server_json != NULL) {
@@ -190,9 +171,6 @@ void fe_web_handle_server_list(WEB_CLIENT_REC *client, const char *json_str)
 	/* Send using standard fe-web message infrastructure (handles SSL+encryption) */
 	fe_web_send_message(client, msg);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sent server list with %d servers", client->id, count);
-
 	fe_web_message_free(msg);
 	g_free(filter_network);
 	g_string_free(servers_array, TRUE);
@@ -217,9 +195,6 @@ void fe_web_handle_network_add(WEB_CLIENT_REC *client, const char *json_str)
 	char *sasl_username;
 	char *sasl_password;
 	char *msg;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling network_add request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 
@@ -349,10 +324,6 @@ void fe_web_handle_network_add(WEB_CLIENT_REC *client, const char *json_str)
 	/* Auto-save configuration */
 	signal_emit("save config", 0);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Network '%s' %s successfully", client->id, name,
-	          is_new ? "added" : "modified");
-
 	msg = g_strdup_printf("Network '%s' %s successfully", name,
 	                           is_new ? "added" : "modified");
 	send_command_result(client, request_id, TRUE, msg, NULL);
@@ -369,9 +340,6 @@ void fe_web_handle_network_remove(WEB_CLIENT_REC *client, const char *json_str)
 	char *name;
 	IRC_CHATNET_REC *rec;
 	char *msg;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling network_remove request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 	name = fe_web_json_get_string(json_str, "name");
@@ -404,9 +372,6 @@ void fe_web_handle_network_remove(WEB_CLIENT_REC *client, const char *json_str)
 	/* Auto-save configuration */
 	signal_emit("save config", 0);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Network '%s' removed successfully", client->id, name);
-
 	msg = g_strdup_printf("Network '%s' removed successfully", name);
 	send_command_result(client, request_id, TRUE, msg, NULL);
 	g_free(msg);
@@ -430,9 +395,6 @@ void fe_web_handle_server_add(WEB_CLIENT_REC *client, const char *json_str)
 	char *tls_pkey;
 	char *tls_cafile;
 	char *msg;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling server_add request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 
@@ -524,10 +486,6 @@ void fe_web_handle_server_add(WEB_CLIENT_REC *client, const char *json_str)
 	/* Auto-save configuration */
 	signal_emit("save config", 0);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Server '%s:%d' %s successfully", client->id,
-	          address, port, is_new ? "added" : "modified");
-
 	msg = g_strdup_printf("Server '%s:%d' %s successfully",
 	                           address, port, is_new ? "added" : "modified");
 	send_command_result(client, request_id, TRUE, msg, NULL);
@@ -547,9 +505,6 @@ void fe_web_handle_server_remove(WEB_CLIENT_REC *client, const char *json_str)
 	int port;
 	SERVER_SETUP_REC *rec;
 	char *msg;
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Handling server_remove request", client->id);
 
 	request_id = fe_web_json_get_string(json_str, "id");
 	address = fe_web_json_get_string(json_str, "address");
@@ -581,10 +536,6 @@ void fe_web_handle_server_remove(WEB_CLIENT_REC *client, const char *json_str)
 	
 	/* Auto-save configuration */
 	signal_emit("save config", 0);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Server '%s:%d' removed successfully", client->id,
-	          address, port);
 
 	msg = g_strdup_printf("Server '%s:%d' removed successfully", address, port);
 	send_command_result(client, request_id, TRUE, msg, NULL);

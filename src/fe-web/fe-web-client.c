@@ -124,10 +124,6 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		command = fe_web_json_get_string(json, "command");
 		server_tag = fe_web_json_get_string(json, "server");
 
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Received command: %s (server: %s)", client->id,
-		          command ? command : "(null)", server_tag ? server_tag : "(null)");
-
 		if (command != NULL) {
 			/* If server is specified, use it for this command */
 			if (server_tag != NULL) {
@@ -136,13 +132,6 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 				if (server != NULL) {
 					/* Temporarily assign server for this command */
 					client->server = server;
-					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					          "fe-web: [%s] Assigned server %s for command",
-					          client->id, server_tag);
-				} else {
-					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-					          "fe-web: [%s] ERROR: Server %s not found",
-					          client->id, server_tag);
 				}
 			}
 
@@ -170,29 +159,14 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		nick = fe_web_json_get_string(json, "nick");
 		server_tag = fe_web_json_get_string(json, "server");
 
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Received close_query: nick=%s server=%s", client->id,
-		          nick ? nick : "(null)", server_tag ? server_tag : "(null)");
-
 		if (nick != NULL && server_tag != NULL) {
 			IRC_SERVER_REC *server;
 			server = IRC_SERVER(server_find_tag(server_tag));
 			if (server != NULL) {
 				query = query_find(SERVER(server), nick);
 				if (query != NULL) {
-					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					          "fe-web: [%s] Closing query with %s", client->id,
-					          nick);
 					query_destroy(query);
-				} else {
-					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-					          "fe-web: [%s] ERROR: Query with %s not found",
-					          client->id, nick);
 				}
-			} else {
-				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-				          "fe-web: [%s] ERROR: Server %s not found", client->id,
-				          server_tag);
 			}
 		}
 
@@ -207,17 +181,11 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 		channel = fe_web_json_get_string(json, "channel");
 		server_tag = fe_web_json_get_string(json, "server");
 
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Received NAMES request: channel=%s server=%s", client->id,
-		          channel ? channel : "(null)", server_tag ? server_tag : "(null)");
-
 		if (channel != NULL && server_tag != NULL) {
 			server = IRC_SERVER(server_find_tag(server_tag));
 			if (server != NULL) {
 				/* Execute physical NAMES command in IRC */
 				char *cmd = g_strdup_printf("NAMES %s", channel);
-				printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-				          "fe-web: [%s] Executing: /NAMES %s", client->id, channel);
 				irc_send_cmd(server, cmd);
 				g_free(cmd);
 
@@ -228,18 +196,7 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 				if (chanrec != NULL) {
 					/* Use the helper function to send full nicklist */
 					fe_web_send_nicklist_for_channel(server, chanrec);
-					printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					          "fe-web: [%s] Sent nicklist for %s", client->id,
-					          channel);
-				} else {
-					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-					          "fe-web: [%s] ERROR: Channel %s not found",
-					          client->id, channel);
 				}
-			} else {
-				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-				          "fe-web: [%s] ERROR: Server %s not found", client->id,
-				          server_tag);
 			}
 		}
 
@@ -254,10 +211,6 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 
 		target = fe_web_json_get_string(json, "target");
 		server_tag = fe_web_json_get_string(json, "server");
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Received mark_read: target=%s server=%s", client->id,
-		          target ? target : "(null)", server_tag ? server_tag : "(null)");
 
 		if (target != NULL && server_tag != NULL) {
 			server = IRC_SERVER(server_find_tag(server_tag));
@@ -279,20 +232,7 @@ void fe_web_client_handle_message(WEB_CLIENT_REC *client, const char *json)
 						 */
 						window_activity(window, 0, NULL);
 					}
-
-					printtext(
-					    NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-					    "fe-web: [%s] Marked %s as read (cleared activity only)",
-					    client->id, target);
-				} else {
-					printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-					          "fe-web: [%s] ERROR: Target %s not found",
-					          client->id, target);
 				}
-			} else {
-				printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-				          "fe-web: [%s] ERROR: Server %s not found", client->id,
-				          server_tag);
 			}
 		}
 
@@ -366,13 +306,6 @@ void fe_web_client_execute_command(WEB_CLIENT_REC *client, const char *command)
 	 * for protocol-independent commands (protocol == -1).
 	 * Commands that require a server will emit CMDERR_NOT_CONNECTED automatically.
 	 */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Executing command: %s (server: %s)", client->id,
-	          command, client->server ? client->server->tag : "(null)");
-
 	/* Signal: "send command", cmd, SERVER_REC, active_item */
 	signal_emit("send command", 3, command, client->server, NULL);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] Command signal emitted",
-	          client->id);
 }

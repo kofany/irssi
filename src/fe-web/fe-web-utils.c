@@ -358,9 +358,6 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 	/* auth_ok is special - can be sent before authenticated flag is set */
 	if (msg->type != WEB_MSG_AUTH_OK) {
 		if (!client->authenticated || !client->handshake_done) {
-			printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-			          "fe-web: [%s] Skipping %s - not ready (auth:%d handshake:%d)",
-			          client->id, type_str, client->authenticated, client->handshake_done);
 			return;
 		}
 	} else {
@@ -382,10 +379,6 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 
 	/* Serialize to JSON */
 	json = fe_web_message_to_json(msg);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sending %s: %s",
-	          client->id, type_str, json);
 
 	/* Encrypt if encryption is enabled */
 	if (client->encryption_enabled) {
@@ -415,10 +408,6 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 			return;
 		}
 
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: [%s] Encrypted %s (%d -> %d bytes)",
-		          client->id, type_str, (int)strlen(json), encrypted_len);
-
 		/* Create WebSocket binary frame with encrypted data */
 		frame = fe_web_websocket_create_frame(0x2, encrypted, encrypted_len, &frame_len);
 		g_free(encrypted);
@@ -443,12 +432,6 @@ void fe_web_send_message(WEB_CLIENT_REC *client, WEB_MESSAGE_REC *msg)
 		/* Plain connection */
 		net_sendbuffer_send(client->handle, (const char *)frame, frame_len);
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: [%s] Sent %s (%d bytes frame)%s%s",
-	          client->id, type_str, (int)frame_len,
-	          client->use_ssl ? " [SSL]" : "",
-	          client->encryption_enabled ? " [ENCRYPTED]" : "");
 
 	g_free(frame);
 	g_free(json);

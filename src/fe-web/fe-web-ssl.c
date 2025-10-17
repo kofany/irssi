@@ -127,17 +127,12 @@ static X509 *generate_self_signed_cert(EVP_PKEY *pkey)
 /* Initialize SSL subsystem */
 void fe_web_ssl_init(void)
 {
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: Initializing SSL/TLS support...");
-
 	/* Initialize OpenSSL */
 	SSL_library_init();
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
 
 	/* Generate RSA key */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: Generating 2048-bit RSA key...");
 	server_key = generate_rsa_key();
 	if (!server_key) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
@@ -146,8 +141,6 @@ void fe_web_ssl_init(void)
 	}
 
 	/* Generate self-signed certificate */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: Generating self-signed certificate...");
 	server_cert = generate_self_signed_cert(server_key);
 	if (!server_cert) {
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
@@ -181,9 +174,6 @@ void fe_web_ssl_init(void)
 		server_key = NULL;
 		return;
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: TLS 1.2+ enforced (modern security)");
 
 	/* Use generated certificate and key */
 	if (!SSL_CTX_use_certificate(fe_web_ssl_ctx, server_cert)) {
@@ -222,9 +212,6 @@ void fe_web_ssl_init(void)
 		server_key = NULL;
 		return;
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL/TLS initialized successfully (wss:// ready)");
 }
 
 /* Cleanup SSL subsystem */
@@ -247,9 +234,6 @@ void fe_web_ssl_deinit(void)
 
 	ERR_free_strings();
 	EVP_cleanup();
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL/TLS cleaned up");
 }
 
 /* Create SSL channel from plain GIOChannel */
@@ -363,49 +347,23 @@ int fe_web_ssl_read(FE_WEB_SSL_CHANNEL *ssl_chan, char *buf, int len)
 		return -1;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: Attempting SSL_read (max %d bytes)...", len);
-
 	ret = SSL_read(ssl_chan->ssl, buf, len);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL_read returned %d", ret);
-
 	if (ret > 0) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: Successfully read %d bytes", ret);
 		return ret; /* Success */
 	}
 
 	ssl_err = SSL_get_error(ssl_chan->ssl, ret);
 
-	/* Get detailed error string */
-	err_code = ERR_get_error();
-	if (err_code != 0) {
-		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
-	} else {
-		snprintf(err_buf, sizeof(err_buf), "No OpenSSL error in queue");
-	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL_read ret=%d, ssl_err=%d, errno=%d (%s), openssl_err=%s",
-	          ret, ssl_err, errno, strerror(errno), err_buf);
-
 	if (ssl_err == SSL_ERROR_WANT_READ) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: SSL_ERROR_WANT_READ - need more data from network");
 		return -2; /* Need more data */
 	}
 
 	if (ssl_err == SSL_ERROR_WANT_WRITE) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: SSL_ERROR_WANT_WRITE - need to write data first");
 		return -2; /* Need to write */
 	}
 
 	if (ssl_err == SSL_ERROR_ZERO_RETURN) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: SSL_ERROR_ZERO_RETURN - connection closed cleanly");
 		return 0; /* Connection closed */
 	}
 
@@ -417,6 +375,8 @@ int fe_web_ssl_read(FE_WEB_SSL_CHANNEL *ssl_chan, char *buf, int len)
 	}
 
 	if (ssl_err == SSL_ERROR_SSL) {
+		err_code = ERR_get_error();
+		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 		          "fe-web-ssl: SSL_ERROR_SSL - protocol error: %s", err_buf);
 		return -1;
@@ -442,43 +402,19 @@ int fe_web_ssl_write(FE_WEB_SSL_CHANNEL *ssl_chan, const char *data, int len)
 		return -1;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: Attempting SSL_write (%d bytes)...", len);
-
 	ret = SSL_write(ssl_chan->ssl, data, len);
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL_write returned %d", ret);
-
 	if (ret > 0) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: Successfully wrote %d bytes", ret);
 		return ret; /* Success */
 	}
 
 	ssl_err = SSL_get_error(ssl_chan->ssl, ret);
 
-	/* Get detailed error string */
-	err_code = ERR_get_error();
-	if (err_code != 0) {
-		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
-	} else {
-		snprintf(err_buf, sizeof(err_buf), "No OpenSSL error in queue");
-	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web-ssl: SSL_write ret=%d, ssl_err=%d, errno=%d (%s), openssl_err=%s",
-	          ret, ssl_err, errno, strerror(errno), err_buf);
-
 	if (ssl_err == SSL_ERROR_WANT_WRITE) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: SSL_ERROR_WANT_WRITE - need to retry write");
 		return -2; /* Need to retry */
 	}
 
 	if (ssl_err == SSL_ERROR_WANT_READ) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web-ssl: SSL_ERROR_WANT_READ - need to read data first");
 		return -2; /* Need to read */
 	}
 
@@ -490,6 +426,8 @@ int fe_web_ssl_write(FE_WEB_SSL_CHANNEL *ssl_chan, const char *data, int len)
 	}
 
 	if (ssl_err == SSL_ERROR_SSL) {
+		err_code = ERR_get_error();
+		ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
 		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
 		          "fe-web-ssl: SSL_ERROR_SSL - protocol error: %s", err_buf);
 		return -1;

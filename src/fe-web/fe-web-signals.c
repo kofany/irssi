@@ -743,9 +743,6 @@ static void sig_channel_joined(IRC_CHANNEL_REC *channel)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: YOU joined %s on %s - sending nicklist", channel->name, server->tag);
-
 	/* Send nicklist */
 	msg = fe_web_message_new(WEB_MSG_NICKLIST);
 	msg->id = fe_web_generate_message_id();
@@ -792,9 +789,6 @@ static void sig_channel_joined(IRC_CHANNEL_REC *channel)
 	msg->text = g_string_free(nicklist, FALSE);
 	fe_web_send_to_server_clients(server, msg);
 	fe_web_message_free(msg);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Sent nicklist for %s (%d users)",
-	          channel->name, g_slist_length(nicklist_getnicks(CHANNEL(channel))));
 }
 
 /* Signal: "query created" - Query window opened */
@@ -812,10 +806,6 @@ static void sig_query_created(QUERY_REC *query, gpointer automatic)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Query opened with %s on %s (automatic: %d)", query->name, server->tag,
-	          GPOINTER_TO_INT(automatic));
-
 	/* Send query_opened event */
 	msg = fe_web_message_new(WEB_MSG_QUERY_OPENED);
 	msg->id = fe_web_generate_message_id();
@@ -824,9 +814,6 @@ static void sig_query_created(QUERY_REC *query, gpointer automatic)
 
 	fe_web_send_to_server_clients(server, msg);
 	fe_web_message_free(msg);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Sent query_opened for %s",
-	          query->name);
 }
 
 /* Signal: "query destroyed" - Query window closed */
@@ -844,9 +831,6 @@ static void sig_query_destroyed(QUERY_REC *query)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Query closed with %s on %s",
-	          query->name, server->tag);
-
 	/* Send query_closed event */
 	msg = fe_web_message_new(WEB_MSG_QUERY_CLOSED);
 	msg->id = fe_web_generate_message_id();
@@ -855,9 +839,6 @@ static void sig_query_destroyed(QUERY_REC *query)
 
 	fe_web_send_to_server_clients(server, msg);
 	fe_web_message_free(msg);
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Sent query_closed for %s",
-	          query->name);
 }
 
 /* Signal: "event 311" - WHOIS user/host */
@@ -901,9 +882,6 @@ static void event_whois_server(IRC_SERVER_REC *server, const char *data)
 		g_free(rec->server_info);
 		rec->server = g_strdup(whoserver);
 		rec->server_info = g_strdup(desc);
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS server for %s: %s [%s]",
-		          nick, whoserver, desc);
 	}
 
 	g_free(params);
@@ -930,10 +908,6 @@ static void event_whois_idle(IRC_SERVER_REC *server, const char *data)
 		if (strstr(rest, "signon time") != NULL) {
 			rec->signon = g_strdup(signonstr);
 		}
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS idle for %s: idle=%s signon=%s", nick, secstr,
-		          rec->signon ? rec->signon : "none");
 	}
 
 	g_free(params);
@@ -954,9 +928,6 @@ static void event_whois_channels(IRC_SERVER_REC *server, const char *data)
 	if (rec != NULL) {
 		g_free(rec->channels);
 		rec->channels = g_strdup(chans);
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS channels for %s: %s",
-		          nick, chans);
 	}
 
 	g_free(params);
@@ -977,9 +948,6 @@ static void event_whois_account(IRC_SERVER_REC *server, const char *data)
 	if (rec != NULL) {
 		g_free(rec->account);
 		rec->account = g_strdup(account);
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS account for %s: %s",
-		          nick, account);
 	}
 
 	g_free(params);
@@ -999,9 +967,6 @@ static void event_whois_secure(IRC_SERVER_REC *server, const char *data)
 	rec = whois_get_or_create(server, nick);
 	if (rec != NULL) {
 		rec->secure = TRUE;
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS secure for %s: true",
-		          nick);
 	}
 
 	g_free(params);
@@ -1025,9 +990,6 @@ static void event_whois_oper(IRC_SERVER_REC *server, const char *data)
 		/* mark oper flag and add to special list for client visibility */
 		rec->oper = TRUE;
 		rec->special = g_slist_append(rec->special, g_strdup(type));
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS oper for %s: %s", nick,
-		          type);
 	}
 
 	g_free(params);
@@ -1050,9 +1012,6 @@ static void event_whois_away(IRC_SERVER_REC *server, const char *data)
 		g_string_printf(line, "is away: %s", awaymsg);
 		rec->special = g_slist_append(rec->special, g_strdup(line->str));
 		g_string_free(line, TRUE);
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: WHOIS away for %s: %s", nick,
-		          awaymsg);
 	}
 
 	g_free(params);
@@ -1126,9 +1085,6 @@ static void event_whois_default(IRC_SERVER_REC *server, const char *data)
 	if (rec != NULL && text != NULL && *text != '\0') {
 		/* Add to special list - only non-standard events */
 		rec->special = g_slist_append(rec->special, g_strdup(text));
-
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: WHOIS special (event %d) for %s: %s", num, nick, text);
 	}
 
 	g_free(params);
@@ -1209,9 +1165,6 @@ static void event_end_of_whois(IRC_SERVER_REC *server, const char *data)
 		fe_web_send_to_server_clients(server, msg);
 		fe_web_message_free(msg);
 
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Sent WHOIS response for %s on %s", nick, server->tag);
-
 		/* Remove from active_whois */
 		g_hash_table_remove(active_whois, key);
 	}
@@ -1268,10 +1221,6 @@ static void sig_window_hilight(WINDOW_REC *window)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity HILIGHT for %s on %s (level=%d)", item->visible_name,
-	          server->tag, data_level);
-
 	/* Send ACTIVITY_UPDATE to all clients */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
 	msg->id = fe_web_generate_message_id();
@@ -1319,15 +1268,8 @@ static void sig_window_activity(WINDOW_REC *window, int old_level)
 	 * update */
 	/* But ALWAYS send if level stayed same or increased - this counts new messages */
 	if (data_level < old_level) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Activity UPDATE SKIPPED for %s on %s (level decreased %d->%d)",
-		          item->visible_name, server->tag, old_level, data_level);
 		return;
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity UPDATE for %s on %s (level=%d, old=%d)", item->visible_name,
-	          server->tag, data_level, old_level);
 
 	/* Send ACTIVITY_UPDATE to all clients */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
@@ -1356,10 +1298,6 @@ static void sig_window_dehilight(WINDOW_REC *window)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Activity CLEAR (dehilight) for %s on %s", item->visible_name,
-	          server->tag);
-
 	/* Send ACTIVITY_UPDATE with level=0 (read) */
 	msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
 	msg->id = fe_web_generate_message_id();
@@ -1378,37 +1316,21 @@ static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
 	IRC_SERVER_REC *server;
 	int data_level;
 
-	/* Debug: Always log when called */
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: sig_window_changed() called (new=%p, old=%p)", new_window, old_window);
-
 	/* Clear activity for the NEW active window (user is now viewing it) */
 	if (new_window == NULL || new_window->active == NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Window CHANGED - skipped (no active item)");
 		return;
 	}
 
 	item = new_window->active;
 	server = IRC_SERVER(item->server);
 	if (server == NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Window CHANGED - skipped (no server)");
 		return;
 	}
 
 	data_level = item->data_level > 0 ? item->data_level : new_window->data_level;
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Window CHANGED to %s on %s (data_level=%d)", item->visible_name,
-	          server->tag, data_level);
-
 	/* Only send if there was activity to clear */
 	if (data_level > 0) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Window CHANGED - clearing activity for %s on %s (was level=%d)",
-		          item->visible_name, server->tag, data_level);
-
 		/* Send ACTIVITY_UPDATE with level=0 (read) */
 		msg = fe_web_message_new(WEB_MSG_ACTIVITY_UPDATE);
 		msg->id = fe_web_generate_message_id();
@@ -1417,9 +1339,6 @@ static void sig_window_changed(WINDOW_REC *new_window, WINDOW_REC *old_window)
 		msg->level = 0; /* DATA_LEVEL_NONE = read */
 		fe_web_send_to_all_clients(msg);
 		fe_web_message_free(msg);
-	} else {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Window CHANGED - no activity to clear (level=0)");
 	}
 }
 
@@ -1443,10 +1362,6 @@ static void sig_window_item_remove(WINDOW_REC *window, WI_ITEM_REC *item)
 	/* Check if it's a channel */
 	channel = IRC_CHANNEL(item);
 	if (channel != NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Channel window closed: %s on %s", item->visible_name,
-		          server->tag);
-
 		/* DON'T send CHANNEL_PART here - it was already sent by sig_message_part()
 		 * when the IRC PART message was received from server. Sending it again causes:
 		 * 1. Duplicate channel_part events (first with hostname, second without)
@@ -1460,9 +1375,6 @@ static void sig_window_item_remove(WINDOW_REC *window, WI_ITEM_REC *item)
 	/* Check if it's a query */
 	query = QUERY(item);
 	if (query != NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-		          "fe-web: Query window closed: %s on %s", item->visible_name, server->tag);
-
 		/* Send QUERY_CLOSED */
 		msg = fe_web_message_new(WEB_MSG_QUERY_CLOSED);
 		msg->id = fe_web_generate_message_id();
@@ -1486,17 +1398,11 @@ static void sig_window_destroyed(WINDOW_REC *window)
 	if (window == NULL) {
 		return;
 	}
-
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: Window destroyed: refnum=%d",
-	          window->refnum);
 }
 
 /* Initialize signal handlers */
 void fe_web_signals_init(void)
 {
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-	          "fe-web: Initializing signal handlers (including WHOIS handlers)");
-
 	/* Message signals */
 	signal_add("message public", (SIGNAL_FUNC) sig_message_public);
 	signal_add("message own_public", (SIGNAL_FUNC) sig_message_own_public);
@@ -1763,38 +1669,22 @@ void fe_web_dump_state(WEB_CLIENT_REC *client)
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] Dumping state (all_servers: %d)",
-	          client->id, client->wants_all_servers);
-
 	/* If wants all servers, dump all */
 	if (client->wants_all_servers) {
-		int count = 0;
 		for (tmp = servers; tmp != NULL; tmp = tmp->next) {
 			server = IRC_SERVER(tmp->data);
 			if (server != NULL && server->connected) {
-				printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE,
-				          "fe-web: [%s] Dumping server: %s", client->id,
-				          server->tag);
 				fe_web_dump_server_state(client, server);
-				count++;
 			}
 		}
-		printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] Dumped %d servers",
-		          client->id, count);
 		return;
 	}
 
 	/* Dump specific server */
 	server = client->server;
 	if (server == NULL) {
-		printtext(NULL, NULL, MSGLEVEL_CLIENTERROR,
-		          "fe-web: [%s] ERROR: No server assigned for state dump", client->id);
 		return;
 	}
 
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] Dumping server: %s", client->id,
-	          server->tag);
 	fe_web_dump_server_state(client, server);
-	printtext(NULL, NULL, MSGLEVEL_CLIENTNOTICE, "fe-web: [%s] State dump completed",
-	          client->id);
 }
